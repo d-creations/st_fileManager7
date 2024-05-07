@@ -1,0 +1,35 @@
+
+.basetable{
+    display: grid;
+    width: 100bh;
+    height: 100vh;
+    grid-template:
+    [header-left] "head head head" 30px [header-right]
+    [main-left] "nav filetree main" 1fr [main-right]
+    [footer-left] "nav filetree foot" 30px [footer-right]
+/ 30px 120px 1fr;
+}
+.fileExpolorer{
+    background-color: blue;
+    grid-area: filetree;
+}
+.menu{
+    background-color: gray;
+    grid-area: main;
+}
+.nav{
+    background-color: gray;
+    grid-area: nav;
+}
+
+.main{
+    background-color: black;
+}
+.header {
+    background-color: lime;
+    grid-area: head;
+  }
+  .footer {
+    background-color: red;
+    grid-area: foot;
+  }
