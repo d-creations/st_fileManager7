@@ -20,7 +20,6 @@ function createWindow () {
   win.openDevTools();
   win.loadFile('public/html/index.html')
 
-//in you main process:-
 
 
 ipcMain.handle('openFile', handleFileOpen)
@@ -34,11 +33,12 @@ ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
 }
 
 async function handleFileOpen () {
-  let options = {properties:["openFile","multiSelections"]}
+  let options = {properties:["openFile"]}
   const { canceled, filePaths } = await electron.dialog.showOpenDialog(options)
   if (!canceled) {
     return filePaths[0]
   }
+  else return
 }
 
 async function handleFolderOpen () {
@@ -47,6 +47,7 @@ async function handleFolderOpen () {
   if (!canceled) {
     return filePaths[0]
   }
+  return
 }
 
 async function handleGetFilesInDir (dir,args) {

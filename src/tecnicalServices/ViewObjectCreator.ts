@@ -12,7 +12,7 @@ export class ViewObjectCreator{
        parentDiv.appendChild(input_button);
        return input_button;
     }
-    public static createTabButton(text : string) : HTMLButtonElement{
+    public static createButton(text : string) : HTMLButtonElement{
         let button = document.createElement('button');
         button.name = text;
         button.innerText = text;

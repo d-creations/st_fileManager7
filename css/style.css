@@ -1,0 +1,27 @@
+.selectable{
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.selectable:hover{
+    background-color: aqua;
+}
+.contextMenu:hover{
+    background-color: aqua;
+}
+
+
+
+.showConextMenu{
+    visibility: visible;
+    display: block;
+    position: absolute;
+    background-color: gray;
+    z-index: 10;
+}
+
+
+.hiddenConextMenu{
+    visibility: visible;
+    display: none;
+}

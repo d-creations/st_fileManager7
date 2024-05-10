@@ -1,36 +1,87 @@
+import { FileContextMenu } from "./FileContextMenu.js"
 import { FileNode } from "./FileNode.js"
+import { StorageNode } from "./StorageNode.js"
 
 
 
-export class FolderNode{
+export class FolderNode extends StorageNode{
 
-    path : string
-    name : string
     open : boolean
     files : FileNode[]
     dirs : FolderNode[]
 
-    constructor(path : string){
-        this.name = path
-        this.path = path
+    constructor(path : string, name : string){
+        super(path,name)
         this.open = false
         this.files = []
         this.dirs = []
-
     }
 
-    async update(){
-        console.log(this.path)
-        let files = await globalThis.electron.getFilesInFolder(this.path)
-        for(let file of files){
-            console.log(file.type)
-            if(file.type == 'file')this.files.push(new FileNode(this.path+"\\"+file.name))
-            if(file.type == 'directory')this.dirs.push(new FolderNode(this.path+"\\"+file.name))
+
+    createDivs(parentDiv : HTMLDivElement, spaceLeft : number) {
+        this.spaceLeft = spaceLeft
+        this.headDiv = document.createElement("div")
+        this.headDiv.setAttribute("divname" , "FOLDER HEADDIV" + this.name)
+        this.headDiv.style.marginLeft = spaceLeft + "pt"
+        this.headDiv.classList.add("selectable")
+        parentDiv.appendChild(this.headDiv)
+        this.bodyDiv = document.createElement("div")
+        this.bodyDiv.setAttribute("divname" , "FOLDER bodydiv" + this.name)
+        this.bodyDiv.style.marginLeft = spaceLeft + "pt"
+        
+        parentDiv.appendChild(this.bodyDiv)
+        this.headDiv.addEventListener("click",(e) =>{
+            if(this.open)this.open = false
+            else this.open = true
+            this.updateDivs()
+        })
+
+        this.headDiv.addEventListener("contextmenu", (e) => {
+            FileContextMenu.showContextMenu(this.path,e)
+        });
+        this.updateDivs()
+    }
+
+
+    updateDivs(){        
+        let addSpaceLeft = this.spaceLeft + 4
+        while (this.bodyDiv instanceof HTMLDivElement && this.bodyDiv.firstChild) {
+            this.bodyDiv.removeChild(this.bodyDiv.firstChild);
         }
+        if(this.open){
+            this.headDiv.innerText = "V  " + this.name
+            for(let file of this.files){
+                    file.createDivs(this.bodyDiv,addSpaceLeft )
+            }
+            for(let folders of this.dirs){
+                folders.createDivs(this.bodyDiv,addSpaceLeft)
+            }    
+        }  
+        else{
+            this.headDiv.innerText = ">  " + this.name
+        }
+    }
+    
+    
+
+
+    async update(){
+        let path = this.path+"\\" + this.name 
+        let files = await globalThis.electron.getFilesInFolder(path  )
+        for(let file of files){
+            if(file.type == 'file'){
+                this.files.push(new FileNode(this.path +"\\" + this.name,file.name))
+            }
+            if(file.type == 'directory'){
+                let folder = new FolderNode(this.path +"\\" + this.name ,file.name)
+                await folder.update()
+                this.dirs.push(folder)
+            }
+        }
+        
     }
 
     public async print(space? : string){
-        await this.update()
         if( space === null) space = ""
         console.log( space+this.name)
         for(let folder of this.dirs){

@@ -12,6 +12,7 @@
 .fileExpolorer{
     background-color: blue;
     grid-area: filetree;
+    overflow: scroll;
 }
 .menu{
     background-color: gray;
