@@ -3,12 +3,22 @@
     white-space: nowrap;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    }
 .selectable:hover{
     background-color: aqua;
 }
 .contextMenu:hover{
     background-color: aqua;
 }
+
+.MenuBarButton{
+    height: 20pt;
+    width: 20pt;
+}
+
 .showConextMenu{
     visibility: visible;
     display: block;
@@ -20,8 +30,7 @@
 .fileEditor{
     width: 100%;
     height: 100%;
-    position:fixed;
-    overflow: scroll;
+    
 }
 
 .rightClickMenu:hover{

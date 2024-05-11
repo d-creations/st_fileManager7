@@ -1,6 +1,7 @@
 
 import { TabManager_I } from "../TabManager/TabManager.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
+import { CanalAdapter } from "../tecnicalServices/canalAdapter.js";
 
 import { FileNode } from "./FileNode.js";
 import { FolderNode } from "./FolderNode.js";
@@ -22,19 +23,6 @@ export class LocalFileManager  implements FileManager_I,FileStream {
     constructor(parentDiv : HTMLDivElement,tabManager : TabManager_I){
         
         this.tabManager = tabManager
-        let openFileButton = ViewObjectCreator.createButton("FILE")
-        parentDiv.appendChild(openFileButton);
-        let fileManager = this
-        openFileButton.addEventListener('click', function(e) {
-            fileManager.openFile()
-        })
-
-        let openDirButton = ViewObjectCreator.createButton("FOLDER")
-        parentDiv.appendChild(openDirButton);
-        openDirButton.addEventListener('click', function(e) {
-            fileManager.openFolder()
-        })
-
         this.bodyDiv = document.createElement("div")
         parentDiv.appendChild(this.bodyDiv)
 
@@ -42,7 +30,8 @@ export class LocalFileManager  implements FileManager_I,FileStream {
     async openFileStream(fileNode: FileNode) {
         let text = await globalThis.electron.getFileText(fileNode.path+"\\"+fileNode.name)
         let div = document.createElement("div")
-        div.innerText = text
+        let canal = new CanalAdapter(1,div,false,false)
+        canal.text = text
         div.classList.add("fileEditor")
         this.tabManager.createTab(fileNode,div)
     }

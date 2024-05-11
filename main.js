@@ -16,7 +16,8 @@ function createWindow () {
       preload: path.join(__dirname, 'src/preload.js')
     }
   })
-  
+  win.removeMenu()
+
   win.openDevTools();
   win.loadFile('public/html/index.html')
 ipcMain.handle('openFile', handleFileOpen)
@@ -25,11 +26,18 @@ ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
 ipcMain.handle('getFileText', handleGetFileText)
 ipcMain.handle('saveFile', handleSaveFile)
 
+ipcMain.handle('closeApplication', handleCloseApplication)
 
 
 
 
 
+}
+
+function handleCloseApplication(event){
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.close()
+  })
 }
 
 async function handleSaveFile (event,url,text) {

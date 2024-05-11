@@ -1,6 +1,15 @@
 *.js
 !main.js
 !preload.js
+!ace.js
+!canal.js
+
+!ext-language_tools.js
+!ext-searchbox.js
+!ext-settings_menu.js
+!mode-fanucnc.js
+!theme-clouds.js
+!theme-xcode.js
 
 
 # Logs
