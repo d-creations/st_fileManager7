@@ -1,0 +1,44 @@
+
+
+.baseTabManagerTable{
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template:
+    [header-left] "headTabManager" 30px [header-right]
+    [main-left] " mainTabManager" 1fr [main-right]
+    [footer-left] " footTabManager" 10px [footer-right]
+/ 1fr;
+}
+
+.headTabManager{
+    background-color: whitesmoke;
+    grid-area: headTabManager;
+}
+.mainTabManager{
+    background-color: gray;
+    grid-area: mainTabManager;;
+}
+
+.footTabManager{
+    background-color: black;
+    grid-area: footTabManager;
+
+}
+
+.tabButton{
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 40pt;
+    height: 100%;
+    width: fit-content;
+    float:left;
+}
+
+.activeTab{
+    background-color: gray;
+}
+
+.inactiveTab{
+    background-color: greenyellow;
+}

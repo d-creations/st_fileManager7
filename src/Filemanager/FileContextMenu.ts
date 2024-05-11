@@ -3,15 +3,16 @@
 
 export class FileContextMenu{
     static contextMenuDiv = document.createElement("div")
-    static path = ""
-    static showContextMenu(path  : string,e : Event){
-
+    static pathDir = ""
+    static nameFile = ""
+    static showContextMenu(pathDir  : string,name,e : Event){
         FileContextMenu.contextMenuDiv.classList.remove("showConextMenu","hiddenConextMenu")
         FileContextMenu.contextMenuDiv.classList.add("showConextMenu")
         let pos = FileContextMenu.getPosition(e)
         FileContextMenu.contextMenuDiv.style.left = pos.x + "px";
         FileContextMenu.contextMenuDiv.style.top = pos.y + "px";
-        FileContextMenu.path = path
+        FileContextMenu.pathDir = pathDir
+        FileContextMenu.nameFile = name
 
 
     }
@@ -41,19 +42,19 @@ export class FileContextMenu{
         FileContextMenu.contextMenuDiv.appendChild(renameDocumentDiv)
 
         deleteDiv.addEventListener("click", (e)=> {
-            console.log("delete" + FileContextMenu.path)
+            console.log("delete" + FileContextMenu.pathDir)
         })
 
         renameDocumentDiv.addEventListener("click", (e)=> {
-            console.log("rename" + FileContextMenu.path)
+            console.log("rename" + FileContextMenu.pathDir)
         })
         createFolderDiv.addEventListener("click", (e)=> {
-            console.log("createFolder" + FileContextMenu.path)
+            console.log("createFolder" + FileContextMenu.pathDir)
         })
         createDocumentDiv.addEventListener("click", (e)=> {
-            console.log("createDoc" + FileContextMenu.path)
+            console.log("createDoc" + FileContextMenu.pathDir)
         })
-
+        FileContextMenu.removeContextMenu()
     }
 
     static getPosition(e) {

@@ -3,6 +3,8 @@
     display: grid;
     width: 100bh;
     height: 100vh;
+    position: static;
+    overflow: hidden;
     grid-template:
     [header-left] "head head head" 30px [header-right]
     [main-left] "nav filetree main" 1fr [main-right]

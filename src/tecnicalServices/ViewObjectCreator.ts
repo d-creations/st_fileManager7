@@ -19,6 +19,12 @@ export class ViewObjectCreator{
         return button;
     }
 
+    public static createTabButton(name: string): HTMLDivElement {
+        let button = document.createElement('div');
+        button.innerText = name;
+        button.classList.add("tabButton")
+        return button;
+    }
 
     public static openFileButton(): HTMLInputElement {
         let input_button = document.createElement('input');

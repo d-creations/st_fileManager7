@@ -1,3 +1,4 @@
+import { TabManager_I } from "../TabManager/TabManager"
 
 
 export abstract class StorageNode{

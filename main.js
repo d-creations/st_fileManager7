@@ -19,17 +19,45 @@ function createWindow () {
   
   win.openDevTools();
   win.loadFile('public/html/index.html')
-
-
-
 ipcMain.handle('openFile', handleFileOpen)
 ipcMain.handle('openFolder', handleFolderOpen)
 ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
+ipcMain.handle('getFileText', handleGetFileText)
+ipcMain.handle('saveFile', handleSaveFile)
 
 
 
 
 
+
+}
+
+async function handleSaveFile (event,url,text) {
+  let options = {properties:["openFile"]}
+  console.log("save")
+  console.log(url)
+  console.log(text)
+  const { canceled, filePaths } = await electron.dialog.showOpenDialog(options)
+  if (!canceled) {
+    return filePaths[0]
+  }
+  else return
+}
+
+async function handleGetFileText (event,url) {
+  console.log("getText")
+  console.log(url)
+
+  let ret = new Promise((resolve, reject) => {
+    fs.readFile(url, 'utf8', function(err, data){
+        if(err) {
+            reject(null);
+            throw err;
+        }
+        resolve(data);
+    });
+});
+  return ret
 }
 
 async function handleFileOpen () {
@@ -50,7 +78,7 @@ async function handleFolderOpen () {
   return
 }
 
-async function handleGetFilesInDir (dir,args) {
+async function handleGetFilesInDir (event,args) {
   let ret = await fs.readdirSync(args,{withFileTypes: true})
   let result =  ret.map(entry => ({
     name: entry.name,

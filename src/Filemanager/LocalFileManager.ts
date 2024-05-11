@@ -1,38 +1,60 @@
 
+import { TabManager_I } from "../TabManager/TabManager.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
-import { Observable, Observer } from "../tecnicalServices/oberserver.js";
+
 import { FileNode } from "./FileNode.js";
 import { FolderNode } from "./FolderNode.js";
 import { StorageNode } from "./StorageNode.js";
 
+export interface FileStream{
+    openFileStream(FileNode)
+    closeFileStream(FileNode)
+    saveFileStream(FileNode)
+}
 
 
+export class LocalFileManager  implements FileManager_I,FileStream {
 
-export class LocalFileManager  implements FileManager_I {
 
-    static stateChange = new Observable()
-    static storageNode : StorageNode
-    bodyDiv : HTMLDivElement
-    constructor(parentDiv : HTMLDivElement){
+    private storageNode : StorageNode
+    private bodyDiv : HTMLDivElement
+    private tabManager : TabManager_I
+    constructor(parentDiv : HTMLDivElement,tabManager : TabManager_I){
+        
+        this.tabManager = tabManager
         let openFileButton = ViewObjectCreator.createButton("FILE")
         parentDiv.appendChild(openFileButton);
+        let fileManager = this
         openFileButton.addEventListener('click', function(e) {
-            LocalFileManager.openFile()
+            fileManager.openFile()
         })
 
         let openDirButton = ViewObjectCreator.createButton("FOLDER")
         parentDiv.appendChild(openDirButton);
         openDirButton.addEventListener('click', function(e) {
-            LocalFileManager.openFolder()
+            fileManager.openFolder()
         })
 
         this.bodyDiv = document.createElement("div")
         parentDiv.appendChild(this.bodyDiv)
 
-        LocalFileManager.stateChange.addObserver(this)
     }
-    async oberverUpdate() {
-        await LocalFileManager.storageNode.update()
+    async openFileStream(fileNode: FileNode) {
+        let text = await globalThis.electron.getFileText(fileNode.path+"\\"+fileNode.name)
+        let div = document.createElement("div")
+        div.innerText = text
+        div.classList.add("fileEditor")
+        this.tabManager.createTab(fileNode,div)
+    }
+    closeFileStream(fileNode: FileNode) {
+        throw new Error("Method not implemented.");
+    }
+    saveFileStream(fileNode: FileNode) {
+        throw new Error("Method not implemented.");
+    }
+    
+    public async update() {
+        await this.storageNode.update()
         this.createView()
     }
 
@@ -40,11 +62,11 @@ export class LocalFileManager  implements FileManager_I {
         while (this.bodyDiv instanceof HTMLDivElement && this.bodyDiv.firstChild) {
             this.bodyDiv.removeChild(this.bodyDiv.firstChild);
         }
-        LocalFileManager.storageNode.createDivs(this.bodyDiv,0)
+        this.storageNode.createDivs(this.bodyDiv,0)
     }
 
     
-    static async openFolder () {
+    public async openFolder () {
         console.log("openFolder")
         let folderPath : string = await globalThis.electron.openFolder()
         let folderName = folderPath.split("\\").at(-1)
@@ -53,20 +75,22 @@ export class LocalFileManager  implements FileManager_I {
             folderPath = folderPath.substring(0,folderPath.lastIndexOf("\\"))
         }
     
-        LocalFileManager.storageNode = new FolderNode(folderPath,folderName)
-        LocalFileManager.stateChange.updated()
+        this.storageNode = new FolderNode(folderPath,folderName,this)
+        this.update()
 
     };
 
-    static async openFile () {
+    public async openFile () {
         console.log("openFile")
         let filePath : string = await globalThis.electron.openFile()
         let filename = filePath.split("\\").at(-1)
         if(filePath.indexOf("\\") > 0){
             filePath = filePath.substring(0,filePath.lastIndexOf("\\"))
         }
-        LocalFileManager.storageNode = new FileNode(filePath,filename)
-        LocalFileManager.stateChange.updated()
+        let fileNode = new FileNode(filePath,filename,this)
+        this.storageNode = fileNode
+        this.update()
+        this.openFileStream(fileNode)
     };
 
 

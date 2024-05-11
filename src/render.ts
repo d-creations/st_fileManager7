@@ -1,16 +1,28 @@
 import { FileContextMenu } from "./Filemanager/FileContextMenu.js"
+import { FileRightClickMenu } from "./Filemanager/FileRightClickMenu.js";
 import { LocalFileManager } from "./Filemanager/LocalFileManager.js"
+import { TabManager, TabManager_I } from "./TabManager/TabManager.js";
 
 
-let div = document.getElementById("fileExpolorer")
-if(div instanceof HTMLDivElement){
-let fileManager = new LocalFileManager(div)
-document.body.appendChild(FileContextMenu.contextMenuDiv)
-FileContextMenu.createMenu() 
+let div = document.getElementById("windowFileExpolorer")
+let tabDiv = document.getElementById("windowMainView");
 
-    // add an event listener for the click event on the document
+if(div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement){
+  FileContextMenu.createMenu() 
+  let tabManager : TabManager_I = new TabManager(tabDiv)
+  let fileManager = new LocalFileManager(div,tabManager)
+  document.body.appendChild(FileContextMenu.contextMenuDiv)
+  document.body.appendChild(FileRightClickMenu.fileRightClickMenuDiv)
+  
+  FileContextMenu.removeContextMenu()
+
     document.addEventListener("click", () => {
-        // hide the menu element
-        FileContextMenu.removeContextMenu() 
+      
+      FileContextMenu.removeContextMenu()
+      });
+
+      document.addEventListener("contextMenu", () => {
+        
+        FileRightClickMenu.removeContextMenu()
       });
 }

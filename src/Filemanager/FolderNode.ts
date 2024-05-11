@@ -1,17 +1,20 @@
 import { FileContextMenu } from "./FileContextMenu.js"
 import { FileNode } from "./FileNode.js"
+import { FileStream } from "./LocalFileManager.js"
 import { StorageNode } from "./StorageNode.js"
 
 
 
 export class FolderNode extends StorageNode{
 
-    open : boolean
-    files : FileNode[]
-    dirs : FolderNode[]
+    private open : boolean
+    private files : FileNode[]
+    private dirs : FolderNode[]
+    private fileStream : FileStream
 
-    constructor(path : string, name : string){
+    constructor(path : string, name : string,fileStrem : FileStream){        
         super(path,name)
+        this.fileStream = fileStrem
         this.open = false
         this.files = []
         this.dirs = []
@@ -37,7 +40,7 @@ export class FolderNode extends StorageNode{
         })
 
         this.headDiv.addEventListener("contextmenu", (e) => {
-            FileContextMenu.showContextMenu(this.path,e)
+            FileContextMenu.showContextMenu(this.path,this.name,e)
         });
         this.updateDivs()
     }
@@ -70,10 +73,10 @@ export class FolderNode extends StorageNode{
         let files = await globalThis.electron.getFilesInFolder(path  )
         for(let file of files){
             if(file.type == 'file'){
-                this.files.push(new FileNode(this.path +"\\" + this.name,file.name))
+                this.files.push(new FileNode(this.path +"\\" + this.name,file.name,this.fileStream))
             }
             if(file.type == 'directory'){
-                let folder = new FolderNode(this.path +"\\" + this.name ,file.name)
+                let folder = new FolderNode(this.path +"\\" + this.name ,file.name,this.fileStream)
                 await folder.update()
                 this.dirs.push(folder)
             }
