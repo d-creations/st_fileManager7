@@ -35,6 +35,15 @@ export class ViewObjectCreator{
         return input_button;
     }
 
+    public static createTabBarButton(name: string,url : string): HTMLDivElement {
+        let input_button = document.createElement('input');
+        input_button.type = "image"
+        input_button.src = url
+        input_button.alt = name;
+        input_button.classList.add("MenuBarButton");
+        return input_button;
+    }
+
 
     public static openFileButton(): HTMLInputElement {
         let input_button = document.createElement('input');

@@ -45,11 +45,14 @@ async function handleSaveFile (event,url,text) {
   console.log("save")
   console.log(url)
   console.log(text)
-  const { canceled, filePaths } = await electron.dialog.showOpenDialog(options)
-  if (!canceled) {
-    return filePaths[0]
-  }
-  else return
+  await fs.writeFile(url, text, err => {
+    if (err) {
+      console.error(err);
+    } else {
+      // file written successfully
+    }
+  });
+  return
 }
 
 async function handleGetFileText (event,url) {

@@ -24,8 +24,14 @@ export class ViewTopBar{
         let saveFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\save.png")
         parentDiv.appendChild(saveFile);
         saveFile.addEventListener('click', function(e) {
-            fileManager.openFolder()
+            fileManager.saveCurrentFile()
         })
+        let saveAllFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\saveAll.png")
+        parentDiv.appendChild(saveAllFile);
+        saveAllFile.addEventListener('click', function(e) {
+            fileManager.saveAllFile()
+        })
+
         let closeApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\close.png")
         parentDiv.appendChild(closeApplication);
         closeApplication.style.right ="0pt"

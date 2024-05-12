@@ -4,6 +4,7 @@ import { FileStream } from "./LocalFileManager.js"
 import { StorageNode } from "./StorageNode.js"
 
 export class FileNode extends StorageNode{
+
     getUrl(): string {
         return this.path + "\\" + this.name
     }
@@ -41,6 +42,10 @@ export class FileNode extends StorageNode{
 
     async open(){
         this.fileStream.openFileStream(this)
+    }
+
+    save(text: string) {
+        this.fileStream.saveFileStream(this,text)
     }
 
 

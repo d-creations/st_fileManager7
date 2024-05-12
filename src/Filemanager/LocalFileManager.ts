@@ -1,5 +1,5 @@
 
-import { TabManager_I } from "../TabManager/TabManager.js";
+import { TABpage, TabManager_I } from "../TabManager/TabManager.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 import { CanalAdapter } from "../tecnicalServices/canalAdapter.js";
 
@@ -10,7 +10,7 @@ import { StorageNode } from "./StorageNode.js";
 export interface FileStream{
     openFileStream(FileNode)
     closeFileStream(FileNode)
-    saveFileStream(FileNode)
+    saveFileStream(FileNode,text:string)
 }
 
 
@@ -33,13 +33,14 @@ export class LocalFileManager  implements FileManager_I,FileStream {
         let canal = new CanalAdapter(1,div,false,false)
         canal.text = text
         div.classList.add("fileEditor")
-        this.tabManager.createTab(fileNode,div)
+        this.tabManager.createTab(fileNode,new TABpage(div,canal))
     }
     closeFileStream(fileNode: FileNode) {
         throw new Error("Method not implemented.");
     }
-    saveFileStream(fileNode: FileNode) {
-        throw new Error("Method not implemented.");
+    async saveFileStream(fileNode: FileNode,text : string) {
+         await globalThis.electron.saveFile(fileNode.path+"\\"+fileNode.name,text)
+
     }
     
     public async update() {
@@ -57,6 +58,8 @@ export class LocalFileManager  implements FileManager_I,FileStream {
     
     public async openFolder () {
         console.log("openFolder")
+        
+        this.tabManager.closeAllTabs()
         let folderPath : string = await globalThis.electron.openFolder()
         let folderName = folderPath.split("\\").at(-1)
         
@@ -69,8 +72,18 @@ export class LocalFileManager  implements FileManager_I,FileStream {
 
     };
 
+    
+    
+    public async saveCurrentFile () {
+        this.tabManager.saveCurrentFile()
+    }
+
+    public async saveAllFile () {
+        this.tabManager.saveAllFile()
+    }
     public async openFile () {
         console.log("openFile")
+        this.tabManager.closeAllTabs()
         let filePath : string = await globalThis.electron.openFile()
         let filename = filePath.split("\\").at(-1)
         if(filePath.indexOf("\\") > 0){
@@ -80,6 +93,7 @@ export class LocalFileManager  implements FileManager_I,FileStream {
         this.storageNode = fileNode
         this.update()
         this.openFileStream(fileNode)
+        
     };
 
 

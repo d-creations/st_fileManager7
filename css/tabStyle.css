@@ -20,6 +20,11 @@
     grid-area: mainTabManager;;
 }
 
+.closeButton{
+    height: 10pt;
+    width: 10pt;
+}
+
 .footTabManager{
     background-color: black;
     grid-area: footTabManager;
@@ -30,6 +35,14 @@
     cursor: pointer;
     white-space: nowrap;
     min-width: 40pt;
+    height: 100%;
+    width: fit-content;
+    float:left;
+}
+.headTab{
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 60pt;
     height: 100%;
     width: fit-content;
     float:left;
