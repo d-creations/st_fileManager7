@@ -25,6 +25,10 @@ export class LocalFileManager  implements FileManager_I,FileStream {
         this.tabManager = tabManager
         this.bodyDiv = document.createElement("div")
         parentDiv.appendChild(this.bodyDiv)
+        let localFileManager = this
+        globalThis.updateFileManager = function(){
+            localFileManager.update()
+        }
 
     }
     async openFileStream(fileNode: FileNode) {
@@ -60,15 +64,20 @@ export class LocalFileManager  implements FileManager_I,FileStream {
         console.log("openFolder")
         
         this.tabManager.closeAllTabs()
-        let folderPath : string = await globalThis.electron.openFolder()
-        let folderName = folderPath.split("\\").at(-1)
+        let ret = globalThis.electron.openFolder()
+        console.log("return form "+ ret)
+        let localfileManager = this
+        ret.then(function(folderPath){
+
+            let folderName = folderPath.split("\\").at(-1)
         
-        if(folderPath.indexOf("\\") > 0){
-            folderPath = folderPath.substring(0,folderPath.lastIndexOf("\\"))
-        }
+            if(folderPath.indexOf("\\") > 0){
+                folderPath = folderPath.substring(0,folderPath.lastIndexOf("\\"))
+            }
     
-        this.storageNode = new FolderNode(folderPath,folderName,this)
-        this.update()
+            localfileManager.storageNode = new FolderNode(folderPath,folderName,localfileManager)
+            localfileManager.update()
+        })
 
     };
 

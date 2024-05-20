@@ -8,39 +8,46 @@ export class FileRightClickMenu{
     private pathDir = ""
     private nameFile = ""
     private fileNode : FileNode
-
+    static target :HTMLDivElement;
     public showMenu(e : Event){
-        FileRightClickMenu.removeContextMenu()
-        FileRightClickMenu.fileRightClickMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")
-        FileRightClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
-        let pos = FileRightClickMenu.getPosition(e)
-        FileRightClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
-        FileRightClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
-        let openInEditor = document.createElement("div")
-        openInEditor.innerText = "OpenInEditor"
-        openInEditor.classList.add("selectable","rightClickMenu")
-        FileRightClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
-        openInEditor.addEventListener("click", (e)=> {
-            
+        if(e.target instanceof HTMLDivElement && e.target.contentEditable != "true"){
+            FileRightClickMenu.target = e.target
+            e.target.setAttribute("click","true")
             FileRightClickMenu.removeContextMenu()
-            console.log("openFile")
-            this.fileNode.open()
-        })
-        console.log("shoe Menu")
+            FileRightClickMenu.fileRightClickMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")
+            FileRightClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
+            let pos = this.getPosition(e)
+            FileRightClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
+            FileRightClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
+            let openInEditor = document.createElement("div")
+            openInEditor.innerText = "OpenInEditor"
+            openInEditor.classList.add("selectable","rightClickMenu")
+            FileRightClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
+            
+            openInEditor.addEventListener("click", (e)=> {
+                FileRightClickMenu.removeContextMenu()
+                console.log("openFile")
+                this.fileNode.open()
+            })
+            console.log("shoe Menu")
+        }
     }
 
     static removeContextMenu(){
+        if(FileRightClickMenu.fileRightClickMenuDiv.classList.contains("showRightClickMenu")){
         FileRightClickMenu.fileRightClickMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")
         FileRightClickMenu.fileRightClickMenuDiv.classList.add("hiddenRightClickMenu")
         while(FileRightClickMenu.fileRightClickMenuDiv.firstChild){
             FileRightClickMenu.fileRightClickMenuDiv.removeChild(FileRightClickMenu.fileRightClickMenuDiv.firstChild)
         }
+        FileRightClickMenu.target.removeAttribute("click")
+    }
     }
     constructor (fileNode : FileNode){
         this.fileNode = fileNode
     }
 
-    static getPosition(e) {
+    public getPosition(e) {
         let posx = 0;
         let  posy = 0;
         if (e.pageX || e.pageY) {

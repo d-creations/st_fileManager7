@@ -1,0 +1,24 @@
+@startuml
+
+class File {
+String data
+}
+class Folder {
+}
+
+class Explorer {
+}
+
+class Tab{
+File
+}
+
+ST_FileManager "1 " -->"1"  Explorer
+Explorer  "1 " -->"1..*"  Folder : contains
+Explorer "1 " -->"1..*" File : contains
+Tab "1" -->"1"File : contains
+ST_FileManager "1 " -->"0..*"  Tab
+
+
+@enduml
+

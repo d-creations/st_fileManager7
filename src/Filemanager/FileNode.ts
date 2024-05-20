@@ -6,7 +6,7 @@ import { StorageNode } from "./StorageNode.js"
 export class FileNode extends StorageNode{
 
     getUrl(): string {
-        return this.path + "\\" + this.name
+        return this.path + "\\" + this.headDiv.innerText
     }
     private fileStream : FileStream
     constructor(path : string, name : string,fileStream : FileStream){
@@ -20,19 +20,22 @@ export class FileNode extends StorageNode{
     }
 
     createDivs(parentDiv : HTMLDivElement, spaceLeft : number) {
-        this.bodyDiv = document.createElement("div")
-        this.bodyDiv.style.marginLeft = spaceLeft + "pt"
-        this.bodyDiv.classList.add("selectable")
-        this.bodyDiv.innerText = this.name
+        this.headDiv = document.createElement("div")
+        this.headDiv.contentEditable == "false"
+        this.headDiv.style.marginLeft = spaceLeft + "pt"
+        this.headDiv.classList.add("selectable")
+        this.headDiv.innerText = this.name
         
-        this.bodyDiv.setAttribute("divname" , "FOLDER bodydiv" + this.name)
-        parentDiv.appendChild(this.bodyDiv )
+        this.headDiv.setAttribute("divname" , "FOLDER bodydiv" + this.name)
+        parentDiv.appendChild(this.headDiv )
         
-        this.bodyDiv.addEventListener("contextmenu", (e) => {
-            FileContextMenu.showContextMenu(this.path,this.name,e)
+        this.headDiv.addEventListener("contextmenu", (e) => {
+            
+            let fileContextMenu = new FileContextMenu(this)
+            fileContextMenu.showContextMenu(e)
         });
 
-        this.bodyDiv.addEventListener("click", (e) => {
+        this.headDiv.addEventListener("click", (e) => {
             let rightClickMenu = new FileRightClickMenu(this)
             rightClickMenu.showMenu(e)
         });

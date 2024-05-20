@@ -1,3 +1,4 @@
+import { Observable, Observer } from "../tecnicalServices/oberserver.js"
 import { FileContextMenu } from "./FileContextMenu.js"
 import { FileNode } from "./FileNode.js"
 import { FileStream } from "./LocalFileManager.js"
@@ -5,7 +6,7 @@ import { StorageNode } from "./StorageNode.js"
 
 
 
-export class FolderNode extends StorageNode{
+export class FolderNode extends StorageNode implements Observer{
 
     private open : boolean
     private files : FileNode[]
@@ -19,11 +20,17 @@ export class FolderNode extends StorageNode{
         this.files = []
         this.dirs = []
     }
+    oberverUpdate(): void {
+        this.update()
+        this.updateDivs()
+    }
 
 
     createDivs(parentDiv : HTMLDivElement, spaceLeft : number) {
         this.spaceLeft = spaceLeft
         this.headDiv = document.createElement("div")
+        
+        this.headDiv.contentEditable == "false"
         this.headDiv.setAttribute("divname" , "FOLDER HEADDIV" + this.name)
         this.headDiv.style.marginLeft = spaceLeft + "pt"
         this.headDiv.classList.add("selectable")
@@ -40,7 +47,8 @@ export class FolderNode extends StorageNode{
         })
 
         this.headDiv.addEventListener("contextmenu", (e) => {
-            FileContextMenu.showContextMenu(this.path,this.name,e)
+            let fileContextMenu = new FileContextMenu(this)
+            fileContextMenu.showContextMenu(e)
         });
         this.updateDivs()
     }
@@ -55,9 +63,12 @@ export class FolderNode extends StorageNode{
             this.headDiv.innerText = "V  " + this.name
             for(let file of this.files){
                     file.createDivs(this.bodyDiv,addSpaceLeft )
+                    file.addObserver(this)
             }
             for(let folders of this.dirs){
                 folders.createDivs(this.bodyDiv,addSpaceLeft)
+                folders.addObserver(this)
+
             }    
         }  
         else{
@@ -81,7 +92,6 @@ export class FolderNode extends StorageNode{
                 this.dirs.push(folder)
             }
         }
-        
     }
 
     public async print(space? : string){

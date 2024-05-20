@@ -3,6 +3,38 @@ const path = require('node:path')
 const fs = require('node:fs')
 const https = require('node:https')
 const electron = require('electron');
+const { resourceLimits } = require('node:worker_threads');
+
+const MainIPC_ErrorCode = ["FileReadError","FolderReadError",
+"DirectoryReadError","FileWrite","CreateFolder","CreateFile","RemoveFile","RemoveFolder"]
+
+let MainIPC_Error = /** @class */ (function () {
+  MainIPC_Error.prototype  = Object.create(Error.prototype, {
+    constructor: {
+      value: Error,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  function MainIPC_Error(mainIPC_ErrorCode,message) {
+          this.errorCode = mainIPC_ErrorCode
+          this.message = message
+  }
+
+  MainIPC_Error.prototype.getErrorCode = function(){
+    return this.errorCode;
+  }
+
+  MainIPC_Error.prototype.getMessage = function(){
+    return this.message;
+  }
+
+  return MainIPC_Error;
+}());
+
+
+
 
 
 function createWindow () {
@@ -25,6 +57,9 @@ ipcMain.handle('openFolder', handleFolderOpen)
 ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
 ipcMain.handle('getFileText', handleGetFileText)
 ipcMain.handle('saveFile', handleSaveFile)
+ipcMain.handle('createFolder', handleCreateFolder)
+ipcMain.handle('deleteFileOrFolder', handleDeleteFileOrFolder)
+ipcMain.handle('renameFileOrFolder', handleRenameFileOrFolder)
 
 ipcMain.handle('closeApplication', handleCloseApplication)
 
@@ -40,30 +75,30 @@ function handleCloseApplication(event){
   })
 }
 
-async function handleSaveFile (event,url,text) {
-  let options = {properties:["openFile"]}
+function handleSaveFile (event,url,text) {
+  let options = {flag: 'w+'}
   console.log("save")
   console.log(url)
   console.log(text)
-  await fs.writeFile(url, text, err => {
+  let ret = new Promise((resolve, reject) => {
+    fs.writeFile(url, text,options, err => {
     if (err) {
       console.error(err);
-    } else {
-      // file written successfully
+      reject(new MainIPC_Error(0,"save File failed in  process"));  
     }
-  });
-  return
+    resolve()
+    });
+  })
+  return ret
 }
 
-async function handleGetFileText (event,url) {
+function handleGetFileText (event,url) {
   console.log("getText")
   console.log(url)
-
   let ret = new Promise((resolve, reject) => {
     fs.readFile(url, 'utf8', function(err, data){
         if(err) {
-            reject(null);
-            throw err;
+            reject(new MainIPC_Error(0,"get File Text failed in Main process"));
         }
         resolve(data);
     });
@@ -71,39 +106,112 @@ async function handleGetFileText (event,url) {
   return ret
 }
 
-async function handleFileOpen () {
+function handleFileOpen () {
+  console.log("open file")  
   let options = {properties:["openFile"]}
-  const { canceled, filePaths } = await electron.dialog.showOpenDialog(options)
-  if (!canceled) {
-    return filePaths[0]
+  console.log("open Folder")
+  let ret = new Promise((resolve, reject) => {
+    electron.dialog.showOpenDialog(options).then(function(pathPromis){
+    if (!pathPromis.canceled) {
+        console.log("resolve")      
+        resolve(pathPromis.filePaths[0]);
+      }
+      else{
+        reject(new MainIPC_Error(1,"open Folder in Main process"));
+      };
+    ;
+    })
+  })
+  return ret
   }
-  else return
-}
 
-async function handleFolderOpen () {
+function handleFolderOpen () {
   let options = {properties:["openDirectory"]}
-  const { canceled, filePaths } = await electron.dialog.showOpenDialog(options)
-  if (!canceled) {
-    return filePaths[0]
-  }
-  return
+  console.log("open Folder")
+  let ret = new Promise((resolve, reject) => {
+    electron.dialog.showOpenDialog(options).then(function(pathPromis){
+    if (!pathPromis.canceled) {
+        console.log("resolve")      
+        resolve(pathPromis.filePaths[0]);
+      }
+      else{
+        reject(new MainIPC_Error(1,"open Folder in Main process"));
+      };
+    ;
+    })
+  })
+  return ret
 }
 
-async function handleGetFilesInDir (event,args) {
-  let ret = await fs.readdirSync(args,{withFileTypes: true})
-  let result =  ret.map(entry => ({
-    name: entry.name,
-    type: entry.isDirectory() ? "directory" : "file",
-  }))  
-   return result
-}
+function handleGetFilesInDir (event,args) {
+  console.log
+  let ret = new Promise((resolve, reject) => {
+    fs.readdir(args,{withFileTypes: true},function(err,files){
+      if(err) {
+        reject(new MainIPC_Error(0,"error read files in directory"));
+      }
+      else{
+        let result =  files.filter(function(entry){
+            return entry.isFile() || entry.isDirectory() ;
+          }).map(entry => ({
+          name: entry.name,
+          type: entry.isDirectory() ? "directory" : "file",
+         }))  
+        resolve(result)
+      
+      }
+    })
+    })
+    return ret
+  }
+
+  function handleCreateFolder (event,url){
+    console.log("create File or Folder ")
+    console.log(url)
+    let ret = new Promise((resolve, reject) => {
+      fs.mkdir(url, 'utf8', function(err, data){
+          if(err) {
+              reject(new MainIPC_Error(0,"create Folder failed in Main process"));
+          }
+          resolve(data);
+      });
+  });
+    return ret
+  }
+
+  function handleRenameFileOrFolder(event,oldUrl,newUrl){
+    console.log("rename File or Folder ")
+    console.log(oldUrl + " " + newUrl)
+    let ret = new Promise((resolve, reject) => {
+      fs.rename(oldUrl, newUrl, function(err, data){
+          if(err) {
+              reject(new MainIPC_Error(0,"get File Text failed in Main process"));
+          }
+          resolve();
+      });
+  });
+    return ret
+  }
+
+  function handleDeleteFileOrFolder(event,url){
+    console.log("delete File or Folder ")
+    console.log(url)
+    let ret = new Promise((resolve, reject) => {
+      fs.rm(url, { recursive: true, force: true },function(err, data){
+          if(err) {
+              reject(new MainIPC_Error(0,"delete File or Folder Failed"));
+          }
+          resolve();
+      });
+  });
+    return ret
+  }
+
 
 
 
 
 app.whenReady().then(createWindow)
-
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()

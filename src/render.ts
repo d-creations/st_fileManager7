@@ -10,7 +10,6 @@ let tabDiv = document.getElementById("windowMainView");
 let headBarDiv = document.getElementById("headerBar");
 
 if(div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
-  FileContextMenu.createMenu() 
   let tabManager : TabManager_I = new TabManager(tabDiv)
   let fileManager = new LocalFileManager(div,tabManager)
   let headBar = new ViewTopBar(headBarDiv,fileManager)
@@ -19,13 +18,14 @@ if(div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDi
   
   FileContextMenu.removeContextMenu()
 
-    document.addEventListener("click", () => {
-      
+    document.addEventListener("click", (e) => {
+      if(e.target instanceof HTMLDivElement && e.target.getAttribute("click")!= "true" ){
+        FileRightClickMenu.removeContextMenu()
+      }
       FileContextMenu.removeContextMenu()
       });
 
       document.addEventListener("contextMenu", () => {
-        
         FileRightClickMenu.removeContextMenu()
       });
 }

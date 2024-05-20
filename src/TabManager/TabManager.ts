@@ -1,6 +1,7 @@
 import { FileNode } from "../Filemanager/FileNode.js"
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js"
 import { CanalAdapter } from "../tecnicalServices/canalAdapter.js"
+import { Observer } from "../tecnicalServices/oberserver.js"
 
 export interface TabManager_I{
     closeAllTabs(): void
@@ -22,7 +23,7 @@ export class TABpage{
     }
 }
 
-export class TAB{
+export class TAB implements Observer{
     tab : TABpage
     button : HTMLDivElement
     fileNode : FileNode
@@ -35,6 +36,10 @@ export class TAB{
         this.button.addEventListener(("click"),(e)=> {
             fileNode.open()
         } ) 
+        this.fileNode.addObserver
+    }
+    oberverUpdate(): void {
+        this.headDiv.innerText = this.fileNode.headDiv.innerText
     }
     public save(){
         this.fileNode.save(this.tab.canal.text)

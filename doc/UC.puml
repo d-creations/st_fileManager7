@@ -1,0 +1,50 @@
+@startuml
+'!include ../../plantuml-styles/plantuml-ae.iuml
+
+skinparam Shadowing false
+
+skinparam ArrowFontStyle normal
+skinparam ArrowFontName Courier
+skinparam ArrowFontSize 10
+
+title St FileManager Use Case diagrams\n
+
+
+:User:           as U        #tan
+package ST_FIle_Manager_7{
+rectangle Use_Case_1 {
+    
+    rectangle UC1_1_edit_file {
+    :U: -[#blue]->> (Open File)
+    (Open File) -[#blue].>> (Open Tab) : starts
+    }
+    rectangle UC1_2 {
+        :U: -[#blue]->> (Save File)
+    }
+    rectangle UC1_3 {
+        :U: -[#blue]->> (Open Folder)
+    }
+    rectangle UC1_4 {
+        :U: -[#blue]->> (Close Tab)
+        (Close Tab) -[#blue].>> (Close File) : starts
+    }
+}
+rectangle Use_Case2_Maniupulate_explorer {
+    rectangle UC2_1 {
+        :U: -[#blue]--->> (rename Folder)
+        :U: -[#blue]--->> (rename File)
+    }
+    rectangle UC2_2 {
+        :U: -[#blue]--->> (delete File)
+        :U: -[#blue]--->> (delete Folder)
+    }
+    rectangle UC2_3 {
+        :U: -[#blue]--->> (create File)
+        :U: -[#blue]--->> (create Folder)
+    }
+    rectangle UC2_4 {
+    :U: -[#blue]--->> (move File)
+    :U: -[#blue]--->> (move Folder)
+    }
+}
+}

@@ -13,7 +13,7 @@ export class Observable{
    this.obervers.push(observer);
    }  
 
-   public updated(){
+   public observerUpdated(){
        for(let observer of this.obervers){
            observer.oberverUpdate()
        }
