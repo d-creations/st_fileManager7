@@ -2,7 +2,13 @@ export interface Observer{
     oberverUpdate() : void
 }
 
-export class Observable{
+export interface ObservableI{
+    addObserver( observer : Observer)
+     
+    observerUpdated()
+}
+
+export class Observable implements ObservableI{
    private obervers: Array<Observer>
 
    constructor(){
@@ -20,3 +26,4 @@ export class Observable{
    }
 
 }
+

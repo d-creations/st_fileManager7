@@ -1,25 +1,35 @@
-import { FileContextMenu } from "./Filemanager/FileContextMenu.js";
-import { FileRightClickMenu } from "./Filemanager/FileRightClickMenu.js";
-import { LocalFileManager } from "./Filemanager/LocalFileManager.js";
-import { TabManager } from "./TabManager/TabManager.js";
+import { EditorControlerAdapter } from "./Domain/EditorContollerAdapter.js";
+import { ContextMenu } from "./View/ContextMenu.js";
+import { DirectoryHeadDiv, DirectoryDiv } from "./View/DirectoryDiv.js";
+import { FileDiv } from "./View/FileDiv.js";
+import { FileExplorerDiv } from "./View/FileExplorerDiv.js";
+import { FileLeftClickMenu } from "./View/FileLeftClickMenu.js";
+import { StorageDiv } from "./View/StorageDiv.js";
+import { TabManager } from "./View/TabManager/TabManager.js";
 import { ViewTopBar } from "./View/ViewTopBar.js";
+customElements.define('directory-head-div', DirectoryHeadDiv, { extends: 'div' });
+customElements.define('storage-div', StorageDiv, { extends: 'div' });
+customElements.define('directory-div', DirectoryDiv, { extends: 'div' });
+customElements.define('file-div', FileDiv, { extends: 'div' });
+customElements.define('file-explorer-div', FileExplorerDiv, { extends: 'div' });
 let div = document.getElementById("windowFileExpolorer");
 let tabDiv = document.getElementById("windowMainView");
 let headBarDiv = document.getElementById("headerBar");
 if (div instanceof HTMLDivElement && tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement) {
     let tabManager = new TabManager(tabDiv);
-    let fileManager = new LocalFileManager(div, tabManager);
+    let editor = new EditorControlerAdapter();
+    let fileManager = new FileExplorerDiv(tabManager, editor);
     let headBar = new ViewTopBar(headBarDiv, fileManager);
-    document.body.appendChild(FileContextMenu.contextMenuDiv);
-    document.body.appendChild(FileRightClickMenu.fileRightClickMenuDiv);
-    FileContextMenu.removeContextMenu();
+    div.appendChild(fileManager);
+    document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv);
+    document.body.appendChild(ContextMenu.contextMenuDiv);
+    document.addEventListener("contextMenu", () => {
+        FileLeftClickMenu.removeMenu();
+    });
     document.addEventListener("click", (e) => {
         if (e.target instanceof HTMLDivElement && e.target.getAttribute("click") != "true") {
-            FileRightClickMenu.removeContextMenu();
+            FileLeftClickMenu.removeMenu();
         }
-        FileContextMenu.removeContextMenu();
-    });
-    document.addEventListener("contextMenu", () => {
-        FileRightClickMenu.removeContextMenu();
+        ContextMenu.removeMenu();
     });
 }

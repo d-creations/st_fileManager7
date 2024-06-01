@@ -1,14 +1,17 @@
-import { FileNode } from "../Filemanager/FileNode.js"
-import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js"
-import { CanalAdapter } from "../tecnicalServices/canalAdapter.js"
-import { Observer } from "../tecnicalServices/oberserver.js"
+import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
+import { CanalAdapter } from "../../tecnicalServices/canalAdapter.js"
+import { Observer } from "../../tecnicalServices/oberserver.js"
+import { FileDiv } from "../FileDiv.js"
+import { TabCreator } from "./TabCreator.js"
+
 
 export interface TabManager_I{
     closeAllTabs(): void
     saveAllFile(): void
     saveCurrentFile(): void
+    getTabCreator(): TabCreator
 
-    createTab(fileNode : FileNode, tabPage : TABpage) : void
+    createTab(fileNode : FileDiv, mainDiv: TABpage)
     removeTab(indexOfTab : TAB) : void
 
 }
@@ -26,23 +29,23 @@ export class TABpage{
 export class TAB implements Observer{
     tab : TABpage
     button : HTMLDivElement
-    fileNode : FileNode
+    fileNode : FileDiv
     headDiv : HTMLDivElement
-    constructor(fileNode : FileNode,tab : TABpage,headDiv : HTMLDivElement){
+    constructor(fileNode : FileDiv,tab : TABpage,headDiv : HTMLDivElement){
         this.fileNode = fileNode
         this.tab = tab
         this.headDiv = headDiv
-        this.button = ViewObjectCreator.createTabButton(fileNode.name)
+        this.button = ViewObjectCreator.createTabButton(fileNode.getName())
         this.button.addEventListener(("click"),(e)=> {
-            fileNode.open()
+            fileNode.openFile()
         } ) 
         this.fileNode.addObserver
     }
     oberverUpdate(): void {
-        this.headDiv.innerText = this.fileNode.headDiv.innerText
+        this.headDiv.innerText = this.fileNode.getName()
     }
     public save(){
-        this.fileNode.save(this.tab.canal.text)
+        this.fileNode.saveText(this.tab.canal.text)
     }
 
     public getTab(){
@@ -61,7 +64,7 @@ export class TabManager implements TabManager_I{
     private tabList : TAB[]
     private headTabList : HTMLDivElement[]
     private currentTabIndex : number
-
+    private tabCreator : TabCreator
 
     constructor(parentDiv: HTMLDivElement) {
         this.tabList = []
@@ -79,6 +82,10 @@ export class TabManager implements TabManager_I{
         this.baseTabManagerDiv.appendChild(this.headTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.mainTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.footTabManagerDiv)
+        this.tabCreator = new TabCreator(this)
+    }
+    getTabCreator(): TabCreator {
+        return this.tabCreator
     }
     closeAllTabs(): void {
         while(this.tabList.length > 0){
@@ -93,7 +100,7 @@ export class TabManager implements TabManager_I{
             tab.save()
         }
     }
-    createTab(fileNode : FileNode, mainDiv: TABpage): void {
+    createTab(fileNode : FileDiv, mainDiv: TABpage): void {
         let indexOfTab = this.getIndexOfTab(fileNode.getUrl())
         if(indexOfTab < 0){
             let tabdiv = document.createElement("div")

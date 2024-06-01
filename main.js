@@ -169,7 +169,7 @@ function handleGetFilesInDir (event,args) {
     console.log("create File or Folder ")
     console.log(url)
     let ret = new Promise((resolve, reject) => {
-      fs.mkdir(url, 'utf8', function(err, data){
+      fs.mkdir(url, function(err, data){
           if(err) {
               reject(new MainIPC_Error(0,"create Folder failed in Main process"));
           }
