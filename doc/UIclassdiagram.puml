@@ -1,0 +1,66 @@
+@startuml
+
+class UIStoragePath {
+    string dir
+    string name
+}
+
+
+class UIFile {
+    ApplicationAdapterController
+}
+class UIFolder {
+    ApplicationAdapterController
+    void rename(string text)
+    void remove()
+    void createNewFolder()
+}
+
+class UIExplorer {
+}
+
+class ApplicationAdapterController {
+    list getFolderContent(Folder)
+    list getFileText(Folder)
+    stringUrl openFile()
+    stringUrl FolderOpen()
+    list handleGetFilesInDir()
+    string handleGetFileText()
+    void handleSaveFile(string)
+    void createFolder(name,url)
+    void deleteFileOrFolder(url)
+    void renameFileOrFolder(oldurl,newurl)
+    void closeApplication()
+
+}
+
+
+class UITab{
+File
+Application
+}
+
+class EditApplication{
+data
+}
+
+class PrintApplication{
+data
+}
+
+
+ST_FileManager "1 " -->"1"  UIExplorer
+UIExplorer  "1 " -->"0..*"  UIFolder : use
+UIFolder "1 " -->"0..*" UIFile : use
+UITab "1" -->"1"UIFile : use
+UITab "1" -->"0..1"PrintApplication : use
+UITab "1" -->"0..1"EditApplication : use
+UIFile  --> ApplicationAdapterController : use
+UIFile  <|--  UIStoragePath : exends
+UIFolder  <|--  UIStoragePath : exends
+
+ST_FileManager "1 " -->"0..*"  UITab
+
+
+@enduml
+

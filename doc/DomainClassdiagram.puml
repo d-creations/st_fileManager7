@@ -1,0 +1,52 @@
+@startuml
+
+class StoragePath {
+    string dir
+    string name
+    void rename(string text)
+    void remove()
+
+}
+
+
+class File {
+}
+class Folder {
+    void createNewFolder()
+}
+
+class Explorer {
+}
+
+class ApplicationAdapterController {
+    class Exeptions{readError}
+    list getFileText(Folder)
+    File openFile()
+    Folder folderOpen()
+    dic[FILES:list;FOLDERS : list] getFilesInFolder(Folder)
+    string getFileText(File)
+    void handleSaveFile(File)
+    void createFolder(name : String,rootFolder : Folder)
+    void createFile(name : String,rootFolder : Folder)
+
+    void deleteFileOrFolder(url)
+    void renameFileOrFolder(oldurl,newurl)
+    void closeApplication()
+
+}
+
+
+
+ApplicationAdapterController "1 " -->"1"  ST_FileManager : use
+ApplicationAdapterController "1 " -->"1"  Folder : use
+ApplicationAdapterController "1 " -->"1"  File : use
+
+ST_FileManager "1 " -->"1"  Explorer
+Folder "1 " -->"0..*" File : use
+File  <|--  StoragePath : exends
+Folder  <|--  StoragePath : exends
+
+
+
+@enduml
+

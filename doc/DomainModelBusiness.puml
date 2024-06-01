@@ -1,7 +1,7 @@
 @startuml
 
 class File {
-String data
+ data
 }
 class Folder {
 }
@@ -11,12 +11,25 @@ class Explorer {
 
 class Tab{
 File
+Application
 }
 
+class EditApplication{
+data
+}
+
+class PrintApplication{
+data
+}
+
+
 ST_FileManager "1 " -->"1"  Explorer
-Explorer  "1 " -->"1..*"  Folder : contains
-Explorer "1 " -->"1..*" File : contains
+Explorer  "1 " -->"0..*"  Folder : contains
+Folder "1 " -->"0..*" File : contains
 Tab "1" -->"1"File : contains
+Tab "1" -->"0..1"PrintApplication : contains
+Tab "1" -->"0..1"EditApplication : contains
+
 ST_FileManager "1 " -->"0..*"  Tab
 
 
