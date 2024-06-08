@@ -1,6 +1,6 @@
 @startuml
 
-class StoragePath {
+class Domain.StorageNode2 {
     string dir
     string name
     void rename(string text)
@@ -9,16 +9,13 @@ class StoragePath {
 }
 
 
-class File {
+class Domain.FileNode {
 }
-class Folder {
+class Domain.DirectoryNode {
     void createNewFolder()
 }
 
-class Explorer {
-}
-
-class ApplicationAdapterController {
+class Domain.EditorControlerAdapter {
     class Exeptions{readError}
     list getFileText(Folder)
     File openFile()
@@ -37,16 +34,26 @@ class ApplicationAdapterController {
 
 
 
-ApplicationAdapterController "1 " -->"1"  ST_FileManager : use
-ApplicationAdapterController "1 " -->"1"  Folder : use
-ApplicationAdapterController "1 " -->"1"  File : use
+Domain.EditorControlerAdapter -->  DomainViewI.DirectoryNode_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.FileNode_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.StorageNode2_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.EditorControlerAdapter_EXC_I : use
 
-ST_FileManager "1 " -->"1"  Explorer
-Folder "1 " -->"0..*" File : use
-File  <|--  StoragePath : exends
-Folder  <|--  StoragePath : exends
+Domain.EditorControlerAdapter -->  Domain.DirectoryNode : use
+Domain.EditorControlerAdapter -->  Domain.FileNode : use
+Domain.EditorControlerAdapter -->  Domain.StorageNode2 : use
+
+Domain.FileNode --|>  Domain.StorageNode2 : exend
+Domain.FileNode -->  DomainViewI.FileNode_EXC_I : impement
+
+Domain.StorageNode2 --|>  technical.Observable : exend
+Domain.StorageNode2 -->  technical.Observer : impement
+Domain.StorageNode2 -->  DomainViewI.StorageNode2_EXC_I : impement
 
 
+Domain.DirectoryNode --|>  Domain.StorageNode2 : exend
+Domain.DirectoryNode -->  DomainViewI.DirectoryNode_EXC_I : impement
+Domain.DirectoryNode -->  Domain.FileNode : impement
 
 @enduml
 

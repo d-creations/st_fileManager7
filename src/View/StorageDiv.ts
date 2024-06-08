@@ -1,5 +1,4 @@
-import { EditorControlerAdapter } from "../Domain/EditorContollerAdapter.js";
-import { StorageNode2 } from "../Domain/StorageNode2.js";
+import { EditorControlerAdapter_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { ObservableI, Observer } from "../tecnicalServices/oberserver.js";
 
 
@@ -10,14 +9,26 @@ export class StorageDiv extends HTMLDivElement implements ObservableI,Observer{
 
 
     protected obervers: Array<Observer>
-    protected editor : EditorControlerAdapter
-    protected storageNode : StorageNode2
-    constructor(editor : EditorControlerAdapter,storageNode : StorageNode2){
+    protected editor : EditorControlerAdapter_EXC_I
+    protected storageNode : StorageNode2_EXC_I
+    constructor(editor : EditorControlerAdapter_EXC_I,storageNode : StorageNode2_EXC_I){
         super()
         this.obervers = []
         this.innerHTML = "StorageDiv"
         this.editor = editor
         this.storageNode = storageNode
+    }
+
+    getName(){
+        return this.innerText
+    }
+
+    setName(name : string){
+        this.innerText = name
+        return
+    }
+    setEditable(state : string){
+        this.contentEditable = state
     }
 
     updateElement() {
@@ -46,29 +57,30 @@ export class StorageDiv extends HTMLDivElement implements ObservableI,Observer{
     }
 
     deleteFileOrFolder(): void{
-        if(confirm("delete" + this.storageNode.getUrl()))this.editor.deleteFileOrFolder(this.storageNode)
+        if(confirm("delete" + this.editor.getStorageUrl(this.storageNode)))this.editor.deleteFileOrFolder(this.storageNode)
 
     }
 
     rename() {
         let oldurl = this.editor.getStorageUrl(this.storageNode)
-        let oldname = this.innerText
+        let oldname = this.getName()
 
-        this.contentEditable = "true"   
+        this.setEditable("true")  
         let div = this
         this.focus()
         this.waitingKeypress().then(
             (emptyString) => {
-                console.log(this.storageNode.getUrl())
-                this.editor.renameFileOrFolder(this.storageNode,div.innerText).catch(
+                console.log(div.getName())
+                this.editor.renameFileOrFolder(this.storageNode,div.getName()).catch(
                     ()=>{
-                        div.innerText = oldname
+                        this.setName(oldname)
                     })
                
             }).finally(
             () =>{                    
-                div.contentEditable = "false"
+                this.setEditable("false")  
                 div.updateElement()
+               
         } )
     }
 

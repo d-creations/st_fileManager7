@@ -1,10 +1,10 @@
+import { FileNode_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { StorageNode2 } from "./StorageNode2.js";
 
 
-
-export class FileNode extends StorageNode2{
+export class FileNode extends StorageNode2 implements FileNode_EXC_I{
     saveFile(text: any) {
-        globalThis.electron.saveFile(this.path+"\\"+this.name,text)
+        globalThis.electron.saveFile(this.getUrl(),text)
     }
     print(string: any) {
         throw new Error("Method not implemented.");
@@ -15,7 +15,8 @@ export class FileNode extends StorageNode2{
     update() {
         throw new Error("Method not implemented.");
     }
-    constructor(path : string, name : string){
+    
+    constructor(path : StorageNode2, name : string){
         super(path,name)
     }
 }

@@ -2,55 +2,17 @@
 
 
 
-
-class View.FileDiv {
-    ApplicationAdapterController
+interface DomainViewI.EditorControlerAdapter_EXC_I{
 }
-class View.DirectoryDiv {
-    ApplicationAdapterController
-    void rename(string text)
-    void remove()
-    void createNewFolder()
+interface DomainViewI.DirectoryNode_EXC_I{
 }
-
-class View.FileExplorerDiv {
+interface DomainViewI.FileNode_EXC_I{
 }
-
-class View.ViewObjectCreator{
-
+interface DomainViewI.StorageNode2_EXC_I{
 }
-
-class DomainViewI.EditorControlerAdapter_EXC_I {
-
-}
-
-
-class View.TabManger{
-File
-Application
-}
-
-class View.EditApplication{
-data
-}
-
-class View.PrintApplication{
-data
-}
-
-class View.TabCreator{
-file
-}
-
-class View.StorageDiv{
-}
-
-class View.ContextMenu{
-}
-
-class View.FileLeftClickMenu{
-
-}
+DomainViewI.EditorControlerAdapter_EXC_I --> DomainViewI.DirectoryNode_EXC_I : use
+DomainViewI.EditorControlerAdapter_EXC_I --> DomainViewI.StorageNode2_EXC_I : use
+DomainViewI.EditorControlerAdapter_EXC_I --> DomainViewI.FileNode_EXC_I : use
 
 
 
@@ -84,14 +46,14 @@ View.FileDiv  -->  View.TabCreator : use
 
 
 
-View.FileExplorerDiv ---> DomainViewI.DirectoryNode_EXC_I : use
-View.FileExplorerDiv --> DomainViewI.EditorControlerAdapter_EXC_I : use
-View.FileExplorerDiv ---> DomainViewI.FileNode_EXC_I : use
 View.FileExplorerDiv -> View.DirectoryDiv : use
 View.FileExplorerDiv --> View.FileDiv : use
 View.FileExplorerDiv --> View.StorageDiv : use
 View.FileExplorerDiv --> View.TabManager_I : use
 View.FileExplorerDiv <|-- View.FileManager_I : implements
+View.FileExplorerDiv -> DomainViewI.DirectoryNode_EXC_I : use
+View.FileExplorerDiv -> DomainViewI.EditorControlerAdapter_EXC_I : use
+View.FileExplorerDiv -> DomainViewI.FileNode_EXC_I : use
 
 
 View.StorageDiv --> DomainViewI.EditorControlerAdapter_EXC_I  : use
@@ -103,4 +65,33 @@ View.StorageDiv -> technical.Observer : use
 View.FileLeftClickMenu -> View.FileDiv : use
 
 
+
+
+
+
+
+
+
+Domain.EditorControlerAdapter -->  DomainViewI.DirectoryNode_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.FileNode_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.StorageNode2_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.EditorControlerAdapter_EXC_I : use
+
+Domain.EditorControlerAdapter -->  Domain.DirectoryNode : use
+Domain.EditorControlerAdapter -->  Domain.FileNode : use
+Domain.EditorControlerAdapter -->  Domain.StorageNode2 : use
+
+Domain.FileNode --|>  Domain.StorageNode2 : exend
+Domain.FileNode -->  DomainViewI.FileNode_EXC_I : impement
+
+Domain.StorageNode2 --|>  technical.Observable : exend
+Domain.StorageNode2 -->  technical.Observer : impement
+Domain.StorageNode2 -->  DomainViewI.StorageNode2_EXC_I : impement
+
+
+Domain.DirectoryNode --|>  Domain.StorageNode2 : exend
+Domain.DirectoryNode -->  DomainViewI.DirectoryNode_EXC_I : impement
+Domain.DirectoryNode -->  Domain.FileNode : impement
+
+@enduml
 

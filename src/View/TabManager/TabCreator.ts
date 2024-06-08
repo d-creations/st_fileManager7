@@ -1,4 +1,4 @@
-import { EditorControlerAdapter } from "../../Domain/EditorContollerAdapter.js"
+import { EditorControlerAdapter_EXC_I } from "../../ViewDomainI/Interfaces.js"
 import { CanalAdapter } from "../../tecnicalServices/canalAdapter.js"
 import { FileDiv } from "../FileDiv.js"
 import { TabManager, TABpage } from "./TabManager.js"
@@ -11,7 +11,7 @@ export class TabCreator{
     constructor(tabManager:  TabManager){
         this.tabManager = tabManager
     }
-    createTab(fileDiv : FileDiv,editor : EditorControlerAdapter){
+    createTab(fileDiv : FileDiv,editor : EditorControlerAdapter_EXC_I){
         let tabManager = this.tabManager
         editor.getFileText(fileDiv.fileNode).then(function(text) {
             let div = document.createElement("div")

@@ -1,5 +1,4 @@
-import { EditorControlerAdapter } from "../Domain/EditorContollerAdapter.js"
-import { FileNode } from "../Domain/FileNode.js"
+import { EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
 import { ContextMenu } from "./ContextMenu.js"
 import { FileLeftClickMenu } from "./FileLeftClickMenu.js"
 import { StorageDiv } from "./StorageDiv.js"
@@ -22,29 +21,33 @@ export class FileDiv extends StorageDiv{
     }
 
     public oberverUpdate(): void {
-        
+        console.log("FS update")
         this.innerText = this.editor.getStorageName(this.fileNode);
     }
 
-    public fileNode : FileNode
+    public fileNode : FileNode_EXC_I
     private tabCreator : TabCreator
-    constructor(fileNode : FileNode,editor : EditorControlerAdapter,tabCreator : TabCreator, spaceLeft : number){
+    constructor(fileNode : FileNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator){
         super(editor,fileNode)
         this.fileNode = fileNode
         this.tabCreator = tabCreator
 
-        this.contentEditable == "false";
-        this.style.marginLeft = spaceLeft + "pt";
+        this.contentEditable ="false";
         this.classList.add("selectable");
+        
+        this.classList.add("directoryDiv")
         this.innerText = this.editor.getStorageName(this.fileNode);
         this.setAttribute("divname", "FOLDER bodydiv" + this.editor.getStorageName(this.fileNode));
         this.addEventListener("contextmenu", (e) => {
            let fileContextMenu = new ContextMenu(this);
            fileContextMenu.showMenu(e);
         });
+
         this.addEventListener("click", (e) => {
+            if(e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
             let rightClickMenu = new FileLeftClickMenu(this);
             rightClickMenu.showMenu(e);
+            }
         });
 
     }

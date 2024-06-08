@@ -144,7 +144,7 @@ function handleFolderOpen () {
 }
 
 function handleGetFilesInDir (event,args) {
-  console.log
+  console.log(args)
   let ret = new Promise((resolve, reject) => {
     fs.readdir(args,{withFileTypes: true},function(err,files){
       if(err) {
@@ -185,9 +185,9 @@ function handleGetFilesInDir (event,args) {
     let ret = new Promise((resolve, reject) => {
       fs.rename(oldUrl, newUrl, function(err, data){
           if(err) {
-              reject(new MainIPC_Error(0,"get File Text failed in Main process"));
+              reject(new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl));
           }
-          resolve();
+          resolve(newUrl);
       });
   });
     return ret

@@ -1,19 +1,21 @@
 import { FileNode } from "./FileNode.js";
 import { StorageNode2 } from "./StorageNode2.js";
+import { DirectoryNode_EXC_I } from "../ViewDomainI/Interfaces";
 
 
 
-export class DirectoryNode extends StorageNode2{
+export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I{
 
 
     
     public files : FileNode[]
     public dirs : DirectoryNode[]
 
-    constructor(path : string, name : string){
-        super(path,name)
+    constructor(rootNode : StorageNode2, name : string){
+        super(rootNode,name)
         this.files = []
         this.dirs = []
+        this.updateTree()
     }
 
     update() {
@@ -28,21 +30,19 @@ export class DirectoryNode extends StorageNode2{
     createDivs(parentDiv: HTMLDivElement, spaceLeft: number) {
         throw new Error("Method not implemented.");
     }
-    public oberverUpdate(): void {
-        this.updateTree()
+    async oberverUpdate(): Promise<any> {
     }
 
     async updateTree() {
-        let path = this.path+"\\" + this.name 
         let thisDirectoryNode = this
-        await globalThis.electron.getFilesInFolder(path  ).then(async function(files){
+        console.log("udpate Tree")
+        await globalThis.electron.getFilesInFolder(this.getUrl()  ).then(async function(files){
             for(let file of files){
                 if(file.type == 'file'){
-                    thisDirectoryNode.files.push(new FileNode(thisDirectoryNode.path +"\\" + thisDirectoryNode.name,file.name))
+                    thisDirectoryNode.files.push(new FileNode(thisDirectoryNode,file.name))
                 }
                 if(file.type == 'directory'){
-                    let directory = new DirectoryNode(thisDirectoryNode.path +"\\" + thisDirectoryNode.name ,file.name)
-                    await directory.updateTree()
+                    let directory = new DirectoryNode(thisDirectoryNode ,file.name)
                     thisDirectoryNode.dirs.push(directory)
                 }
             }

@@ -1,5 +1,4 @@
-import { DirectoryNode } from "../Domain/DirectoryNode.js";
-import { EditorControlerAdapter } from "../Domain/EditorContollerAdapter.js";
+import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I } from "../ViewDomainI/Interfaces";
 import { TabCreator } from "./TabManager/TabCreator.js";
 import { ContextMenu } from "./ContextMenu.js";
 import { FileDiv } from "./FileDiv.js";
@@ -10,52 +9,88 @@ import { StorageDiv } from "./StorageDiv.js";
 export class DirectoryHeadDiv extends StorageDiv{
 
     public stateOpen : boolean
-    private directoryNode : DirectoryNode
-    constructor(directoryNode : DirectoryNode,editor : EditorControlerAdapter){
+    private directoryNode : DirectoryNode_EXC_I
+    private symbole : HTMLDivElement
+    public nameDiv : HTMLDivElement
+    constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I){
         super(editor,directoryNode)
+        this.innerText = ""
         this.directoryNode = directoryNode
+        this.symbole = document.createElement("div")
+        this.appendChild(this.symbole)
+        this.symbole.contentEditable == "false"
+        this.symbole.innerText = "> "
+        this.symbole.classList.add("inline")
+        this.symbole.contentEditable == "false"
+
+        this.nameDiv = document.createElement("div")
+        this.appendChild(this.nameDiv)
+        this.nameDiv.innerText = this.editor.getStorageName(this.directoryNode)
+        this.nameDiv.classList.add("inline")
+        this.directoryNode.addObserver(this)
+
     }
     updateElement(){
-        if(!this.stateOpen)this.innerText = ">  " +this.editor.getStorageName(this.directoryNode)
-            else this.innerText = "V  " +this.editor.getStorageName(this.directoryNode)
+        if(!this.stateOpen){
+            this.symbole.innerText = "> "
+            }
+        else{
+            this.symbole.innerText = "v "
+        }  
+    }
+
+    getName(){
+        return this.nameDiv.innerText
+    }
+
     
+    setName(name : string){
+        this.nameDiv.innerText = name
+        return
+    }
+    setEditable(state : string){
+        this.nameDiv.contentEditable = state
+    }
+
+    public oberverUpdate(): void {
+        console.log("FS update")
+        this.setName(this.editor.getStorageName(this.directoryNode));
     }
 
 }
+
 
 
 export class DirectoryDiv extends StorageDiv{
     
     private directoryHeadDiv : DirectoryHeadDiv
     private directoryBodyDiv : HTMLDivElement
-    private directoryNode : DirectoryNode
-    private spaceLeft : number
+    private directoryNode : DirectoryNode_EXC_I
     private tabCreator : TabCreator
     open: boolean ;
 
-    constructor(directoryNode : DirectoryNode,editor : EditorControlerAdapter,tabCreator : TabCreator,spaceLeft : number){
+    constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator){
         super(editor,directoryNode)
         this.tabCreator = tabCreator
         this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode,editor)
         this.directoryBodyDiv = document.createElement("div")
         this.directoryNode = directoryNode
-        this.updateElement()
-        this.spaceLeft = 1
         this.open = false
-        this.spaceLeft = spaceLeft
         
-        this.directoryHeadDiv.contentEditable == "false"
+        this.directoryHeadDiv.nameDiv.contentEditable = "false"
         this.directoryHeadDiv.setAttribute("divname" , "FOLDER HEADDIV" + this.editor.getStorageName(directoryNode))
-        this.directoryHeadDiv.style.marginLeft = spaceLeft + "pt"
         this.directoryHeadDiv.classList.add("selectable")
         this.directoryBodyDiv = document.createElement("div")
         this.directoryBodyDiv.setAttribute("divname" , "FOLDER bodydiv" + this.editor.getStorageName(directoryNode))
-        this.directoryBodyDiv.style.marginLeft = spaceLeft + "pt"
         this.oberverUpdate()
+
+        
         this.directoryHeadDiv.addEventListener("click",(e) =>{
-            if(this.directoryHeadDiv.stateOpen)this.directoryHeadDiv.stateOpen = false
-            else this.directoryHeadDiv.stateOpen = true
-            this.oberverUpdate()        
+            if( e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
+                if(this.directoryHeadDiv.stateOpen)this.directoryHeadDiv.stateOpen = false
+                else this.directoryHeadDiv.stateOpen = true
+                this.oberverUpdate()
+            }
         })
 
         let test = this
@@ -65,9 +100,24 @@ export class DirectoryDiv extends StorageDiv{
         });
 
 
+        
     }
 
-    oberverUpdate(): void {
+    getName(){
+        return this.directoryHeadDiv.nameDiv.innerText
+    }
+
+    
+    setName(name : string){
+        this.directoryHeadDiv.nameDiv.innerText = name
+        return
+    }
+    setEditable(state : string){
+        this.directoryHeadDiv.nameDiv.contentEditable == state
+    }
+    oberverUpdate(): void {        
+        this.innerText = this.editor.getStorageName(this.directoryNode);
+        console.log("directory div update")
         while(this.firstChild){
             this.removeChild(this.firstChild)
         }
@@ -76,19 +126,19 @@ export class DirectoryDiv extends StorageDiv{
         }
         this.appendChild(this.directoryHeadDiv)
         this.appendChild(this.directoryBodyDiv)
+        this.classList.add("directoryDiv")
         this.directoryHeadDiv.updateElement()
         if(this.directoryHeadDiv.stateOpen){
-            let addSpaceLeft = this.spaceLeft + 4
             let fileTree =  this.editor.getFileTree(this.directoryNode)
             for(let file of fileTree.files){
-                let fileDiv = new FileDiv(file,this.editor,this.tabCreator,addSpaceLeft)
+                let fileDiv = new FileDiv(file,this.editor,this.tabCreator)
                 this.directoryBodyDiv.appendChild(fileDiv)
-                    file.addObserver(this)
+                    fileDiv.addObserver(this)
             }
             for(let dir of fileTree.dirs){
-                let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator,addSpaceLeft)
+                let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator)
                 this.directoryBodyDiv.appendChild(fileDiv)
-                dir.addObserver(this)
+                fileDiv.addObserver(this)
 
             }    
         }

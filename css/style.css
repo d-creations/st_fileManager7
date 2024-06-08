@@ -6,7 +6,7 @@
 * {
     margin: 0;
     padding: 0;
-    }
+}
 .selectable:hover{
     background-color: aqua;
 }
@@ -52,4 +52,46 @@
 .hiddenConextMenu{
     visibility: visible;
     display: none;
+}
+
+.inline{
+    display: inline;
+}
+
+.fileDiv{
+    margin-left: 3pt;
+    padding-left: 2pt;
+    margin-top: 0pt;
+    padding-top: 0pt;
+    margin-bottom: 0pt;
+    padding-bottom: 0pt;
+    margin-right: 0pt;
+    padding-right: 0pt;
+    border-left-width: 1pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    border-style:solid;
+    border-color: black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.directoryDiv{
+    font-family: Arial, Helvetica, sans-serif;
+
+    margin-left: 3pt;
+    padding-left: 2pt;
+    margin-top: 0pt;
+    padding-top: 0pt;
+    margin-bottom: 0pt;
+    padding-bottom: 0pt;
+    margin-right: 0pt;
+    padding-right: 0pt;
+    border-left-width: 1pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    border-style:solid;
+    border-color: black;
+
 }

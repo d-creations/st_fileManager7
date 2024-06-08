@@ -28,7 +28,9 @@ if(div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDi
   let fileManager = new FileExplorerDiv(tabManager,editor) 
   let headBar = new ViewTopBar(headBarDiv,fileManager)
   div.appendChild(fileManager)
-  //document.body.appendChild(FileContextMenu.contextMenuDiv)
+
+
+  
   document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv)
   document.body.appendChild(ContextMenu.contextMenuDiv)
   document.addEventListener("contextMenu", () => {
@@ -40,18 +42,6 @@ if(div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDi
     }
       ContextMenu.removeMenu()
     })
-  /*
-  FileContextMenu.removeContextMenu()
 
-    document.addEventListener("click", (e) => {
-<      if(e.target instanceof HTMLDivElement && e.target.getAttribute("click")!= "true" ){
-        FileRightClickMenu.removeContextMenu()
-      }>
-      FileContextMenu.removeContextMenu()
-      });
 
-      document.addEventListener("contextMenu", () => {
-        FileRightClickMenu.removeContextMenu()
-      });
-      */
 }
