@@ -1,4 +1,4 @@
-import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I } from "../ViewDomainI/Interfaces";
+import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces";
 import { TabCreator } from "./TabManager/TabCreator.js";
 import { ContextMenu } from "./ContextMenu.js";
 import { FileDiv } from "./FileDiv.js";
@@ -99,11 +99,11 @@ export class DirectoryDiv extends StorageDiv{
 
     openDirectory(){
         this.directoryHeadDiv.stateOpen = true
-        this.createDiv()
+        this.updateDiv()
     }
     closeDirectory(){
         this.directoryHeadDiv.stateOpen = false    
-        this.createDiv()
+        this.updateDiv()
     }
 
     getName(){
@@ -119,12 +119,88 @@ export class DirectoryDiv extends StorageDiv{
         this.directoryHeadDiv.nameDiv.contentEditable == state
     }
     oberverUpdate():void{
-        this.createDiv()
+        this.updateDiv()
     }
+
+
+    updateDiv(): void {
+        console.log("directory div update")
+        this.directoryHeadDiv.updateElement()
+        let fileTree =  this.editor.getFileTree(this.directoryNode)
+        let files : Array<FileNode_EXC_I> = fileTree.files
+        let dirs : Array<DirectoryNode_EXC_I> = fileTree.dirs
+            dirs.forEach(dir => {
+                if(this.bodyNotContainDirChild(dir))this.insertDirectoryDiv(dir)
+            })
+            files.forEach(file => {
+                if(this.bodyNotContainFileChild(file))this.insertFileDiv(file)
+            })
+            this.directoryBodyDiv.childNodes.forEach((directoryDiv)=> {
+                if(directoryDiv instanceof DirectoryDiv){
+                    if(!dirs.includes(directoryDiv.directoryNode))this.directoryBodyDiv.removeChild(directoryDiv) 
+                }
+                else if(directoryDiv instanceof FileDiv){
+                    if(!files.includes(directoryDiv.fileNode))this.directoryBodyDiv.removeChild(directoryDiv) 
+                }
+            })
+        
+        if(this.directoryHeadDiv.stateOpen){
+            
+            this.directoryBodyDiv.style.display = "block"
+
+        }
+        else{
+            this.directoryBodyDiv.style.display = "none"
+        }
+
+    }
+    bodyNotContainDirChild(dir: DirectoryNode_EXC_I) : boolean{
+
+        for(let directoryBodyDiv of this.directoryBodyDiv.childNodes) {
+            if(directoryBodyDiv instanceof DirectoryDiv && directoryBodyDiv.directoryNode == dir)return false
+        };
+        return true
+    }
+    bodyNotContainFileChild(file: FileNode_EXC_I) : boolean{
+        for(let directoryBodyDiv of this.directoryBodyDiv.childNodes){
+            if(directoryBodyDiv instanceof FileDiv && directoryBodyDiv.fileNode == file)return false
+        };
+        return true
+    }
+
+    insertDirectoryDiv(dir: DirectoryNode_EXC_I) {
+        let insert = false
+        let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator)
+        for(let i = 0; i < this.directoryBodyDiv.childNodes.length;i++){
+            let item = this.directoryBodyDiv.childNodes.item(i) 
+            if(item instanceof DirectoryDiv && item.getName() > fileDiv.getName()){
+                this.directoryBodyDiv.insertBefore(fileDiv,item)
+                insert = true
+            }} 
+        if(!insert)this.directoryBodyDiv.appendChild(fileDiv)     
+    }
+
+    insertFileDiv(file: FileNode_EXC_I) {
+        let insert = false
+        let fileDiv = new FileDiv(file,this.editor,this.tabCreator)
+        for(let i = 0; i < this.directoryBodyDiv.childNodes.length;i++){
+            let item = this.directoryBodyDiv.childNodes.item(i) 
+            if(!insert && item instanceof FileDiv && item.getName() > fileDiv.getName()){
+                this.directoryBodyDiv.insertBefore(fileDiv,item)
+                insert = true
+                return
+            }else if(item instanceof DirectoryDiv && !insert){
+                this.directoryBodyDiv.insertBefore(fileDiv,item)
+                insert = true
+            }
+        } 
+        if(!insert)this.directoryBodyDiv.appendChild(fileDiv)     
+    }
+
 
     createDiv(): void {        
         this.innerText = this.editor.getStorageName(this.directoryNode);
-        console.log("directory div update")
+        console.log("directory div created")
         while(this.firstChild){
             this.removeChild(this.firstChild)
         }
@@ -138,12 +214,10 @@ export class DirectoryDiv extends StorageDiv{
         if(this.directoryHeadDiv.stateOpen){
             let fileTree =  this.editor.getFileTree(this.directoryNode)
             for(let file of fileTree.files){
-                let fileDiv = new FileDiv(file,this.editor,this.tabCreator)
-                this.directoryBodyDiv.appendChild(fileDiv)
+                this.insertFileDiv(file)
             }
             for(let dir of fileTree.dirs){
-                let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator)
-                this.directoryBodyDiv.appendChild(fileDiv)
+                this.insertFileDiv(dir)
             }    
         }
     }

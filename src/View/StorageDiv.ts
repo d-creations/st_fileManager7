@@ -17,6 +17,9 @@ export class StorageDiv extends HTMLDivElement implements Observer{
         this.storageNode = storageNode
     }
 
+    exists() : boolean{
+        return true
+    }
     getName(){
         return this.innerText
     }
