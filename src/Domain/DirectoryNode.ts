@@ -18,32 +18,45 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I{
         this.updateTree()
     }
 
-    update() {
-        throw new Error("Method not implemented.");
-    }
     getName(): string {
         return this.name
     }
-    print(string: any) {
-        throw new Error("Method not implemented.");
+
+    
+    createNewFolder(rootDirectory  : StorageNode2) :Promise<boolean | unknown>{
+        let url = rootDirectory.getUrl()
+        return this.createFolder(url)
     }
-    createDivs(parentDiv: HTMLDivElement, spaceLeft: number) {
-        throw new Error("Method not implemented.");
+
+    createNewFile(rootDirectory: StorageNode2) :Promise<boolean | unknown>{
+        let url = rootDirectory.getUrl()
+        return this.createFile(url)
     }
+
+
+
     async oberverUpdate(): Promise<any> {
+        let dirsU = this.dirs.filter((dir)=> !dir.isDeleted())
+        let filesU = this.files.filter((dir)=> !dir.isDeleted())
+        this.dirs = dirsU
+        this.files = filesU
+        this.observerUpdated()
     }
 
     async updateTree() {
-        let thisDirectoryNode = this
+        let self = this
         console.log("udpate Tree")
         await globalThis.electron.getFilesInFolder(this.getUrl()  ).then(async function(files){
             for(let file of files){
                 if(file.type == 'file'){
-                    thisDirectoryNode.files.push(new FileNode(thisDirectoryNode,file.name))
+                    let fileNode = new FileNode(self,file.name)
+                    self.files.push(fileNode)
+                    fileNode.addObserver(self)
                 }
                 if(file.type == 'directory'){
-                    let directory = new DirectoryNode(thisDirectoryNode ,file.name)
-                    thisDirectoryNode.dirs.push(directory)
+                    let directory = new DirectoryNode(self ,file.name)
+                    self.dirs.push(directory)
+                    directory.addObserver(self)
                 }
             }
         })

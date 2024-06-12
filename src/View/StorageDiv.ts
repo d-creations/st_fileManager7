@@ -3,9 +3,7 @@ import { ObservableI, Observer } from "../tecnicalServices/oberserver.js";
 
 
 
-export class StorageDiv extends HTMLDivElement implements ObservableI,Observer{
-
-
+export class StorageDiv extends HTMLDivElement implements Observer{
 
 
     protected obervers: Array<Observer>
@@ -31,19 +29,6 @@ export class StorageDiv extends HTMLDivElement implements ObservableI,Observer{
         this.contentEditable = state
     }
 
-    updateElement() {
-        this.oberverUpdate()
-    }
-
-    public addObserver( observer : Observer) {
-        this.obervers.push(observer);
-        }  
-     
-    public observerUpdated(){
-        for(let observer of this.obervers){
-            observer.oberverUpdate()
-        }
-    }
     oberverUpdate(): void {
         throw new Error("Method not implemented.");
     }
@@ -62,24 +47,18 @@ export class StorageDiv extends HTMLDivElement implements ObservableI,Observer{
     }
 
     rename() {
-        let oldurl = this.editor.getStorageUrl(this.storageNode)
         let oldname = this.getName()
-
         this.setEditable("true")  
-        let div = this
+        let self = this
         this.focus()
         this.waitingKeypress().then(
             (emptyString) => {
-                console.log(div.getName())
-                this.editor.renameFileOrFolder(this.storageNode,div.getName()).catch(
-                    ()=>{
-                        this.setName(oldname)
-                    })
-               
-            }).finally(
-            () =>{                    
-                this.setEditable("false")  
-                div.updateElement()
+                console.log(self.getName())
+                this.editor.renameFileOrFolder(this.storageNode,self.getName()).catch(
+                    ()=>{this.setName(oldname)})
+                }).finally(
+                    () =>{this.setEditable("false")  
+                self.oberverUpdate()
                
         } )
     }

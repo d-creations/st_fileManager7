@@ -8,6 +8,12 @@ import { StorageNode2 } from "./StorageNode2.js"
 
 
 export class RootStorageNode extends StorageNode2{
+    createNewFolder(rootDirectory: StorageNode2) {
+        throw new Error("Method not implemented.")
+    }
+    createNewFile(file: StorageNode2): Promise<unknown> {
+        throw new Error("Method not implemented.")
+    }
 
     private path
     constructor( path: string){

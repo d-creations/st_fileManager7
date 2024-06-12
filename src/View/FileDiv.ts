@@ -13,12 +13,12 @@ export class FileDiv extends StorageDiv{
     saveText(text: string) {
         this.editor.saveFile(this.fileNode,text)
     }
-    getName(): string {
-        return this.editor.getStorageName(this.fileNode)
-    }
+    
     openFile() {
         this.tabCreator.createTab(this , this.editor)
     }
+    
+
 
     public oberverUpdate(): void {
         console.log("FS update")
@@ -31,11 +31,12 @@ export class FileDiv extends StorageDiv{
         super(editor,fileNode)
         this.fileNode = fileNode
         this.tabCreator = tabCreator
+        this.fileNode.addObserver(this)
 
         this.contentEditable ="false";
         this.classList.add("selectable");
-        
         this.classList.add("directoryDiv")
+        
         this.innerText = this.editor.getStorageName(this.fileNode);
         this.setAttribute("divname", "FOLDER bodydiv" + this.editor.getStorageName(this.fileNode));
         this.addEventListener("contextmenu", (e) => {

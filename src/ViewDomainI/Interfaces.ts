@@ -4,20 +4,21 @@ export interface StorageNode2_EXC_I {
     addObserver( observer : Observer)
      
     observerUpdated()
+    
+    isDeleted()
+
+    delete()
+
 
 }
-export interface FileNode_EXC_I {
-    addObserver( observer : Observer)
-     
-    observerUpdated()
+export interface FileNode_EXC_I extends StorageNode2_EXC_I {
+
 
 }
 
 
-export interface DirectoryNode_EXC_I {
-    addObserver( observer : Observer)
-     
-    observerUpdated()
+export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {
+
 
 }
 

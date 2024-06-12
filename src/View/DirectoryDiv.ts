@@ -67,7 +67,6 @@ export class DirectoryDiv extends StorageDiv{
     private directoryBodyDiv : HTMLDivElement
     private directoryNode : DirectoryNode_EXC_I
     private tabCreator : TabCreator
-    open: boolean ;
 
     constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator){
         super(editor,directoryNode)
@@ -75,32 +74,36 @@ export class DirectoryDiv extends StorageDiv{
         this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode,editor)
         this.directoryBodyDiv = document.createElement("div")
         this.directoryNode = directoryNode
-        this.open = false
+        this.directoryNode.addObserver(this)
+
         
         this.directoryHeadDiv.nameDiv.contentEditable = "false"
         this.directoryHeadDiv.setAttribute("divname" , "FOLDER HEADDIV" + this.editor.getStorageName(directoryNode))
         this.directoryHeadDiv.classList.add("selectable")
         this.directoryBodyDiv = document.createElement("div")
         this.directoryBodyDiv.setAttribute("divname" , "FOLDER bodydiv" + this.editor.getStorageName(directoryNode))
-        this.oberverUpdate()
 
         
         this.directoryHeadDiv.addEventListener("click",(e) =>{
             if( e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
-                if(this.directoryHeadDiv.stateOpen)this.directoryHeadDiv.stateOpen = false
-                else this.directoryHeadDiv.stateOpen = true
-                this.oberverUpdate()
+                if(this.directoryHeadDiv.stateOpen)this.closeDirectory()
+                else this.openDirectory()
             }
         })
-
-        let test = this
         this.directoryHeadDiv.addEventListener("contextmenu", (e) => {
            let fileContextMenu = new ContextMenu(this.directoryHeadDiv);
            fileContextMenu.showMenu(e);
         });
+        this.createDiv()
+    }
 
-
-        
+    openDirectory(){
+        this.directoryHeadDiv.stateOpen = true
+        this.createDiv()
+    }
+    closeDirectory(){
+        this.directoryHeadDiv.stateOpen = false    
+        this.createDiv()
     }
 
     getName(){
@@ -115,7 +118,11 @@ export class DirectoryDiv extends StorageDiv{
     setEditable(state : string){
         this.directoryHeadDiv.nameDiv.contentEditable == state
     }
-    oberverUpdate(): void {        
+    oberverUpdate():void{
+        this.createDiv()
+    }
+
+    createDiv(): void {        
         this.innerText = this.editor.getStorageName(this.directoryNode);
         console.log("directory div update")
         while(this.firstChild){
@@ -133,13 +140,10 @@ export class DirectoryDiv extends StorageDiv{
             for(let file of fileTree.files){
                 let fileDiv = new FileDiv(file,this.editor,this.tabCreator)
                 this.directoryBodyDiv.appendChild(fileDiv)
-                    fileDiv.addObserver(this)
             }
             for(let dir of fileTree.dirs){
                 let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator)
                 this.directoryBodyDiv.appendChild(fileDiv)
-                fileDiv.addObserver(this)
-
             }    
         }
     }

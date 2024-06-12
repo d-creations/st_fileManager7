@@ -90,57 +90,20 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
         
     }
     createFolder(rootDirectory  : StorageNode2_EXC_I) :Promise<boolean | unknown>{
-        let ret = new Promise((resolve, reject) => {
             if(rootDirectory instanceof StorageNode2){
-                let url = rootDirectory.getUrl()
-                if(rootDirectory instanceof FileNode){
-                    url = rootDirectory.rootStorageNode.getUrl()
-                }
-        
-                globalThis.electron.getFilesInFolder(url).then((files) =>{
-                    let newRootFileName = "TEST2"
-                    let newFileName = newRootFileName
-                    for(let i = 0;i<10;i++){
-                        if(!checkContains(files,(newFileName + ""))){
-                            globalThis.electron.createFolder(url+"\\"+ newFileName)
-                            resolve(true)
-                            break
-                        }
-                        newFileName = newRootFileName+String(i)
-
-                    }
-                })
-            }
-            reject(false)
-        })
-        return ret
+                return rootDirectory.createNewFolder(rootDirectory)
+            }else{
+                throw new Error("Root Directory type unkown")
+            } 
     }
 
     createFile(rootDirectory  : StorageNode2_EXC_I) :Promise<boolean | unknown>{
-        let ret = new Promise((resolve, reject) => {
-            if(rootDirectory instanceof StorageNode2){
-                let url = rootDirectory.getUrl()
-                if(rootDirectory instanceof FileNode){
-                    url = rootDirectory.rootStorageNode.getUrl()
-                }
-                globalThis.electron.getFilesInFolder(url).then((files) =>{
-                    let newRootFileName = "new File"
-                    let newFileName = newRootFileName
-                    for(let i = 0;i<10;i++){
-                        if(!checkContains(files,(newFileName + ".txt"))){
-                            globalThis.electron.saveFile(url+"\\"+ newFileName+".txt","")
-                            resolve(true)
-                            break
-                        }
-                        newFileName = newRootFileName+String(i)
-                    }
-                })
-            }
-            reject(false)
-
-        })
-        return ret
-    }
+        if(rootDirectory instanceof StorageNode2){
+            return rootDirectory.createNewFile(rootDirectory)
+        }else{
+            throw new Error("Root Directory type unkown")
+        } 
+}
     deleteFileOrFolder(storageNode2 : StorageNode2_EXC_I):Promise<boolean | unknown>{
         let ret = new Promise((resolve, reject) => {
             if(storageNode2 instanceof StorageNode2)globalThis.electron.deleteFileOrFolder(storageNode2.getUrl())
@@ -148,31 +111,10 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
         return ret
     }
     renameFileOrFolder(storageNode2: StorageNode2_EXC_I,newName : String):Promise<boolean | unknown>{
-        let ret = new Promise((resolve, reject) => {
-            if(storageNode2 instanceof StorageNode2){
-                globalThis.electron.renameFileOrFolder(storageNode2.getUrl(),storageNode2.rootStorageNode.getUrl()+"\\"+newName).then(
-                    function(filePath){
-                        if(storageNode2 instanceof StorageNode2){
-                            let filename = filePath.split("\\").at(-1)
-                            if(filePath.indexOf("\\") > 0){
-                                filePath = filePath.substring(0,filePath.lastIndexOf("\\"))
-                            }
-                            storageNode2.setName(filename)
-                    }
-            }) 
-            }
-            reject(false)
-        })
-        return ret
+        if(storageNode2 instanceof StorageNode2){
+            return storageNode2.renameFileOrFolder(storageNode2,newName)
+        }else{
+            throw new Error("Root Directory type unkown")
+        } 
     }
-  
-}
-
-function checkContains(files: any, arg1: string) {
-    for (var i = 0; i < files.length; i++) {
-        if (files[i].name === arg1) {
-            return true;
-        }
-    }
-    return false;
 }

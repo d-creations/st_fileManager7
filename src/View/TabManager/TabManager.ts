@@ -39,7 +39,7 @@ export class TAB implements Observer{
         this.button.addEventListener(("click"),(e)=> {
             fileNode.openFile()
         } ) 
-        this.fileNode.addObserver(this)
+        this.fileNode.fileNode.addObserver(this)
     }
     oberverUpdate(): void {
         this.headDiv.innerText = this.fileNode.getName()

@@ -34,13 +34,12 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
         })
 
     }updateElement() {
-        this.rootStorageDiv.updateElement()
         while(this.firstChild){
             this.removeChild(this.firstChild)
         }
         this.appendChild(this.rootStorageDiv)
+        
     }
-;
 
     
     
