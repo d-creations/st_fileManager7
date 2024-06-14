@@ -41,36 +41,27 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I{
         let ret = new Promise((resolve, reject) => {
         let url = rootDirectory.getUrl()
         self.createFile(url).then(()=> {
-            self.updateTree().then(
-                    ()=> resolve(true)
-                    )
-                })
+            self.updateTree()
+            })
         })
         return ret
     }
 
 
 
-    async oberverUpdate(): Promise<any> {
+    oberverUpdate(){
         let self = this
-        let ret = new Promise((resolve,rejeted) => {
-            let dirsU = self.dirs.filter((dir)=> !dir.isDeleted())
-            let filesU = self.files.filter((dir)=> !dir.isDeleted())
-            self.dirs = dirsU
-            self.files = filesU
-            self.updateTree().then(
-                ()=>{resolve(true)                
-                self.observerUpdated()
-                }
-            )
-        })
+        self.updateTree()
     }
 
-    async updateTree() {
+    updateTree() {
         let self = this
         console.log("udpate Tree")
-        await globalThis.electron.getFilesInFolder(this.getUrl()  ).then(async function(files){
+        let ret = new Promise((resolve,rejeted) => {        
+        globalThis.electron.getFilesInFolder(this.getUrl()  ).then(function(files){
+            let objectNames: Array<string>= []
             for(let file of files){
+                objectNames.push(file.name)
                 if(file.type == 'file'){
                     if(self.notFileExist(self,file)){
                     let fileNode = new FileNode(self,file.name)
@@ -87,7 +78,24 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I{
                     }
                 }
             }
+
+            let newFilesList = []
+            let newDirsList = []
+            self.files.forEach((file)=> {
+                if(objectNames.includes(file.name))newFilesList.push(file)
+            })
+            self.dirs.forEach((file)=> {
+                if(objectNames.includes(file.name))newDirsList.push(file)
+            })
+            self.files = newFilesList
+            self.dirs = newDirsList
+            
+            console.log("TreeStack Updated")
+            self.observerUpdated()
+            resolve(true)
         })
+        })
+        return ret
     }
 
      notFileExist(self: DirectoryNode, file: any) : boolean{

@@ -19,6 +19,7 @@ customElements.define('file-explorer-div', FileExplorerDiv, {extends: 'div'});
 let div = document.getElementById("windowFileExpolorer")
 let tabDiv = document.getElementById("windowMainView");
 let headBarDiv = document.getElementById("headerBar");
+let naviDiv = document.getElementById("navi");
 
 
 

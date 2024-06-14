@@ -14,11 +14,13 @@ export class TabCreator{
     createTab(fileDiv : FileDiv,editor : EditorControlerAdapter_EXC_I){
         let tabManager = this.tabManager
         editor.getFileText(fileDiv.fileNode).then(function(text) {
+
             let div = document.createElement("div")
             let canal = new CanalAdapter(1,div,false,false)
-            canal.text = text
+            canal.text = text.toString()
             div.classList.add("fileEditor")
             tabManager.createTab(fileDiv,new TABpage(div,canal))
+
         })
     }
 }

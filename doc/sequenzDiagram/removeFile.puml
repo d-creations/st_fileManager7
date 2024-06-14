@@ -1,0 +1,15 @@
+@startuml
+
+fileDiv --> Editor: delete(FileNode)
+Editor --> FileNode: delete(FileNode)
+FileNode --> mainPC: delete(FileNode)
+mainPC --> FileNode: delete(true)
+FileNode --> DirectoryNode : observerUpdate()
+FileNode --> fileDiv: observerupdate()
+
+DirectoryNode --> mainPC : getTree()
+DirectoryNode --> FolderNode : observerUpdate()
+
+
+
+@enduml

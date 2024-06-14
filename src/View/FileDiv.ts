@@ -7,23 +7,7 @@ import { TabCreator } from "./TabManager/TabCreator.js"
 
 
 export class FileDiv extends StorageDiv{
-    getUrl() {
-        return this.editor.getStorageUrl(this.fileNode)
-    }
-    saveText(text: string) {
-        this.editor.saveFile(this.fileNode,text)
-    }
-    
-    openFile() {
-        this.tabCreator.createTab(this , this.editor)
-    }
-    
 
-
-    public oberverUpdate(): void {
-        console.log("FS update")
-        this.innerText = this.editor.getStorageName(this.fileNode);
-    }
 
     public fileNode : FileNode_EXC_I
     private tabCreator : TabCreator
@@ -51,5 +35,21 @@ export class FileDiv extends StorageDiv{
             }
         });
 
+    }
+
+    public getUrl() {
+        return this.editor.getStorageUrl(this.fileNode)
+    }
+    public saveText(text: string) {
+        this.editor.saveFile(this.fileNode,text)
+    }
+    
+    public openFile() {
+        this.tabCreator.createTab(this , this.editor)
+    }
+
+    public oberverUpdate(): void {
+        console.log("update File Div")
+        this.innerText = this.editor.getStorageName(this.fileNode);
     }
 }

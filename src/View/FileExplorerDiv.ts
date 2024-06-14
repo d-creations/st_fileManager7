@@ -18,30 +18,26 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
         this.editor = editor
         this.tabManager = tabManager
     }
+    closeApplication(): void {
+        this.editor.closeApplication()
+    }
 
-    public openFolder () {
-        console.log("openDirectory")
-        
+    public openFolder () : void {
+        console.log("openDirectory")        
         this.tabManager.closeAllTabs()
-        
         let localfileManager = this
-        let ret =this.editor.openDirectory()
-        console.log("return form "+ ret)
-        ret.then(function(directoryNode : DirectoryNode_EXC_I){
+        this.editor.openDirectory().then(function(directoryNode : DirectoryNode_EXC_I){
             localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator())
-            localfileManager.updateElement()
-            
+            localfileManager.updateElement()      
         })
-
-    }updateElement() {
+    }
+    
+    public updateElement() {
         while(this.firstChild){
-            this.removeChild(this.firstChild)
-        }
+            this.removeChild(this.firstChild)}
         this.appendChild(this.rootStorageDiv)
         
     }
-
-    
     
     public async saveCurrentFile () {
         this.tabManager.saveCurrentFile()
@@ -51,14 +47,11 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
         this.tabManager.saveAllFile()
     }
     public async openFile () {
-        let ret = this.editor.openFile()
-        let fileDiv = this
-        ret.then(function(file : FileNode_EXC_I) {
-
-            fileDiv.rootStorageDiv = new FileDiv(file,fileDiv.editor,fileDiv.tabManager.getTabCreator())
-            fileDiv.updateElement()
-            
+        let self = this
+        this.editor.openFile().then(function(file : FileNode_EXC_I) {
+            self.rootStorageDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator())
+            self.updateElement()
         })
-    };
+    }
 
 }

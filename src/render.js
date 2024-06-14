@@ -15,6 +15,7 @@ customElements.define('file-explorer-div', FileExplorerDiv, { extends: 'div' });
 let div = document.getElementById("windowFileExpolorer");
 let tabDiv = document.getElementById("windowMainView");
 let headBarDiv = document.getElementById("headerBar");
+let naviDiv = document.getElementById("navi");
 if (div instanceof HTMLDivElement && tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement) {
     let tabManager = new TabManager(tabDiv);
     let editor = new EditorControlerAdapter();

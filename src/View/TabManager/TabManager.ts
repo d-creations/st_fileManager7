@@ -17,11 +17,11 @@ export interface TabManager_I{
 }
 
 export class TABpage{
-    tab : HTMLDivElement
+    contentDiv : HTMLDivElement
     canal : CanalAdapter
 
-    constructor(tab : HTMLDivElement, canal : CanalAdapter){
-        this.tab = tab
+    constructor(contentDiv : HTMLDivElement, canal : CanalAdapter){
+        this.contentDiv = contentDiv
         this.canal = canal
     }
 }
@@ -49,7 +49,7 @@ export class TAB implements Observer{
     }
 
     public getTab(){
-        return this.tab.tab
+        return this.tab.contentDiv
     }
 
     

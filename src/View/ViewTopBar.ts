@@ -1,7 +1,5 @@
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 
-
-
 export class ViewTopBar{
 
     private parentDiv : HTMLDivElement
@@ -37,7 +35,7 @@ export class ViewTopBar{
         closeApplication.style.right ="0pt"
         closeApplication.style.position ="absolute"
         closeApplication.addEventListener('click', function(e) {
-            globalThis.electron.closeApplication()
+            fileManager.closeApplication()
         })
     }
 }

@@ -180,26 +180,45 @@ function handleGetFilesInDir (event,args) {
   }
 
   function handleRenameFileOrFolder(event,oldUrl,newUrl){
+
     console.log("rename File or Folder ")
-    console.log(oldUrl + " " + newUrl)
     let ret = new Promise((resolve, reject) => {
-      fs.rename(oldUrl, newUrl, function(err, data){
+      notExists(newUrl).then((state)=>{
+        if(state){
+        fs.rename(oldUrl, newUrl, function(err, data){
           if(err) {
-              reject(new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl));
-          }
+            throw new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl)
+            }
           resolve(newUrl);
-      });
+        });
+      }
+      else{
+        resolve(oldUrl);
+      }
+
+      })
   });
     return ret
   }
 
+  function notExists(url){
+    let ret = new Promise((resolve, reject) => {
+      fs.access(url,fs.constants.F_OK,(err)=>{
+        if(err)
+          resolve(true)
+        else 
+          resolve(false)
+      })
+    })
+    return ret  
+  }
   function handleDeleteFileOrFolder(event,url){
     console.log("delete File or Folder ")
     console.log(url)
     let ret = new Promise((resolve, reject) => {
       fs.rm(url, { recursive: true, force: true },function(err, data){
           if(err) {
-              reject(new MainIPC_Error(0,"delete File or Folder Failed"));
+            throw new MainIPC_Error(0,"delete File or Folder Failed")
           }
           resolve();
       });

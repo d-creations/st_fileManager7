@@ -3,6 +3,14 @@
     white-space: nowrap;
 }
 
+.writeable{
+    cursor:text;
+    white-space: nowrap;
+    background-color: white;
+
+}
+
+
 * {
     margin: 0;
     padding: 0;

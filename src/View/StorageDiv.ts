@@ -50,20 +50,23 @@ export class StorageDiv extends HTMLDivElement implements Observer{
     }
 
     rename() {
-        let oldname = this.getName()
         this.setEditable("true")  
+        this.classList.remove("selectable")
+        this.classList.add("writeable")
+
         let self = this
         this.focus()
         this.waitingKeypress().then(
             (emptyString) => {
                 console.log(self.getName())
-                this.editor.renameFileOrFolder(this.storageNode,self.getName()).catch(
-                    ()=>{this.setName(oldname)})
-                }).finally(
-                    () =>{this.setEditable("false")  
-                self.oberverUpdate()
-               
-        } )
+                this.editor.renameFileOrFolder(this.storageNode,self.getName())
+                this.setEditable("false")  
+                self.oberverUpdate() 
+                this.classList.remove("writeable")
+                this.classList.add("selectable")
+              
+        } 
+    )
     }
 
     private waitingKeypress() {

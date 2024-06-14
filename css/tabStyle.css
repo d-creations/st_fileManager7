@@ -14,6 +14,7 @@
 .headTabManager{
     background-color: whitesmoke;
     grid-area: headTabManager;
+    overflow-y: scroll;
 }
 .mainTabManager{
     background-color: gray;

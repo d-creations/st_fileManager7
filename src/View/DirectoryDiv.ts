@@ -95,15 +95,18 @@ export class DirectoryDiv extends StorageDiv{
            fileContextMenu.showMenu(e);
         });
         this.createDiv()
+        this.closeDirectory()
     }
 
     openDirectory(){
         this.directoryHeadDiv.stateOpen = true
-        this.updateDiv()
+        this.directoryHeadDiv.updateElement() 
+        this.directoryBodyDiv.style.display = "block"
     }
     closeDirectory(){
-        this.directoryHeadDiv.stateOpen = false    
-        this.updateDiv()
+        this.directoryHeadDiv.stateOpen = false   
+        this.directoryHeadDiv.updateElement() 
+        this.directoryBodyDiv.style.display = "none"    
     }
 
     getName(){
@@ -113,7 +116,6 @@ export class DirectoryDiv extends StorageDiv{
     
     setName(name : string){
         this.directoryHeadDiv.nameDiv.innerText = name
-        return
     }
     setEditable(state : string){
         this.directoryHeadDiv.nameDiv.contentEditable == state
@@ -144,18 +146,9 @@ export class DirectoryDiv extends StorageDiv{
                 }
             })
         
-        if(this.directoryHeadDiv.stateOpen){
-            
-            this.directoryBodyDiv.style.display = "block"
-
-        }
-        else{
-            this.directoryBodyDiv.style.display = "none"
-        }
 
     }
     bodyNotContainDirChild(dir: DirectoryNode_EXC_I) : boolean{
-
         for(let directoryBodyDiv of this.directoryBodyDiv.childNodes) {
             if(directoryBodyDiv instanceof DirectoryDiv && directoryBodyDiv.directoryNode == dir)return false
         };

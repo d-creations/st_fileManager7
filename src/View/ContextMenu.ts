@@ -52,7 +52,7 @@ export class ContextMenu{
             ContextMenu.contextMenuDiv.appendChild(deleteFolderButton)
             deleteFolderButton.addEventListener("click", (e)=> {
                 ContextMenu.removeMenu()
-                console.log("createFolder")
+                console.log("delete")
                 this.fileNode.deleteFileOrFolder()
             })
 
@@ -62,7 +62,7 @@ export class ContextMenu{
             ContextMenu.contextMenuDiv.appendChild(renameButton)
             renameButton.addEventListener("click", (e)=> {
                 ContextMenu.removeMenu()
-                console.log("createFolder")
+                console.log("rename")
                 this.fileNode.rename()
             })
 

@@ -18,7 +18,7 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
             // muss gelötsht werden
 //            if(rootStorageNode != null)this.rootStorageNode.addObserver(this)
     }
-    async oberverUpdate(): Promise<any> {
+    oberverUpdate(){
     }
     
         setRoot(rootStorageNode : StorageNode2){
@@ -30,14 +30,10 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
             this.observerUpdated()
         }
 
-        isDeleted(){
-            return this.deleteState
-            // may include fs.access() // fs.stat()
-        }
-
         delete(){
-            this.deleteState = true
-            this.observerUpdated()
+            let self = this
+            globalThis.electron.deleteFileOrFolder(self.getUrl()).then(()=>
+            self.observerUpdated())    
         }
 
         getUrl(): any {
@@ -71,6 +67,7 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
         abstract createNewFile(file :  StorageNode2) :Promise<boolean | unknown>
 
         protected createFile(url  : string) :Promise<boolean | unknown>{
+            console.log("Storage Node2 createFile" + url)
             let self = this
             let ret = new Promise((resolve, reject) => {
                     globalThis.electron.getFilesInFolder(url).then((files) =>{
@@ -80,7 +77,8 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
                             if(!checkContains(files,(newFileName + ".txt"))){
                                 globalThis.electron.saveFile(url+"\\"+ newFileName+".txt","").then(
                                     ()=>{
-                                        this.rootStorageNode.observerUpdated()
+                                        console.log("file Creates")
+                                        self.rootStorageNode.observerUpdated()
                                         resolve(true)
                                     })
                                 break
@@ -103,7 +101,10 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
                     storageNode2.setName(filename)
                     storageNode2.observerUpdated()
                     resolve(true)
-                }) 
+                }).catch(()=> {
+                    storageNode2.observerUpdated()
+                    resolve(true)                    
+                })
             })
             return ret
         }

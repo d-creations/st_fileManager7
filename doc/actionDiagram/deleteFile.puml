@@ -1,0 +1,7 @@
+@startuml
+
+start
+:FileDiv Delete();
+if(True) then (Thue)
+stop
+@enduml
