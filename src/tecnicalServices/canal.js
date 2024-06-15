@@ -25,9 +25,9 @@ export class Canal extends Observable{
         this._textAreaCode.style.width = '100%'
         this._textAreaCode.style.height = '100%'
         this._textAreaCode.id = "editor_pro" + id;
+
         this._editor = ace.edit();
         this._editor.setShowPrintMargin(false);
-    
         this._editor.renderer.setShowLineTimeLine(timeLine); 
         this._editor.setReadOnly(readOnly)
         require('ace/ext/settings_menu').init(this._editor);

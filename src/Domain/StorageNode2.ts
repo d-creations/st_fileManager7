@@ -32,6 +32,7 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
 
         delete(){
             let self = this
+            self.deleteState = true
             globalThis.electron.deleteFileOrFolder(self.getUrl()).then(()=>
             self.observerUpdated())    
         }

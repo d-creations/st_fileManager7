@@ -16,6 +16,9 @@ export class FileNode extends StorageNode2 implements FileNode_EXC_I{
         throw new Error("Method not implemented.");
     }
 
+    isDeleted(){
+        return this.deleteState
+    }
     createNewFolder(rootDirectory  : FileNode) :Promise<boolean | unknown>{
         let url = rootDirectory.rootStorageNode.getUrl()
         return this.createFolder(url)

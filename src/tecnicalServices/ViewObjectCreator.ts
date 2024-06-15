@@ -45,6 +45,16 @@ export class ViewObjectCreator{
     }
 
 
+    public static createNaviButton(name: string,url : string): HTMLDivElement {
+        let input_button = document.createElement('input');
+        input_button.type = "image"
+        input_button.src = url
+        input_button.alt = name;
+        input_button.classList.add("NaviButton");
+        return input_button;
+    }
+
+
     public static openFileButton(): HTMLInputElement {
         let input_button = document.createElement('input');
         input_button.type = "file"

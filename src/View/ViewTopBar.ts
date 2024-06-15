@@ -1,22 +1,28 @@
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
+import { BaseTableManager_I } from "./BaseTableManager.js";
 
 export class ViewTopBar{
 
     private parentDiv : HTMLDivElement
     private fileManager : FileManager_I
-    constructor(parentDiv : HTMLDivElement,fileManager : FileManager_I){
+    private baseTableManager : BaseTableManager_I
+    constructor(parentDiv : HTMLDivElement,fileManager : FileManager_I,baseTableManager : BaseTableManager_I){
         this.parentDiv  = parentDiv
         let openFileButton = ViewObjectCreator.createMenuBarButton("FILE",".\\..\\..\\image\\opendocument.png")
         parentDiv.appendChild(openFileButton);
         this.fileManager = fileManager
+        this.baseTableManager = baseTableManager
         openFileButton.addEventListener('click', function(e) {
             fileManager.openFile()
+            baseTableManager.openFileView()
+
         })
 
         let openDirButton = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\openfolder.png")
         parentDiv.appendChild(openDirButton);
         openDirButton.addEventListener('click', function(e) {
             fileManager.openFolder()
+            baseTableManager.openFileView()
         })
 
         let saveFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\save.png")

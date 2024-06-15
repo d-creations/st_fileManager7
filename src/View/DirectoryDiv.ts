@@ -18,13 +18,14 @@ export class DirectoryHeadDiv extends StorageDiv{
         this.directoryNode = directoryNode
         this.symbole = document.createElement("div")
         this.appendChild(this.symbole)
-        this.symbole.contentEditable == "false"
+        this.symbole.contentEditable = "false"
         this.symbole.innerText = "> "
         this.symbole.classList.add("inline")
         this.symbole.contentEditable == "false"
 
         this.nameDiv = document.createElement("div")
         this.appendChild(this.nameDiv)
+        this.symbole.contentEditable = "false"
         this.nameDiv.innerText = this.editor.getStorageName(this.directoryNode)
         this.nameDiv.classList.add("inline")
         this.directoryNode.addObserver(this)
@@ -71,6 +72,7 @@ export class DirectoryDiv extends StorageDiv{
     constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator){
         super(editor,directoryNode)
         this.tabCreator = tabCreator
+        let self = this
         this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode,editor)
         this.directoryBodyDiv = document.createElement("div")
         this.directoryNode = directoryNode
@@ -85,13 +87,14 @@ export class DirectoryDiv extends StorageDiv{
 
         
         this.directoryHeadDiv.addEventListener("click",(e) =>{
+            console.log("click")
             if( e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
-                if(this.directoryHeadDiv.stateOpen)this.closeDirectory()
-                else this.openDirectory()
+                if(self.directoryHeadDiv.stateOpen)self.closeDirectory()
+                else self.openDirectory()
             }
         })
         this.directoryHeadDiv.addEventListener("contextmenu", (e) => {
-           let fileContextMenu = new ContextMenu(this.directoryHeadDiv);
+           let fileContextMenu = new ContextMenu(self.directoryHeadDiv);
            fileContextMenu.showMenu(e);
         });
         this.createDiv()
@@ -210,7 +213,7 @@ export class DirectoryDiv extends StorageDiv{
                 this.insertFileDiv(file)
             }
             for(let dir of fileTree.dirs){
-                this.insertFileDiv(dir)
+                this.insertDirectoryDiv(dir)
             }    
         }
     }

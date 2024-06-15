@@ -14,10 +14,25 @@
 .headTabManager{
     background-color: whitesmoke;
     grid-area: headTabManager;
-    overflow-y: scroll;
+    overflow-x: auto;
+    display: inline-block;
+    overflow-y:hidden;
+
 }
+
+
+.headTabContent{
+    background-color: whitesmoke;
+    grid-area: headTabManager;
+    overflow-x: auto;
+    display: inline-block;
+    overflow-y:hidden;
+    width: max-content;
+    height: 100%;
+}
+
 .mainTabManager{
-    background-color: gray;
+    background-color: rgb(165, 165, 165);
     grid-area: mainTabManager;;
 }
 
@@ -47,12 +62,19 @@
     height: 100%;
     width: fit-content;
     float:left;
+    display: inline;
 }
 
 .activeTab{
-    background-color: gray;
+    background-color: rgb(165, 165, 165);
+    border-width: 1pt;
+    border-style: solid;
+    border-color: azure;
 }
 
 .inactiveTab{
-    background-color: greenyellow;
+    background-color: whitesmoke;
+    border-width: 1pt;
+    border-style: solid;
+    border-color: azure;
 }

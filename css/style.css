@@ -27,6 +27,11 @@
     width: 20pt;
 }
 
+.NaviButton{
+    height: 20pt;
+    width: 20pt;
+}
+
 .showConextMenu{
     visibility: visible;
     display: block;

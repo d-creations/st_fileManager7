@@ -6,7 +6,9 @@ export interface StorageNode2_EXC_I {
     observerUpdated()
 
 }
-export interface FileNode_EXC_I extends StorageNode2_EXC_I{}
+export interface FileNode_EXC_I extends StorageNode2_EXC_I{
+    isDeleted(): boolean
+}
 
 
 export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {}

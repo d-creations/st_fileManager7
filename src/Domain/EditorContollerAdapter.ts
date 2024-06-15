@@ -96,7 +96,7 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
     }
 
 
-    createFolder(rootDirectory  : StorageNode2_EXC_I) :void{
+    createFolder(rootDirectory  : StorageNode2_EXC_I) :Promise<boolean | unknown>{
             if(rootDirectory instanceof StorageNode2)
                 return rootDirectory.createNewFolder(rootDirectory)
             else
@@ -104,9 +104,9 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
             
     }
 
-    createFile(rootDirectory  : StorageNode2_EXC_I):void{
+    createFile(rootDirectory  : StorageNode2_EXC_I):Promise<boolean | unknown>{
         if(rootDirectory instanceof StorageNode2)
-            rootDirectory.createNewFile(rootDirectory)
+            return rootDirectory.createNewFile(rootDirectory)
         else
             throw new Error("Root Directory type unkown")
         

@@ -6,33 +6,60 @@
     position: static;
     overflow: hidden;
     grid-template:
-    [header-left] "head head head" 30px [header-right]
-    [main-left] "nav filetree main" 1fr [main-right]
-    [footer-left] "nav filetree foot" 30px [footer-right]
-/ 30px 120px 1fr;
+    [header-left] "head head head head" 30px [header-right]
+    [main-left] "nav filetree bar main" 1fr [main-right]
+    [footer-left] "nav filetree bar foot" 30px [footer-right]
+/ 20pt 90pt 5pt 1fr;
 }
 .fileExpolorer{
-    background-color: blue;
+    background-color: rgb(215, 214, 214);
     grid-area: filetree;
-    overflow: scroll;
+    overflow: auto;
 }
 .menu{
-    background-color: gray;
+    background-color: rgb(145, 145, 145);
     grid-area: main;
 }
 .nav{
-    background-color: gray;
+    background-color: rgb(145, 145, 145);
     grid-area: nav;
 }
+
+.bar{
+    background-color: black;
+    grid-area: bar;
+    cursor: ew-resize;
+}
+
+ /* /* width */
+::-webkit-scrollbar {
+    width: 3pt;
+    height: 3pt;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  } 
 
 .main{
     background-color: black;
 }
 .header {
-    background-color: lime;
+    background-color: rgb(145, 145, 145);
     grid-area: head;
   }
   .footer {
-    background-color: red;
+    background-color: rgb(145, 145, 145);
     grid-area: foot;
   }

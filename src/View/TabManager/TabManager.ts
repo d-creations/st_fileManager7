@@ -1,6 +1,6 @@
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
 import { CanalAdapter } from "../../tecnicalServices/canalAdapter.js"
-import { Observer } from "../../tecnicalServices/oberserver.js"
+import { Observer, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
 import { FileDiv } from "../FileDiv.js"
 import { TabCreator } from "./TabCreator.js"
 
@@ -18,9 +18,9 @@ export interface TabManager_I{
 
 export class TABpage{
     contentDiv : HTMLDivElement
-    canal : CanalAdapter
+    canal : any
 
-    constructor(contentDiv : HTMLDivElement, canal : CanalAdapter){
+    constructor(contentDiv : HTMLDivElement, canal : any){
         this.contentDiv = contentDiv
         this.canal = canal
     }
@@ -59,6 +59,8 @@ export class TabManager implements TabManager_I{
 
     private baseTabManagerDiv : HTMLDivElement
     private headTabManagerDiv : HTMLDivElement
+    private headTabContentDiv : HTMLDivElement
+
     private mainTabManagerDiv : HTMLDivElement
     private footTabManagerDiv : HTMLDivElement
     private tabList : TAB[]
@@ -74,6 +76,9 @@ export class TabManager implements TabManager_I{
         this.baseTabManagerDiv.classList.add("baseTabManagerTable")
         this.headTabManagerDiv = document.createElement("div")
         this.headTabManagerDiv.classList.add("headTabManager")
+        this.headTabContentDiv = document.createElement("div")
+        this.headTabContentDiv.classList.add("headTabContent")
+        this.headTabManagerDiv.appendChild(this.headTabContentDiv)
         this.mainTabManagerDiv = document.createElement("div")
         this.mainTabManagerDiv.classList.add("mainTabManager")
         this.footTabManagerDiv = document.createElement("div")
@@ -113,10 +118,12 @@ export class TabManager implements TabManager_I{
             })
             tabdiv.appendChild(tab.button)
             tabdiv.appendChild(closeButton)
-            this.headTabManagerDiv.appendChild(tabdiv)
+            this.headTabContentDiv.appendChild(tabdiv)
             this.tabList.push(tab)
-
-            
+            let func : observerFunc = ()=>{
+                if(fileNode.fileNode.isDeleted())TabManager.removeTab(tab)
+            }
+            fileNode.fileNode.addObserver(new ObserverFunction(func))
             indexOfTab = this.tabList.length -1
         }
         this.openTab(indexOfTab)
@@ -132,13 +139,13 @@ export class TabManager implements TabManager_I{
     }
     removeTab(Tab : TAB): void {
         let indexOfTab = -1
-        for (let child in this.headTabManagerDiv.childNodes){
-            if(this.headTabManagerDiv.childNodes[child] === Tab.headDiv){
+        for (let child in this.headTabContentDiv.childNodes){
+            if(this.headTabContentDiv.childNodes[child] === Tab.headDiv){
                 indexOfTab = Number(child)
             }
         }
-        if(this.headTabManagerDiv.contains(Tab.headDiv)){            
-            this.headTabManagerDiv.removeChild(Tab.headDiv)
+        if(this.headTabContentDiv.contains(Tab.headDiv)){            
+            this.headTabContentDiv.removeChild(Tab.headDiv)
 
             if (this.mainTabManagerDiv.contains(Tab.getTab())){
                 while(this.mainTabManagerDiv.firstChild){

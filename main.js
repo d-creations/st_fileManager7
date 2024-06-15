@@ -49,6 +49,7 @@ function createWindow () {
     }
   })
   win.removeMenu()
+  
 
   win.openDevTools();
   win.loadFile('public/html/index.html')
@@ -152,7 +153,7 @@ function handleGetFilesInDir (event,args) {
       }
       else{
         let result =  files.filter(function(entry){
-            return entry.isFile() || entry.isDirectory() ;
+            return (entry.isFile() || entry.isDirectory()) && !entry.isSymbolicLink() ;
           }).map(entry => ({
           name: entry.name,
           type: entry.isDirectory() ? "directory" : "file",

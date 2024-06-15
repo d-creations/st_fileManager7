@@ -1,7 +1,9 @@
 
 import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
+import { BaseTableManager_I } from "./BaseTableManager.js"
 import { DirectoryDiv } from "./DirectoryDiv.js"
 import { FileDiv } from "./FileDiv.js"
+import { NaviMenu_I } from "./NaviManager/NaviMenu_I.js"
 import { StorageDiv } from "./StorageDiv.js"
 import { TabManager_I } from "./TabManager/TabManager.js"
 
@@ -9,7 +11,7 @@ import { TabManager_I } from "./TabManager/TabManager.js"
 
 
 
-export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
+export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,NaviMenu_I{
     private tabManager : TabManager_I
     private rootStorageDiv : StorageDiv
     private editor : EditorControlerAdapter_EXC_I
@@ -18,6 +20,14 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
         this.editor = editor
         this.tabManager = tabManager
     }
+    display() {
+        throw new Error("Method not implemented.")
+    }
+
+    getNaviHTMLDiv():HTMLDivElement{
+        return this
+    }
+    
     closeApplication(): void {
         this.editor.closeApplication()
     }
@@ -28,7 +38,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I{
         let localfileManager = this
         this.editor.openDirectory().then(function(directoryNode : DirectoryNode_EXC_I){
             localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator())
-            localfileManager.updateElement()      
+            localfileManager.updateElement()  
         })
     }
     

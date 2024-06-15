@@ -27,6 +27,19 @@ export class FileLeftClickMenu{
                 console.log("openFile")
                 this.fileNode.openFile()
             })
+/*
+            let openInStarEditPro = document.createElement("div")
+            openInStarEditPro.innerText = "openInStarEditPro"
+            openInStarEditPro.classList.add("selectable","rightClickMenu")
+            FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInStarEditPro)
+            openInStarEditPro.addEventListener("click", (e)=> {
+                FileLeftClickMenu.removeMenu()
+                console.log("openFile")               
+                this.fileNode.openStar()                
+
+            })
+*/
+
             console.log("shoe Menu")
         }
     }

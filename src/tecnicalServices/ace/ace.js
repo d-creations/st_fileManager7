@@ -684,7 +684,7 @@
                 return cssCache.push([cssText, id]);
             }
         }
-        if (strictCSP)
+        if (true)
             return;
         var container = target;
         if (!target || !target.getRootNode) {
@@ -1125,7 +1125,7 @@
         $moduleUrls: {},
         loadWorkerFromBlob: true,
         sharedPopups: false,
-        useStrictCSP: null
+        useStrictCSP: true
     };
     exports.get = function (key) {
         if (!options.hasOwnProperty(key))

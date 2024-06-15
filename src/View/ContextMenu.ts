@@ -4,6 +4,7 @@ import { StorageDiv } from "./StorageDiv.js";
 
 export class ContextMenu{
     static contextMenuDiv = document.createElement("div")
+    
     private pathDir = ""
     private nameFile = ""
     private fileNode : StorageDiv
@@ -17,6 +18,7 @@ export class ContextMenu{
         if(e.target instanceof HTMLDivElement && e.target.contentEditable != "true"){
             e.target.setAttribute("click","true")
             ContextMenu.target = e.target
+            
             let pos = this.getPosition(e)
             ContextMenu.removeMenu()
             ContextMenu.contextMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")

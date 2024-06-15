@@ -48,6 +48,11 @@ export class FileDiv extends StorageDiv{
         this.tabCreator.createTab(this , this.editor)
     }
 
+    openStar() {
+        this.tabCreator.createStarTab(this , this.editor)
+    }
+
+
     public oberverUpdate(): void {
         console.log("update File Div")
         this.innerText = this.editor.getStorageName(this.fileNode);
