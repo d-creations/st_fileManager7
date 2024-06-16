@@ -5,14 +5,22 @@
  * Canal class adapter 
  */
 
+import { TABApplication } from "../../View/TabManager/TabApplication.js";
 import {Canal} from "./canal.js";
 
 
-export class CanalAdapter{
+export class CanalAdapter implements TABApplication{
     private _canal : Canal
     constructor(id: number, parentDiv : HTMLDivElement, readOnly : boolean, timeLine : boolean ) {
         this._canal = new Canal(id, parentDiv,readOnly,timeLine)
 
+    }
+    setText(value: string): void {
+        this._canal.setText(value);
+    }
+
+    getText(): string {
+        return this._canal.getText();
     }
 
     

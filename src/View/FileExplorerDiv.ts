@@ -1,6 +1,5 @@
 
 import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
-import { BaseTableManager_I } from "./BaseTableManager.js"
 import { DirectoryDiv } from "./DirectoryDiv.js"
 import { FileDiv } from "./FileDiv.js"
 import { NaviMenu_I } from "./NaviManager/NaviMenu_I.js"

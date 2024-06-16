@@ -5,7 +5,7 @@ import "./ace/ext-language_tools.js"
 import "./ace/ext-settings_menu.js"
 import "./ace/mode-fanucnc.js"
 import "./ace/ext-searchbox.js"
-import { Observable } from "./oberserver.js";
+import { Observable } from "./../../tecnicalServices/oberserver.js";
 
 function LoadScript(url) {
     var script = document.createElement("script"); 

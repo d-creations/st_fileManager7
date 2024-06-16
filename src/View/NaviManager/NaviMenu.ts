@@ -21,7 +21,7 @@ export class NaviPage{
         let self = this
         self.naviMenu.display(naviPageContent.contentDiv)
         
-        this.button = ViewObjectCreator.createNaviButton("Explorer","../../image/openfolder.png")
+        this.button = ViewObjectCreator.createNaviButton("Explorer","../../image/folder.png")
         this.button.addEventListener(("click"),(e)=> {
             self.naviMenu.display(naviPageContent.contentDiv)
         } ) 

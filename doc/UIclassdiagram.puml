@@ -16,16 +16,14 @@ class View.DirectoryDiv {
 class View.FileExplorerDiv {
 }
 
-class View.ViewObjectCreator{
 
-}
 
 class DomainViewI.EditorControlerAdapter_EXC_I {
 
 }
 
 
-class View.TabManger{
+class View.TabManager.TabManger{
 File
 Application
 }
@@ -38,7 +36,7 @@ class View.PrintApplication{
 data
 }
 
-class View.TabCreator{
+class View.TabManager.TabCreator{
 file
 }
 
@@ -52,26 +50,68 @@ class View.FileLeftClickMenu{
 
 }
 
+class View.NaviManager.NaviMenu{
+
+}
+class View.NaviManager.NaviPage{
+
+}
+class View.NaviManager.NaviPageContent{
+
+}
+
+interface View.BaseTableManager_I{    
+}
+
+class View.BaseTableManager{    
+}
+
+interface View.NaviMenu_I{    
+}
+
+interface View.TabManager.TabApplication{    
+}
+
+interface Application.ApplicationCreator_I{}
+
+View.NaviManager.NaviPage ---> View.NaviManager.NaviPageContent : use
+View.NaviManager.NaviPage ---> View.NaviManager.NaviMenu : use
+View.NaviManager.NaviMenu ---> View.NaviManager.NaviMenu_I : use
+View.NaviManager.NaviMenu ---> View.BaseTableManager_I : use
+
+Application.ApplicationCreator_I --> View.TabManager.TabApplication : use
+
+View.TabManager.TabCreator  --> Application.ApplicationCreator_I : use
+View.TabManager.TabCreator  -> View.TabManager.TabApplication : use
+View.TabManager.TabCreator  -> View.TabManager.TabManger : use
+View.TabManager.TabCreator  --> DomainViewI.EditorControlerAdapter_EXC_I : use
+View.TabManager.TabCreator  ---> View.FileDiv : use
+View.TabManager.TabCreator  -> View.TabManager.TABpage : use
 
 
-View.TabCreator  --> View.TabManger : use
-View.TabCreator  --> DomainViewI.EditorControlerAdapter_EXC_I : use
-View.TabCreator  --> View.FileDiv : use
-View.TabCreator  --> View.TABpage : use
 
-View.TabManger --> View.ViewObjectCreator : use
-View.TabManger --> View.CanalAdapter : use
-View.TabManger --> technical.Observer : use
-View.TabManger --> View.FileDiv : use
-View.TabManger --> View.TabCreator : use
-View.TabManger --> View.TabManager_I : use
+View.TabManager.TabManger --> Application.ApplicationCreator_I : use
+View.TabManager.TabManger ---> View.FileDiv : use
+View.TabManager.TabManger -> View.TabManager.TabCreator : use
+View.TabManager.TabManger -> View.TabManager.TabManager_I : implements
+View.TabManager.TabManger -> View.TabManager.TAB : implements
+
+View.TabManager.TAB --> technical.Observer : use
+View.TabManager.TAB ---> View.FileDiv : use
+View.TabManager.TAB -> Application.ApplicationCreator_I : use
+View.TabManager.TAB -> View.TabManager.TABpage : use
+
+View.TabManager.TABpage --> View.TabManager.TabApplication : use
+
+View.BaseTableManager -|> View.BaseTableManager_I : impenets
+
 
 View.ContextMenu -> View.StorageDiv : use
 
-View.DirectoryDiv -> DomainViewI.DirectoryNode_EXC_I : use
+View.DirectoryDiv --> DomainViewI.DirectoryNode_EXC_I : use
 View.DirectoryDiv --> DomainViewI.EditorControlerAdapter_EXC_I  : use
-View.DirectoryDiv -> View.TabCreator : use
-View.DirectoryDiv -> View.ContextMenu : use
+View.DirectoryDiv -> View.TabManager.TabCreator : use
+View.DirectoryDiv --> View.ContextMenu : use
 View.DirectoryDiv -> View.FileDiv : use
 View.DirectoryDiv  --|> View.StorageDiv : exdend
 
@@ -80,7 +120,8 @@ View.FileDiv  ---> DomainViewI.FileNode_EXC_I : use
 View.FileDiv  -->  View.ContextMenu : use
 View.FileDiv  --> View.FileLeftClickMenu : use
 View.FileDiv  --|> View.StorageDiv : exdend
-View.FileDiv  -->  View.TabCreator : use
+View.FileDiv  -->  View.TabManager.TabCreator : use
+View.FileDiv  --> Application.ApplicationCreator_I  : use
 
 
 
@@ -90,17 +131,17 @@ View.FileExplorerDiv ---> DomainViewI.FileNode_EXC_I : use
 View.FileExplorerDiv -> View.DirectoryDiv : use
 View.FileExplorerDiv --> View.FileDiv : use
 View.FileExplorerDiv --> View.StorageDiv : use
-View.FileExplorerDiv --> View.TabManager_I : use
+View.FileExplorerDiv --> View.TabManager.TabManager_I : use
 View.FileExplorerDiv <|-- View.FileManager_I : implements
+View.FileExplorerDiv <|-- View.NaviManager.NaviMenu_I : implements
 
 
 View.StorageDiv --> DomainViewI.EditorControlerAdapter_EXC_I  : use
 View.StorageDiv ---> DomainViewI.StorageNode2_EXC_I : use
-View.StorageDiv -> technical.ObservableI : use
 View.StorageDiv -> technical.Observer : use
 
 
 View.FileLeftClickMenu -> View.FileDiv : use
-
+View.FileLeftClickMenu -> Application.ApplicationCreator_I : use
 
 

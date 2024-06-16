@@ -1,3 +1,4 @@
+import { ApplicationCreator_I } from "../Applications/Application_I"
 import { EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
 import { ContextMenu } from "./ContextMenu.js"
 import { FileLeftClickMenu } from "./FileLeftClickMenu.js"
@@ -44,12 +45,14 @@ export class FileDiv extends StorageDiv{
         this.editor.saveFile(this.fileNode,text)
     }
     
-    public openFile() {
-        this.tabCreator.createTab(this , this.editor)
+    public openFile(createApplication : ApplicationCreator_I) {
+        this.tabCreator.createTab(this , createApplication,this.editor)
     }
 
-    openStar() {
-        this.tabCreator.createStarTab(this , this.editor)
+
+
+    setEditable(state : string){
+        this.contentEditable = state
     }
 
 

@@ -1,3 +1,4 @@
+import { CanalCreator } from "../Applications/EditorACE/canalCreator.js";
 import { FileDiv } from "./FileDiv.js";
 
 
@@ -25,7 +26,7 @@ export class FileLeftClickMenu{
             openInEditor.addEventListener("click", (e)=> {
                 FileLeftClickMenu.removeMenu()
                 console.log("openFile")
-                this.fileNode.openFile()
+                this.fileNode.openFile(new CanalCreator)
             })
 /*
             let openInStarEditPro = document.createElement("div")

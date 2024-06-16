@@ -7,7 +7,7 @@
     grid-template:
     [header-left] "headTabManager" 30px [header-right]
     [main-left] " mainTabManager" 1fr [main-right]
-    [footer-left] " footTabManager" 10px [footer-right]
+    [footer-left] " footTabManager" 3px [footer-right]
 / 1fr;
 }
 

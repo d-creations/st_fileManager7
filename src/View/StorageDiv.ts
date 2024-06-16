@@ -1,5 +1,5 @@
 import { EditorControlerAdapter_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
-import { ObservableI, Observer } from "../tecnicalServices/oberserver.js";
+import {Observer } from "../tecnicalServices/oberserver.js";
 
 
 
@@ -49,21 +49,25 @@ export class StorageDiv extends HTMLDivElement implements Observer{
 
     }
 
+    setFocus(){
+        this.focus()
+    }
+
     rename() {
         this.setEditable("true")  
         this.classList.remove("selectable")
         this.classList.add("writeable")
 
         let self = this
-        this.focus()
+        this.setFocus()
         this.waitingKeypress().then(
             (emptyString) => {
                 console.log(self.getName())
-                this.editor.renameFileOrFolder(this.storageNode,self.getName())
-                this.setEditable("false")  
+                self.editor.renameFileOrFolder(self.storageNode,self.getName())
+                self.setEditable("false")  
                 self.oberverUpdate() 
-                this.classList.remove("writeable")
-                this.classList.add("selectable")
+                self.classList.remove("writeable")
+                self.classList.add("selectable")
               
         } 
     )

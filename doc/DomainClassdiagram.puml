@@ -11,6 +11,9 @@ class Domain.StorageNode2 {
 
 class Domain.FileNode {
 }
+
+class Domain.RootStorageNode {
+}
 class Domain.DirectoryNode {
     void createNewFolder()
 }
@@ -38,10 +41,17 @@ Domain.EditorControlerAdapter -->  DomainViewI.DirectoryNode_EXC_I : use
 Domain.EditorControlerAdapter -->  DomainViewI.FileNode_EXC_I : use
 Domain.EditorControlerAdapter -->  DomainViewI.StorageNode2_EXC_I : use
 Domain.EditorControlerAdapter -->  DomainViewI.EditorControlerAdapter_EXC_I : use
+Domain.EditorControlerAdapter -->  DomainViewI.EditorControlerAdapter_EXC_TYPE_ERROR : use
+Domain.EditorControlerAdapter -->  DomainViewI.EditorControlerAdapter_EXC_ERROR : use
+
 
 Domain.EditorControlerAdapter -->  Domain.DirectoryNode : use
 Domain.EditorControlerAdapter -->  Domain.FileNode : use
 Domain.EditorControlerAdapter -->  Domain.StorageNode2 : use
+Domain.EditorControlerAdapter -->  Domain.RootStorageNode : use
+
+Domain.RootStorageNode --|>  Domain.StorageNode2 : extends
+
 
 Domain.FileNode --|>  Domain.StorageNode2 : exend
 Domain.FileNode -->  DomainViewI.FileNode_EXC_I : impement
@@ -53,7 +63,7 @@ Domain.StorageNode2 -->  DomainViewI.StorageNode2_EXC_I : impement
 
 Domain.DirectoryNode --|>  Domain.StorageNode2 : exend
 Domain.DirectoryNode -->  DomainViewI.DirectoryNode_EXC_I : impement
-Domain.DirectoryNode -->  Domain.FileNode : impement
+Domain.DirectoryNode -->  Domain.FileNode : use
 
 @enduml
 

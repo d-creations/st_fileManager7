@@ -38,7 +38,7 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
         let ret = new Promise((resolve, reject) => {
             let retPromis = globalThis.electron.openFolder()
             console.log("return form "+ retPromis)
-            let localfileManager = this
+            let self = this
             retPromis.then(function(folderPath){
 
                 let folderName = folderPath.split("\\").at(-1)
@@ -47,9 +47,9 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
                     folderPath = folderPath.substring(0,folderPath.lastIndexOf("\\"))
                 }
                 let rootStorageNode = new RootStorageNode(folderPath)
-                localfileManager.storageNode = new DirectoryNode(rootStorageNode,folderName)
-                localfileManager.storageNode.oberverUpdate()
-                resolve(localfileManager.storageNode);
+                self.storageNode = new DirectoryNode(rootStorageNode,folderName)
+                self.storageNode.oberverUpdate()
+                resolve(self.storageNode);
             }).catch(()=> {throw new EditorControlerAdapter_EXC_ERROR("open File Error")})
         })
         return ret
@@ -64,7 +64,8 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
         }
     }
 
-    openFile() :Promise<FileNode_EXC_I | unknown>{        
+    openFile() :Promise<FileNode_EXC_I | unknown>{  
+        let self = this
         let ret = new Promise((resolve, reject) => {
             console.log("openFile")
             globalThis.electron.openFile().then(
@@ -75,7 +76,7 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
                     }
                     let rootStorageNode = new RootStorageNode(filePath)
                     let fileNode = new FileNode(rootStorageNode,filename)
-                    this.storageNode = fileNode
+                    self.storageNode = fileNode
                     resolve(fileNode);
                 }
             ).catch(()=> {throw new EditorControlerAdapter_EXC_ERROR("open File Error")})

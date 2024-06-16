@@ -21,11 +21,11 @@ export class DirectoryHeadDiv extends StorageDiv{
         this.symbole.contentEditable = "false"
         this.symbole.innerText = "> "
         this.symbole.classList.add("inline")
-        this.symbole.contentEditable == "false"
+        this.symbole.contentEditable = "false"
 
         this.nameDiv = document.createElement("div")
         this.appendChild(this.nameDiv)
-        this.symbole.contentEditable = "false"
+        this.nameDiv.contentEditable = "false"
         this.nameDiv.innerText = this.editor.getStorageName(this.directoryNode)
         this.nameDiv.classList.add("inline")
         this.directoryNode.addObserver(this)
@@ -121,7 +121,7 @@ export class DirectoryDiv extends StorageDiv{
         this.directoryHeadDiv.nameDiv.innerText = name
     }
     setEditable(state : string){
-        this.directoryHeadDiv.nameDiv.contentEditable == state
+        this.directoryHeadDiv.nameDiv.contentEditable = state
     }
     oberverUpdate():void{
         this.updateDiv()
