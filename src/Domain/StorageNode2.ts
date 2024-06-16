@@ -5,7 +5,9 @@ import { FileNode } from "./FileNode.js"
 
 
 
+
 export abstract class StorageNode2 extends Observable implements Observer,StorageNode2_EXC_I{
+
     name : string
     rootStorageNode : StorageNode2 | null
     spaceLeft : number
@@ -35,6 +37,16 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
             self.deleteState = true
             globalThis.electron.deleteFileOrFolder(self.getUrl()).then(()=>
             self.observerUpdated())    
+        }
+
+        insertStorage(source: StorageNode2){
+            let self = this
+            globalThis.electron.copyFolderOrFile(source.getUrl(),self.getUrl()).then((state)=>{
+                if(source instanceof FileNode && state === false){
+                    let dest: string = self.getUrl()+"\\"+source.name + "copy"
+                    globalThis.electron.copyFolderOrFile(source.getUrl(),dest).then(()=>{self.rootStorageNode.observerUpdated()})               
+                }
+            }).then(()=>{self.rootStorageNode.observerUpdated()})
         }
 
         getUrl(): any {

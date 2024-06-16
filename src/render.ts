@@ -33,7 +33,7 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
   let tabManager : TabManager_I = new TabManager(tabDiv)
   let editor : EditorControlerAdapter = new EditorControlerAdapter()
   let fileManager = new FileExplorerDiv(tabManager,editor) 
-  let headBar = new ViewTopBar(headBarDiv,fileManager,baseTableManager)
+  let headBar = new ViewTopBar(headBarDiv,fileManager,baseTableManager,tabManager.getTabCreator())
   let navi : NaviMenu = new NaviMenu(naviDiv,div,[fileManager],baseTableManager)
   
 

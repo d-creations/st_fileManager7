@@ -6,15 +6,7 @@ export class FileNode extends StorageNode2 implements FileNode_EXC_I{
     saveFile(text: any) {
         globalThis.electron.saveFile(this.getUrl(),text)
     }
-    print(string: any) {
-        throw new Error("Method not implemented.");
-    }
-    createDivs(parentDiv: HTMLDivElement, spaceLeft: number) {
-        throw new Error("Method not implemented.");
-    }
-    update() {
-        throw new Error("Method not implemented.");
-    }
+
 
     isDeleted(){
         return this.deleteState
@@ -22,6 +14,10 @@ export class FileNode extends StorageNode2 implements FileNode_EXC_I{
     createNewFolder(rootDirectory  : FileNode) :Promise<boolean | unknown>{
         let url = rootDirectory.rootStorageNode.getUrl()
         return this.createFolder(url)
+    }
+
+    insertStorage(source: StorageNode2) {
+        this.rootStorageNode.insertStorage(source)
     }
 
     createNewFile(rootDirectory: StorageNode2) :Promise<boolean | unknown> {

@@ -40,6 +40,18 @@ export class StorageDiv extends HTMLDivElement implements Observer{
         this.editor.createFolder(this.storageNode)
     }
 
+    copyStorage():void{
+        this.editor.copyStorage(this.storageNode)
+    }
+
+    cutStorage():void{
+        this.editor.cutStorage(this.storageNode)
+    }
+
+    insertStorage():void{
+        this.editor.insertStorage(this.storageNode)
+    }
+
     createFile(): void {
         this.editor.createFile(this.storageNode)
     }

@@ -66,6 +66,8 @@ export class TabManager implements TabManager_I{
     private mainTabManagerDiv : HTMLDivElement
     private footTabManagerDiv : HTMLDivElement
     private tabList : TAB[]
+    private headTabList : HTMLDivElement[]
+    private currentTabIndex : number
     private tabCreator : TabCreator
 
     constructor(parentDiv: HTMLDivElement) {

@@ -58,6 +58,36 @@ export class ContextMenu{
                 this.fileNode.deleteFileOrFolder()
             })
 
+            let copyFolderButton = document.createElement("div")
+            copyFolderButton.innerText = "copy"
+            copyFolderButton.classList.add("selectable","rightClickMenu")
+            ContextMenu.contextMenuDiv.appendChild(copyFolderButton)
+            copyFolderButton.addEventListener("click", (e)=> {
+                ContextMenu.removeMenu()
+                console.log("copy")
+                this.fileNode.copyStorage()
+            })
+
+            let cutFolderButton = document.createElement("div")
+            cutFolderButton.innerText = "cut"
+            cutFolderButton.classList.add("selectable","rightClickMenu")
+            ContextMenu.contextMenuDiv.appendChild(cutFolderButton)
+            cutFolderButton.addEventListener("click", (e)=> {
+                ContextMenu.removeMenu()
+                console.log("cut Storage")
+                this.fileNode.cutStorage()
+            })
+
+            let insertFolderButton = document.createElement("div")
+            insertFolderButton.innerText = "insert"
+            insertFolderButton.classList.add("selectable","rightClickMenu")
+            ContextMenu.contextMenuDiv.appendChild(insertFolderButton)
+            insertFolderButton.addEventListener("click", (e)=> {
+                ContextMenu.removeMenu()
+                console.log("insert Storage")
+                this.fileNode.insertStorage()
+            })
+
             let renameButton = document.createElement("div")
             renameButton.innerText ="rename"
             renameButton.classList.add("selectable","rightClickMenu")

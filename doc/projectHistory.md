@@ -13,8 +13,9 @@ _____________________
 usecase 1 <br>
 <>    first version done<br>
 </br>
-actiondiagram 
-<img src="./sequenzDiagram/removeFile.puml" alt="/sequenzDiagram/removeFile.puml"></img>
+actiondiagram delete File node <br>
+defind how to refresh wenn the filesystem did a change
+<img src="./out/sequenzDiagram/removeFile/removeFile.png" alt="/sequenzDiagram/removeFile.puml"></img>
 <br>defind how to refresh wenn the filesystem did a change
 <br>
 

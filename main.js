@@ -63,6 +63,10 @@ ipcMain.handle('deleteFileOrFolder', handleDeleteFileOrFolder)
 ipcMain.handle('renameFileOrFolder', handleRenameFileOrFolder)
 
 ipcMain.handle('closeApplication', handleCloseApplication)
+ipcMain.handle('moveFolderOrFile', handleMoveFolderOrFile)
+ipcMain.handle('copyFolderOrFile', handleCopyFolderOrFile)
+
+
 
 
 
@@ -178,6 +182,44 @@ function handleGetFilesInDir (event,args) {
       });
   });
     return ret
+  }
+
+
+  function handleMoveFolderOrFile (event,oldUrl,newUrl){
+    console.log("create File or Folder ")
+    console.log(url)
+    let ret = new Promise((resolve, reject) => {
+      fs.cp(src, dest, {recursive: true},function(err, data){
+          if(err) {
+              reject(new MainIPC_Error(0,"ove Folder failed in Main process"));
+          }
+          resolve(data);
+      });
+  });
+    return ret
+  }
+
+
+  function handleCopyFolderOrFile (event,oldUrl,newUrl){
+    console.log("copy File or Folder ")
+    let ret = new Promise((resolve, reject) => {
+      notExists(newUrl).then((state)=>{
+        if(state){
+          fs.cp(oldUrl, newUrl, {recursive: true},function(err, data){
+          if(err) {
+            throw new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl)
+            }
+          resolve(true);
+        });
+      }
+      else{
+        resolve(false);
+      }
+
+      })
+  });
+    return ret
+
   }
 
   function handleRenameFileOrFolder(event,oldUrl,newUrl){

@@ -25,7 +25,7 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
     let tabManager = new TabManager(tabDiv);
     let editor = new EditorControlerAdapter();
     let fileManager = new FileExplorerDiv(tabManager, editor);
-    let headBar = new ViewTopBar(headBarDiv, fileManager, baseTableManager);
+    let headBar = new ViewTopBar(headBarDiv, fileManager, baseTableManager, tabManager.getTabCreator());
     let navi = new NaviMenu(naviDiv, div, [fileManager], baseTableManager);
     document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv);
     document.body.appendChild(ContextMenu.contextMenuDiv);
