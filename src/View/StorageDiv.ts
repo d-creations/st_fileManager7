@@ -6,12 +6,10 @@ import {Observer } from "../tecnicalServices/oberserver.js";
 export class StorageDiv extends HTMLDivElement implements Observer{
 
 
-    protected obervers: Array<Observer>
     protected editor : EditorControlerAdapter_EXC_I
     protected storageNode : StorageNode2_EXC_I
     constructor(editor : EditorControlerAdapter_EXC_I,storageNode : StorageNode2_EXC_I){
         super()
-        this.obervers = []
         this.innerHTML = "StorageDiv"
         this.editor = editor
         this.storageNode = storageNode

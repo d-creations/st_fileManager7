@@ -1,8 +1,7 @@
 
 import { ApplicationCreator_I } from "../../Applications/Application_I.js"
 import { SettingFileNode } from "../../Applications/Setting.js"
-import { EditorControlerAdapter_EXC_I } from "../../ViewDomainI/Interfaces.js"
-import { FileDiv } from "../FileDiv.js"
+import { FileDiv_I } from "../FileDiv.js"
 import { TABApplication } from "./TabApplication.js"
 import { TabManager, TABpage } from "./TabManager.js"
 
@@ -13,24 +12,15 @@ export class TabCreator{
     constructor(tabManager:  TabManager){
         this.tabManager = tabManager
     }
-    createTab(fileDiv : FileDiv,applicationCreator : ApplicationCreator_I,editor : EditorControlerAdapter_EXC_I){
+    createTab(fileDiv : FileDiv_I,applicationCreator : ApplicationCreator_I){
         let tabManager = this.tabManager
-        editor.getFileText(fileDiv.fileNode).then(function(text) {
+        fileDiv.getFileText().then(function(text) {
             let div : HTMLDivElement= document.createElement("div")
             let canal : TABApplication= applicationCreator.createApplication(div)
             canal.setText(text.toString())
             div.classList.add("fileEditor")
             tabManager.createTab(fileDiv,new TABpage(div,canal),applicationCreator)
         })
-    }
-
-    createInfoTab(applicationCreator : ApplicationCreator_I){
-        let tabManager = this.tabManager
-            let div : HTMLDivElement= document.createElement("div")
-            let canal : TABApplication= applicationCreator.createApplication(div)
-            div.classList.add("fileEditor")
-            tabManager.createTab(new SettingFileNode(),new TABpage(div,canal),applicationCreator)
-    
     }
 
 

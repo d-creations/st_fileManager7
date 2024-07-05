@@ -71,24 +71,6 @@ export class NaviMenu {
         }
     }
 
-/*
-    private openTab(indexOfTab : number): void {
-        while(this.mainTabManagerDiv.firstChild){
-            this.mainTabManagerDiv.removeChild(this.mainTabManagerDiv.firstChild)
-        }
-        for(let tab of this.tabList){
-            tab.button.classList.remove("activeTab")            
-            tab.button.classList.add("inactiveTab")
-
-        }
-        this.mainTabManagerDiv.appendChild(this.tabList[indexOfTab].getTab())
-        this.tabList[indexOfTab].button.classList.remove("inactiveTab")            
-        this.tabList[indexOfTab].button.classList.add("activeTab")
-        this.currentTabIndex = indexOfTab
-    }
-
-     
-*/
 
 
 }

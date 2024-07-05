@@ -1,7 +1,7 @@
 import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
 import { Observer, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
-import { FileDiv } from "../FileDiv.js"
+import { FileDiv_I } from "../FileDiv.js"
 import { TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
 
@@ -12,7 +12,7 @@ export interface TabManager_I{
     saveCurrentFile(): void
     getTabCreator(): TabCreator
 
-    createTab(fileNode : FileDiv, mainDiv: TABpage,applicationCreator : ApplicationCreator_I)
+    createTab(fileNode : FileDiv_I, mainDiv: TABpage,applicationCreator : ApplicationCreator_I)
     removeTab(indexOfTab : TAB) : void
 
 }
@@ -30,10 +30,10 @@ export class TABpage{
 export class TAB implements Observer{
     tab : TABpage
     button : HTMLDivElement
-    fileNode : FileDiv
+    fileNode : FileDiv_I
     headDiv : HTMLDivElement
     ApplicationCreator : ApplicationCreator_I
-    constructor(fileNode : FileDiv,tab : TABpage,headDiv : HTMLDivElement,applicationCreator : ApplicationCreator_I){
+    constructor(fileNode : FileDiv_I,tab : TABpage,headDiv : HTMLDivElement,applicationCreator : ApplicationCreator_I){
         this.fileNode = fileNode
         this.tab = tab
         this.headDiv = headDiv
@@ -41,7 +41,7 @@ export class TAB implements Observer{
         this.button.addEventListener(("click"),(e)=> {
             fileNode.openFile(applicationCreator)
         } ) 
-        this.fileNode.fileNode.addObserver(this)
+        this.fileNode.addObserver(this)
     }
     oberverUpdate(): void {
         this.headDiv.innerText = this.fileNode.getName()
@@ -107,7 +107,7 @@ export class TabManager implements TabManager_I{
             tab.save()
         }
     }
-    createTab(fileNode : FileDiv, mainDiv: TABpage,applicationCreator): void {
+    createTab(fileNode : FileDiv_I, mainDiv: TABpage,applicationCreator): void {
         let indexOfTab = this.getIndexOfTab(fileNode.getUrl())
         if(indexOfTab < 0){
             let tabdiv = document.createElement("div")
@@ -123,9 +123,9 @@ export class TabManager implements TabManager_I{
             this.headTabContentDiv.appendChild(tabdiv)
             this.tabList.push(tab)
             let func : observerFunc = ()=>{
-                if(fileNode.fileNode.isDeleted())TabManager.removeTab(tab)
+                if(fileNode.getFileIsDeleted())TabManager.removeTab(tab)
             }
-            fileNode.fileNode.addObserver(new ObserverFunction(func))
+            fileNode.addObserver(new ObserverFunction(func))
             indexOfTab = this.tabList.length -1
         }
         this.openTab(indexOfTab)

@@ -1,4 +1,5 @@
-import { Setting, SettingCreator } from "../Applications/Setting.js";
+import { InfoCreator, InfoFileNode } from "../Applications/Info.js";
+import { SettingCreator, SettingFileNode } from "../Applications/Setting.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 import { BaseTableManager_I } from "./BaseTableManager.js";
 import { TabCreator } from "./TabManager/TabCreator.js";
@@ -54,7 +55,8 @@ export class ViewTopBar{
         settingApplication.style.position ="absolute"
         let self = this
         settingApplication.addEventListener('click', function(e) {
-            self.tabCreator.createInfoTab(new SettingCreator())
+            let settingNode = new SettingFileNode(self.tabCreator)
+            settingNode.openFile(new SettingCreator())
         })
 
         let infoApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\info.png")
@@ -62,7 +64,9 @@ export class ViewTopBar{
         infoApplication.style.right = 40 + "pt"
         infoApplication.style.position ="absolute"
         infoApplication.addEventListener('click', function(e) {
-            fileManager.closeApplication()
+            let settingNode = new InfoFileNode(self.tabCreator)
+            settingNode.openFile(new InfoCreator())
+
         })
     }
 }
