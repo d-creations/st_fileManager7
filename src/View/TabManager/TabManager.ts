@@ -19,11 +19,11 @@ export interface TabManager_I{
 
 export class TABpage{
     contentDiv : HTMLDivElement
-    canal : TABApplication
+    tabapplication : TABApplication
 
-    constructor(contentDiv : HTMLDivElement, canal : TABApplication){
+    constructor(contentDiv : HTMLDivElement, tabapplication : TABApplication){
         this.contentDiv = contentDiv
-        this.canal = canal
+        this.tabapplication = tabapplication
     }
 }
 
@@ -47,7 +47,7 @@ export class TAB implements Observer{
         this.headDiv.innerText = this.fileNode.getName()
     }
     public save(){
-        this.fileNode.saveText(this.tab.canal.getText())
+        this.fileNode.saveText(this.tab.tabapplication.getText())
     }
 
     public getTab(){
@@ -66,14 +66,10 @@ export class TabManager implements TabManager_I{
     private mainTabManagerDiv : HTMLDivElement
     private footTabManagerDiv : HTMLDivElement
     private tabList : TAB[]
-    private headTabList : HTMLDivElement[]
-    private currentTabIndex : number
     private tabCreator : TabCreator
 
     constructor(parentDiv: HTMLDivElement) {
         this.tabList = []
-        this.headTabList = []
-        this.currentTabIndex = -1
         this.baseTabManagerDiv = document.createElement("div")
         this.baseTabManagerDiv.classList.add("baseTabManagerTable")
         this.headTabManagerDiv = document.createElement("div")
@@ -156,7 +152,6 @@ export class TabManager implements TabManager_I{
             }            
             
             this.tabList.splice(indexOfTab, 1);
-            this.currentTabIndex = -1
 
         }
         return
@@ -173,7 +168,6 @@ export class TabManager implements TabManager_I{
         this.mainTabManagerDiv.appendChild(this.tabList[indexOfTab].getTab())
         this.tabList[indexOfTab].button.classList.remove("inactiveTab")            
         this.tabList[indexOfTab].button.classList.add("activeTab")
-        this.currentTabIndex = indexOfTab
     }
 
      

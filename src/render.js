@@ -22,6 +22,9 @@ let bar = document.getElementById("bar");
 let baseTable = document.getElementById("basetable");
 if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviDiv instanceof HTMLDivElement && div instanceof HTMLDivElement && tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement) {
     let baseTableManager = new BaseTableManager(baseTable, bar, naviDiv, div);
+    window.addEventListener('resize', () => {
+        baseTableManager.moveBar(div.clientWidth);
+    });
     let tabManager = new TabManager(tabDiv);
     let editor = new EditorControlerAdapter();
     let fileManager = new FileExplorerDiv(tabManager, editor);

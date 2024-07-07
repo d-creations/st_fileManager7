@@ -1,6 +1,5 @@
 
 import { ApplicationCreator_I } from "../../Applications/Application_I.js"
-import { SettingFileNode } from "../../Applications/Setting.js"
 import { FileDiv_I } from "../FileDiv.js"
 import { TABApplication } from "./TabApplication.js"
 import { TabManager, TABpage } from "./TabManager.js"
@@ -17,7 +16,8 @@ export class TabCreator{
         fileDiv.getFileText().then(function(text) {
             let div : HTMLDivElement= document.createElement("div")
             let canal : TABApplication= applicationCreator.createApplication(div)
-            canal.setText(text.toString())
+            let textC = (text instanceof HTMLDivElement) ? text : text.toString()
+            canal.setText(textC)
             div.classList.add("fileEditor")
             tabManager.createTab(fileDiv,new TABpage(div,canal),applicationCreator)
         })

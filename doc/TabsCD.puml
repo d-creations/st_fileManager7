@@ -1,0 +1,34 @@
+@startuml
+
+
+
+interface View.TabManager.TabApplication{    
+}
+
+Application.ApplicationCreator_I --> View.TabManager.TabApplication : use
+
+View.TabManager.TabCreator  --> Application.ApplicationCreator_I : use
+View.TabManager.TabCreator  -> View.TabManager.TabApplication : use
+View.TabManager.TabCreator  -> View.TabManager.TabManger : use
+View.TabManager.TabCreator  -> View.FileDiv : use
+View.TabManager.TabCreator  -> View.TabManager.TABpage : use
+
+
+
+View.TabManager.TabManger --> Application.ApplicationCreator_I : use
+View.TabManager.TabManger --> View.FileDiv : use
+View.TabManager.TabManger -> View.TabManager.TabCreator : use
+View.TabManager.TabManger -> View.TabManager.TabManager_I : implements
+View.TabManager.TabManger -> View.TabManager.TAB : implements
+
+View.TabManager.TAB --> technical.Observer : use
+View.TabManager.TAB -> View.FileDiv : use
+View.TabManager.TAB -> Application.ApplicationCreator_I : use
+View.TabManager.TAB -> View.TabManager.TABpage : use
+
+View.TabManager.TABpage --> View.TabManager.TabApplication : use
+
+
+View.FileDiv  -->  View.TabManager.TabCreator : use
+
+View.FileExplorerDiv --> View.TabManager.TabManager_I : use

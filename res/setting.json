@@ -1,16 +1,15 @@
 {
-    "Herausgeber": "Xema",
-    "number": "1234-5678-9012-3456",
-    "Deckung": 2e+6,
-    "Waehrung": "EURO",
-    "Inhaber":
+    "Name": "Setting",
+    "Applikations":
+    [{
+      "Name": "Editor",
+      "aktiv": "True",
+      "aktivSelection":["True","False"]
+    },
     {
-      "Name": "Mustermann",
-      "Vorname": "Max",
-      "Teilnahme am Bonusprogramm": true,
-      "Hobbys": ["Reiten", "Golfen", "Lesen"],
-      "Alter": 42,
-      "Kinder": [],
-      "Partner": null
+      "Name": "StarNCPlot",
+      "aktiv": "True",
+      "aktivSelection":["True","False"]
     }
+  ]
   }

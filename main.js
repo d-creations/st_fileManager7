@@ -45,7 +45,8 @@ function createWindow () {
     width: width,
     height: height,
     webPreferences: {
-      preload: path.join(__dirname, 'src/preload.js')
+      preload: path.join(__dirname, 'src/preload.js'),
+      webSecurity: false
     }
   })
   win.removeMenu()

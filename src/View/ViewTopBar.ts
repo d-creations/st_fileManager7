@@ -1,7 +1,8 @@
-import { InfoCreator, InfoFileNode } from "../Applications/Info.js";
-import { SettingCreator, SettingFileNode } from "../Applications/Setting.js";
+import { InfoCreator, InfoFileNode } from "../Applications/InfoView.js";
+import { SettingCreator, SettingFileNode } from "../Applications/SettingView.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 import { BaseTableManager_I } from "./BaseTableManager.js";
+import { FrameAppCreator } from "./TabManager/TabApplication.js";
 import { TabCreator } from "./TabManager/TabCreator.js";
 
 export class ViewTopBar{
@@ -64,9 +65,12 @@ export class ViewTopBar{
         infoApplication.style.right = 40 + "pt"
         infoApplication.style.position ="absolute"
         infoApplication.addEventListener('click', function(e) {
-            let settingNode = new InfoFileNode(self.tabCreator)
-            settingNode.openFile(new InfoCreator())
+            let infoNode = new InfoFileNode(self.tabCreator)
+            //infoNode.openFile(new InfoCreator())
+            infoNode.openFile(new FrameAppCreator())
 
         })
+
+        
     }
 }

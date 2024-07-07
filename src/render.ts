@@ -30,6 +30,10 @@ let baseTable = document.getElementById("basetable");
 if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv instanceof HTMLDivElement&&div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
 
   let baseTableManager = new BaseTableManager(baseTable,bar,naviDiv,div)
+  window.addEventListener('resize', ()=>{
+    baseTableManager.moveBar(div.clientWidth)
+  })
+
   let tabManager : TabManager_I = new TabManager(tabDiv)
   let editor : EditorControlerAdapter = new EditorControlerAdapter()
   let fileManager = new FileExplorerDiv(tabManager,editor) 
