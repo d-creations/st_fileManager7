@@ -9,7 +9,7 @@ import { TABApplication } from "../../View/TabManager/TabApplication.js";
 import {Canal} from "./canal.js";
 
 
-export class CanalAdapter implements TABApplication{
+export class CanalAdapter{
     private _canal : Canal
     constructor(id: number, parentDiv : HTMLDivElement, readOnly : boolean, timeLine : boolean ) {
         this._canal = new Canal(id, parentDiv,readOnly,timeLine)

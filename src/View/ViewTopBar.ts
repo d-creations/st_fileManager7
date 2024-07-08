@@ -2,7 +2,7 @@ import { InfoCreator, InfoFileNode } from "../Applications/InfoView.js";
 import { SettingCreator, SettingFileNode } from "../Applications/SettingView.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 import { BaseTableManager_I } from "./BaseTableManager.js";
-import { FrameAppCreator } from "./TabManager/TabApplication.js";
+import { ApplciationIndex, FrameAppCreator } from "./TabManager/TabApplication.js";
 import { TabCreator } from "./TabManager/TabCreator.js";
 
 export class ViewTopBar{
@@ -57,7 +57,9 @@ export class ViewTopBar{
         let self = this
         settingApplication.addEventListener('click', function(e) {
             let settingNode = new SettingFileNode(self.tabCreator)
-            settingNode.openFile(new SettingCreator())
+            
+            let applciationIndex = new ApplciationIndex("")
+            settingNode.openFile(applciationIndex)
         })
 
         let infoApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\info.png")
@@ -66,8 +68,8 @@ export class ViewTopBar{
         infoApplication.style.position ="absolute"
         infoApplication.addEventListener('click', function(e) {
             let infoNode = new InfoFileNode(self.tabCreator)
-            //infoNode.openFile(new InfoCreator())
-            infoNode.openFile(new FrameAppCreator())
+            let applciationIndex = new ApplciationIndex("")
+            infoNode.openFile(applciationIndex)
 
         })
 

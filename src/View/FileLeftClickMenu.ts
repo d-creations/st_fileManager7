@@ -1,5 +1,6 @@
 import { CanalCreator } from "../Applications/EditorACE/canalCreator.js";
 import { FileDiv } from "./FileDiv.js";
+import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
 
 
@@ -26,7 +27,8 @@ export class FileLeftClickMenu{
             openInEditor.addEventListener("click", (e)=> {
                 FileLeftClickMenu.removeMenu()
                 console.log("openFile")
-                this.fileNode.openFile(new CanalCreator)
+                let appIndex = new ApplciationIndex("../../src/Applications/EditorACE/index.html")
+                this.fileNode.openFile(appIndex)
             })
 /*
             let openInStarEditPro = document.createElement("div")

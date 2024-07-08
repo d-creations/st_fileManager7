@@ -1,22 +1,21 @@
 
 import { FileDiv, FileDiv_I } from "../View/FileDiv.js"
-import { TABApplication } from "../View/TabManager/TabApplication.js"
+import { ApplciationIndex, TABApplication } from "../View/TabManager/TabApplication.js"
 import { TabCreator } from "../View/TabManager/TabCreator.js"
-import { FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js"
 import { Observer } from "../tecnicalServices/oberserver.js"
 import { ApplicationCreator_I } from "./Application_I.js"
 
 
-export class SettingCreator implements ApplicationCreator_I{
-    createApplication(div: HTMLDivElement): TABApplication {
+export class SettingCreator {
+    
+    createApplication(div: HTMLDivElement, text: string, storeMessage: Function): TABApplication {
         return new SettingTab(div)
     }
-    
 }
 
 
-export class SettingTab implements TABApplication{
+export class SettingTab{
 
     private div
     constructor( parentDiv : HTMLDivElement ) {
@@ -25,12 +24,16 @@ export class SettingTab implements TABApplication{
         parentDiv.appendChild(this.div)
         this.div.classList.add("specialTabDiv")    
     }
-    setText(arg0: HTMLDivElement): void {
-        this.div.appendChild(arg0)
+    setText(arg0: string): void {
+        throw new Error("Method not implemented.")
     }
-    getText(): string {
-        return 
+    saveText(): void {
+        throw new Error("Method not implemented.")
     }
+    closeApplication(): void {
+        throw new Error("Method not implemented.")
+    }
+
 }
 
 
@@ -123,7 +126,7 @@ export class SettingFileNode implements FileDiv_I{
     public saveText(text: string) {
         
     }
-    public openFile(createApplication : ApplicationCreator_I) {
+    public openFile(createApplication : ApplciationIndex) {
        this.tabCreator.createTab(this , createApplication)
     }
     setEditable(state : string){   

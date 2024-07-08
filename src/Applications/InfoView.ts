@@ -1,5 +1,5 @@
 import { FileDiv_I } from "../View/FileDiv.js";
-import { TABApplication } from "../View/TabManager/TabApplication.js";
+import { ApplciationIndex, TABApplication } from "../View/TabManager/TabApplication.js";
 import { TabCreator } from "../View/TabManager/TabCreator.js";
 import { Observer } from "../tecnicalServices/oberserver.js";
 import { ApplicationCreator_I } from "./Application_I.js";
@@ -7,15 +7,15 @@ import { ApplicationCreator_I } from "./Application_I.js";
 
 
 
-export class InfoCreator implements ApplicationCreator_I{
-    createApplication(div: HTMLDivElement): TABApplication {
+export class InfoCreator {
+    createApplication(div: HTMLDivElement) {
         return new InfoTab(div)
     }
     
 }
 
 
-export class InfoTab implements TABApplication{
+export class InfoTab {
 
     private div
     constructor( parentDiv : HTMLDivElement ) {
@@ -75,7 +75,7 @@ export class InfoFileNode implements FileDiv_I{
     public saveText(text: string) {
         
     }
-    public openFile(createApplication : ApplicationCreator_I) {
+    public openFile(createApplication : ApplciationIndex) {
         this.tabCreator.createTab(this , createApplication)
     }
     setEditable(state : string){   

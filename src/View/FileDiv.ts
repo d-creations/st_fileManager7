@@ -4,12 +4,13 @@ import { ObservableI, Observer } from "../tecnicalServices/oberserver"
 import { ContextMenu } from "./ContextMenu.js"
 import { FileLeftClickMenu } from "./FileLeftClickMenu.js"
 import { StorageDiv } from "./StorageDiv.js"
+import { ApplciationIndex } from "./TabManager/TabApplication"
 import { TabCreator } from "./TabManager/TabCreator.js"
 
 export interface FileDiv_I{
     getUrl()
     saveText(text: string)
-    openFile(createApplication : ApplicationCreator_I)
+    openFile(createApplication : ApplciationIndex)
     setEditable(state : string)
     oberverUpdate(): void
     getFileText() :Promise<String |unknown>
@@ -71,7 +72,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
         this.editor.saveFile(this.fileNode,text)
     }
     
-    public openFile(createApplication : ApplicationCreator_I) {
+    public openFile(createApplication : ApplciationIndex) {
         this.tabCreator.createTab(this , createApplication)
     }
 

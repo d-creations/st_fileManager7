@@ -2,7 +2,7 @@ import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
 import { Observer, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
 import { FileDiv_I } from "../FileDiv.js"
-import { TABApplication } from "./TabApplication.js"
+import { ApplciationIndex, TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
 
 
@@ -32,8 +32,8 @@ export class TAB implements Observer{
     button : HTMLDivElement
     fileNode : FileDiv_I
     headDiv : HTMLDivElement
-    ApplicationCreator : ApplicationCreator_I
-    constructor(fileNode : FileDiv_I,tab : TABpage,headDiv : HTMLDivElement,applicationCreator : ApplicationCreator_I){
+    ApplicationCreator : ApplciationIndex
+    constructor(fileNode : FileDiv_I,tab : TABpage,headDiv : HTMLDivElement,applicationCreator : ApplciationIndex){
         this.fileNode = fileNode
         this.tab = tab
         this.headDiv = headDiv
@@ -47,7 +47,7 @@ export class TAB implements Observer{
         this.headDiv.innerText = this.fileNode.getName()
     }
     public save(){
-        this.fileNode.saveText(this.tab.tabapplication.getText())
+        this.tab.tabapplication.saveText()
     }
 
     public getTab(){
