@@ -1,7 +1,8 @@
-import { InfoCreator, InfoFileNode } from "../Applications/InfoView.js";
-import { SettingCreator, SettingFileNode } from "../Applications/SettingView.js";
+import { InfoFileDiv } from "../Applications/InfoView.js";
+import { FileManager_I } from "../Domain/Filemanager_I.js";
 import { ViewObjectCreator } from "../tecnicalServices/ViewObjectCreator.js";
 import { BaseTableManager_I } from "./BaseTableManager.js";
+import { FileDiv } from "./FileDiv.js";
 import { ApplciationIndex, FrameAppCreator } from "./TabManager/TabApplication.js";
 import { TabCreator } from "./TabManager/TabCreator.js";
 
@@ -14,6 +15,8 @@ export class ViewTopBar{
     constructor(parentDiv : HTMLDivElement,fileManager : FileManager_I,baseTableManager : BaseTableManager_I,tabCreator : TabCreator){
         this.parentDiv  = parentDiv
         let openFileButton = ViewObjectCreator.createMenuBarButton("FILE",".\\..\\..\\image\\opendocument.png")
+        openFileButton.style.left = 20 + "pt"
+
         parentDiv.appendChild(openFileButton);
         this.fileManager = fileManager
         this.baseTableManager = baseTableManager
@@ -56,10 +59,10 @@ export class ViewTopBar{
         settingApplication.style.position ="absolute"
         let self = this
         settingApplication.addEventListener('click', function(e) {
-            let settingNode = new SettingFileNode(self.tabCreator)
-            
-            let applciationIndex = new ApplciationIndex("")
-            settingNode.openFile(applciationIndex)
+            let fileDiv : FileDiv = self.fileManager.getSettingFileDiv(self.tabCreator)            
+            let infoNode = new InfoFileDiv(self.tabCreator)
+            let appIndex = new ApplciationIndex("../../src/Applications/SettingPage/index.html")
+            self.tabCreator.createTab(fileDiv,appIndex)
         })
 
         let infoApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\info.png")
@@ -67,9 +70,10 @@ export class ViewTopBar{
         infoApplication.style.right = 40 + "pt"
         infoApplication.style.position ="absolute"
         infoApplication.addEventListener('click', function(e) {
-            let infoNode = new InfoFileNode(self.tabCreator)
-            let applciationIndex = new ApplciationIndex("")
-            infoNode.openFile(applciationIndex)
+            let infoNode = new InfoFileDiv(self.tabCreator)
+            
+            let appIndex = new ApplciationIndex("../../src/Applications/InfoPage/index.html")
+            self.tabCreator.createTab(infoNode,appIndex)
 
         })
 

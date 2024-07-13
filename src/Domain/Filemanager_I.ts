@@ -1,6 +1,9 @@
+import { FileDiv } from "../View/FileDiv"
+import { TabCreator } from "../View/TabManager/TabCreator"
 
 
-interface FileManager_I {
+export interface FileManager_I {
+    getSettingFileDiv(tabCreator : TabCreator): FileDiv
     closeApplication(): void
     saveCurrentFile(): void
     saveAllFile()

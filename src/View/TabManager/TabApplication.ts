@@ -42,20 +42,27 @@ export class TABApplicationFrame implements TABApplication{
 
     constructor(div : HTMLDivElement,text : string, url , storeMessage : Function){
         this.messageCanal = new MessageChannel()
+        console.log("create messageCanal")
         this.messageCanal.port1.onmessage = (message)=>{
-            storeMessage(message.data)
+            let data = message.data
+            if(data.command = "storeText"){
+                console.log("Main store Message")
+                storeMessage(data.textValue)
+            }
             return
         }
 //"../../src/Applications/TestPage/index.html"
         this.frame= document.createElement("iframe");
         this.frame.setAttribute("src", url);
-        this.frame.style.width = "100%";
-        this.frame.style.height = "100%";
-        this.frame.addEventListener("load", () => {
+        this.frame.classList.add("iframeApp")
+        let loadFunction = () => {
             console.log("load message Canal")
-            let data = new ApplicationMessage("init","")
+            let data = new ApplicationMessage("init",text)
+            console.log("SET TEXT")
             this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
-          });
+//            this.frame.removeEventListener("load",loadFunction)
+          }
+        this.frame.addEventListener("load",loadFunction );
         
         div.appendChild(this.frame)
     }
@@ -64,6 +71,7 @@ export class TABApplicationFrame implements TABApplication{
     setText(arg0: string): void{
         try {
             let data = new ApplicationMessage("setText",arg0)
+            console.log("SET TEXT")
             this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
         } catch (error) {
             
@@ -74,7 +82,7 @@ export class TABApplicationFrame implements TABApplication{
     saveText(): void{ 
         try {
             let data = new ApplicationMessage("saveText","")
-            this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
+            this.messageCanal.port1.postMessage(data)
         } catch (error) {
             
         }

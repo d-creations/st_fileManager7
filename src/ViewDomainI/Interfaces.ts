@@ -16,6 +16,7 @@ export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {}
 
 
 export interface EditorControlerAdapter_EXC_I{
+    getSettingFileNode(): FileNode_EXC_I
     copyStorage(node: StorageNode2_EXC_I): void
     cutStorage(node: StorageNode2_EXC_I): void
     insertStorage(rootDestination : StorageNode2_EXC_I): void

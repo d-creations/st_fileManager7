@@ -15,6 +15,9 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
 
     constructor(){        
     }
+    getSettingFileNode(): FileNode_EXC_I {
+        return new FileNode(new RootStorageNode("res"),"setting.json")
+    }
 
     copyStorage(node: StorageNode2_EXC_I): void{
         if(node instanceof StorageNode2){

@@ -1,9 +1,11 @@
 
+import { FileManager_I } from "../Domain/Filemanager_I.js"
 import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
 import { DirectoryDiv } from "./DirectoryDiv.js"
 import { FileDiv } from "./FileDiv.js"
 import { NaviMenu_I } from "./NaviManager/NaviMenu_I.js"
 import { StorageDiv } from "./StorageDiv.js"
+import { TabCreator } from "./TabManager/TabCreator.js"
 import { TabManager_I } from "./TabManager/TabManager.js"
 
 
@@ -18,6 +20,9 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         super()
         this.editor = editor
         this.tabManager = tabManager
+    }
+    getSettingFileDiv(tabCreator : TabCreator): FileDiv {
+        return new FileDiv(this.editor.getSettingFileNode(),this.editor,tabCreator)
     }
     display() {
         throw new Error("Method not implemented.")

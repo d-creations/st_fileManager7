@@ -88,3 +88,15 @@
     border-style: solid;
     border-color: azure;
 }
+
+.activeMainTab{
+    display: block;
+}
+
+.inactiveMainTab{
+    display: none;
+}
+.iframeApp{
+    width: 100%;
+    height: 100%;
+}

@@ -2,7 +2,7 @@ import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
 import { Observer, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
 import { FileDiv_I } from "../FileDiv.js"
-import { ApplciationIndex, TABApplication } from "./TabApplication.js"
+import { ApplciationIndex, FrameAppCreator, TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
 
 
@@ -12,7 +12,7 @@ export interface TabManager_I{
     saveCurrentFile(): void
     getTabCreator(): TabCreator
 
-    createTab(fileNode : FileDiv_I, mainDiv: TABpage,applicationCreator : ApplicationCreator_I)
+    createTab(fileNode : FileDiv_I, mainDiv: HTMLDivElement,text : string,applicationCreator : ApplicationCreator_I)
     removeTab(indexOfTab : TAB) : void
 
 }
@@ -103,28 +103,46 @@ export class TabManager implements TabManager_I{
             tab.save()
         }
     }
-    createTab(fileNode : FileDiv_I, mainDiv: TABpage,applicationCreator): void {
+    createTab(fileNode : FileDiv_I, div: HTMLDivElement,text: string,applicationCreator): void {
         let indexOfTab = this.getIndexOfTab(fileNode.getUrl())
+        let that = this
+        console.log(indexOfTab)
         if(indexOfTab < 0){
+            let storeFunction = (text : string)=>{
+                console.log("save text" + text)
+                fileNode.saveText(text)
+            }
+            let frameAppCreator =  new FrameAppCreator()
+
+            let applicationApp : TABApplication= frameAppCreator.createApplication(div,text,applicationCreator,storeFunction)
+
+            div.classList.add("fileEditor")
+            let mainDiv = new TABpage(div,applicationApp)
+
             let tabdiv = document.createElement("div")
             tabdiv.classList.add("headTab")
             let tab = new TAB(fileNode,mainDiv,tabdiv,applicationCreator)
             let TabManager = this
             let closeButton = ViewObjectCreator.createTabBarButton("close",".\\..\\..\\image\\close.png")
             closeButton.addEventListener("click",(e) => {
-                TabManager.removeTab(tab)
-            })
+                    TabManager.removeTab(tab)
+                })
             tabdiv.appendChild(tab.button)
             tabdiv.appendChild(closeButton)
             this.headTabContentDiv.appendChild(tabdiv)
             this.tabList.push(tab)
-            let func : observerFunc = ()=>{
-                if(fileNode.getFileIsDeleted())TabManager.removeTab(tab)
-            }
-            fileNode.addObserver(new ObserverFunction(func))
-            indexOfTab = this.tabList.length -1
-        }
-        this.openTab(indexOfTab)
+                let func : observerFunc = ()=>{
+                    if(fileNode.getFileIsDeleted())TabManager.removeTab(tab)
+                }
+                fileNode.addObserver(new ObserverFunction(func))
+                indexOfTab = this.tabList.length -1
+                this.mainTabManagerDiv.appendChild(this.tabList[indexOfTab].getTab())
+              
+                that.openTab(indexOfTab)
+
+        }else{
+            this.openTab(indexOfTab)
+        }   
         return
     }
     getIndexOfTab(url: string) : number {
@@ -144,11 +162,8 @@ export class TabManager implements TabManager_I{
         }
         if(this.headTabContentDiv.contains(Tab.headDiv)){            
             this.headTabContentDiv.removeChild(Tab.headDiv)
-
             if (this.mainTabManagerDiv.contains(Tab.getTab())){
-                while(this.mainTabManagerDiv.firstChild){
-                    this.mainTabManagerDiv.removeChild(this.mainTabManagerDiv.firstChild)
-                }
+                    this.mainTabManagerDiv.removeChild(Tab.getTab())
             }            
             
             this.tabList.splice(indexOfTab, 1);
@@ -157,15 +172,15 @@ export class TabManager implements TabManager_I{
         return
     }
     private openTab(indexOfTab : number): void {
-        while(this.mainTabManagerDiv.firstChild){
-            this.mainTabManagerDiv.removeChild(this.mainTabManagerDiv.firstChild)
-        }
         for(let tab of this.tabList){
             tab.button.classList.remove("activeTab")            
             tab.button.classList.add("inactiveTab")
+            tab.getTab().classList.remove("activeMainTab")            
+            tab.getTab().classList.add("inactiveMainTab")
 
         }
-        this.mainTabManagerDiv.appendChild(this.tabList[indexOfTab].getTab())
+        this.tabList[indexOfTab].getTab().classList.remove("inactiveMainTab")       
+        this.tabList[indexOfTab].getTab().classList.add("activeMainTab")
         this.tabList[indexOfTab].button.classList.remove("inactiveTab")            
         this.tabList[indexOfTab].button.classList.add("activeTab")
     }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' *.plot.nc-editx7pro.d-creations.org plot.nc-editx7pro.d-creations.org; script-src 'self' 'unsafe-inline'; child-src *">
+    <title>Star Tool Unit Manager</title>
+    
+    <link rel="stylesheet" type="text/css"  href="./css/style.css">
+
+  </head>
+  <body>
+    <div id="main" class="mainDiv">
+    
+    </div>
+  </body>
+  <script type="module">
+
+    console.log("cannal Frame ")
+    var port
+    window.addEventListener("message",(event)=>{
+        console.log("gotinit message iframe")
+        port = event.ports[0]
+        let data = event.data
+        let div = document.getElementById("main")
+        div.innerText = data.textValue
+        port.onmessage = (event)=>{
+                  console.log("got " + event)
+                  let data = event.data
+                  if(data.command == "saveText"){
+                    let retObject = {
+                      command : "storeText",
+                      textValue : div.innerText
+                    }
+                    console.log("iframe past Save Text \n")
+                    port.postMessage(retObject)
+                  }
+                  if(data.command == "setText"){
+                    
+                    div.innerText = data.textValue
+                    console.log("iframe set Text\n")
+                  }
+                }
+
+            })
+  </script>
+  
+</html>
