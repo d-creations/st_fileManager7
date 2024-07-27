@@ -48,6 +48,11 @@ function createWindow () {
       preload: path.join(__dirname, 'src/preload.js')
     }
   })
+  const ses = win.webContents.session;
+
+  ses.clearCache(() => {
+    alert("Cache cleared!");
+  });
   win.removeMenu()
   
 

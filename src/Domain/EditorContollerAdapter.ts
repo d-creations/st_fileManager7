@@ -31,7 +31,7 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
     }
     insertStorage(rootDestination : StorageNode2_EXC_I): void{
         if(rootDestination instanceof StorageNode2){
-        if(this.clipboardStorage instanceof StorageNode2)this.clipboardStorage.insertStorage(rootDestination)
+        if(this.clipboardStorage.source instanceof StorageNode2)this.clipboardStorage.insertStorage(rootDestination)
         }
     }
 

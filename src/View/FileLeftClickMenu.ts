@@ -1,4 +1,3 @@
-import { CanalCreator } from "../Applications/EditorACE/canalCreator.js";
 import { FileDiv } from "./FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
@@ -30,7 +29,7 @@ export class FileLeftClickMenu{
                 let appIndex = new ApplciationIndex("../../src/Applications/EditorACE/index.html")
                 this.fileNode.openFile(appIndex)
             })
-/*
+
             let openInStarEditPro = document.createElement("div")
             openInStarEditPro.innerText = "openInStarEditPro"
             openInStarEditPro.classList.add("selectable","rightClickMenu")
@@ -38,10 +37,13 @@ export class FileLeftClickMenu{
             openInStarEditPro.addEventListener("click", (e)=> {
                 FileLeftClickMenu.removeMenu()
                 console.log("openFile")               
-                this.fileNode.openStar()                
+                //let appIndex = new ApplciationIndex("https://nc-editx7pro.star-ncplot.com/")
+                let appIndex = new ApplciationIndex("http://172.22.242.37/")
+
+                this.fileNode.openFile(appIndex)               
 
             })
-*/
+
 
             console.log("shoe Menu")
         }

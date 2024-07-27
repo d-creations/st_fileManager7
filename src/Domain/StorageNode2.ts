@@ -41,12 +41,20 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
 
         insertStorage(source: StorageNode2){
             let self = this
+            console.log("inser Storage")
             globalThis.electron.copyFolderOrFile(source.getUrl(),self.getUrl()).then((state)=>{
                 if(source instanceof FileNode && state === false){
                     let dest: string = self.getUrl()+"\\"+source.name + "copy"
-                    globalThis.electron.copyFolderOrFile(source.getUrl(),dest).then(()=>{self.rootStorageNode.observerUpdated()})               
+                    globalThis.electron.copyFolderOrFile(source.getUrl(),dest).then(()=>{
+                        self.observerUpdated();
+                        source.rootStorageNode.observerUpdated();
+                    })               
+                    return dest
                 }
-            }).then(()=>{self.rootStorageNode.observerUpdated()})
+            }).then(()=>{
+                self.observerUpdated();
+                source.rootStorageNode.observerUpdated();
+            })
         }
 
         getUrl(): any {
