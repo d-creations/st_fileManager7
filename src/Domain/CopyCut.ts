@@ -1,35 +1,51 @@
-import { RootStorageNode } from "./RootStorageNode";
-import { StorageNode2 } from "./StorageNode2";
+import { StorageNode2 } from "./StorageNode2.js";
 
+export interface objectManipulation{
+    containsNode(): boolean;
 
-export class mvObject{
+    insertStorage(rootDestination : StorageNode2):void
+}
+
+export class mvObject implements objectManipulation{
     source : StorageNode2
     constructor(source : StorageNode2){
         this.source = source
     }
+    containsNode(): boolean {
+        return (this.source instanceof StorageNode2)
+    }
     insertStorage(rootDestination : StorageNode2){
-        rootDestination.insertStorage(this.source)
+        rootDestination.moveStorage(this.source)
     }
 }
 
-export class cutObject extends mvObject{
+export class cutObject implements objectManipulation{
+    source : StorageNode2
+
     constructor(source : StorageNode2){
-        super(source)
+        this.source = source
     }
 
+    containsNode(): boolean {
+        return (this.source instanceof StorageNode2)
+    }
     insertStorage(rootDestination : StorageNode2){
-        rootDestination.insertStorage(this.source)
-        rootDestination.delete()
+        rootDestination.copyStorage(this.source)
+        this.source.delete()
     }
 }
-export class cpObject extends mvObject{
+export class cpObject implements objectManipulation{
+    source : StorageNode2
 
     constructor(source : StorageNode2){
-        super(source)
+        this.source = source
     }
 
     insertStorage(rootDestination : StorageNode2){
-        rootDestination.insertStorage(this.source)
+        rootDestination.copyStorage(this.source)
+    }
+    containsNode(): boolean {
+        return (this.source instanceof StorageNode2)
     }
 }
 

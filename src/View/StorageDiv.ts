@@ -5,7 +5,6 @@ import {Observer } from "../tecnicalServices/oberserver.js";
 
 export class StorageDiv extends HTMLDivElement implements Observer{
 
-
     protected editor : EditorControlerAdapter_EXC_I
     protected storageNode : StorageNode2_EXC_I
     constructor(editor : EditorControlerAdapter_EXC_I,storageNode : StorageNode2_EXC_I){
@@ -43,7 +42,11 @@ export class StorageDiv extends HTMLDivElement implements Observer{
     }
 
     cutStorage():void{
-        this.editor.cutStorage(this.storageNode)
+        if(this.isManipulable())this.editor.cutStorage(this.storageNode)
+        else alert("Please close the File")
+    }
+    isManipulable() : boolean{
+        return true
     }
 
     insertStorage():void{

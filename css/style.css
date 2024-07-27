@@ -18,6 +18,12 @@
 .selectable:hover{
     background-color: aqua;
 }
+
+.contextMenu{
+    padding: 5pt;
+    border: solid;
+    border-width: 2pt;
+}
 .contextMenu:hover{
     background-color: aqua;
 }
@@ -47,7 +53,11 @@
 }
 
 
-
+.rightClickMenu{
+    padding: 5pt;
+    border: solid;
+    border-width: 2pt;
+}
 
 .rightClickMenu:hover{
     background-color: aqua;

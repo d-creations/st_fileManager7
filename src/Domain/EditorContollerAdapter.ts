@@ -3,7 +3,7 @@ import { DirectoryNode } from "./DirectoryNode.js";
 import { FileNode } from "./FileNode.js";
 import { StorageNode2 } from "./StorageNode2.js";
 import { RootStorageNode } from "./RootStorageNode.js";
-import { cpObject, cutObject, mvObject } from "./CopyCut.js";
+import { cpObject, cutObject, mvObject, objectManipulation } from "./CopyCut.js";
 
 
 
@@ -11,7 +11,7 @@ import { cpObject, cutObject, mvObject } from "./CopyCut.js";
 export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
 
     storageNode: StorageNode2;
-    clipboardStorage : mvObject
+    clipboardStorage : objectManipulation
 
     constructor(){        
     }
@@ -31,7 +31,9 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I{
     }
     insertStorage(rootDestination : StorageNode2_EXC_I): void{
         if(rootDestination instanceof StorageNode2){
-        if(this.clipboardStorage.source instanceof StorageNode2)this.clipboardStorage.insertStorage(rootDestination)
+            if(this.clipboardStorage.containsNode()){
+                this.clipboardStorage.insertStorage(rootDestination)
+            }
         }
     }
 

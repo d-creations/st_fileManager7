@@ -79,7 +79,7 @@ export class ContextMenu{
             })
 
             let insertFolderButton = document.createElement("div")
-            insertFolderButton.innerText = "insert"
+            insertFolderButton.innerText = "past"
             insertFolderButton.classList.add("selectable","rightClickMenu")
             ContextMenu.contextMenuDiv.appendChild(insertFolderButton)
             insertFolderButton.addEventListener("click", (e)=> {

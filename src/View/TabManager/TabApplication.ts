@@ -51,7 +51,7 @@ export class TABApplicationFrame implements TABApplication{
             }
             return
         }
-//"../../src/Applications/TestPage/index.html"
+        
         this.frame= document.createElement("iframe");
         this.frame.setAttribute("src", url);
         this.frame.classList.add("iframeApp")
@@ -60,7 +60,7 @@ export class TABApplicationFrame implements TABApplication{
             let data = new ApplicationMessage("init",text)
             console.log("SET TEXT")
             this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
-//            this.frame.removeEventListener("load",loadFunction)
+            
           }
         this.frame.addEventListener("load",loadFunction );
         

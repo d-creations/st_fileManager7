@@ -17,7 +17,8 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
             this.rootStorageNode = rootStorageNode
             this.name = name
             this.deleteState = false
-            // muss gelötsht werden
+            // muss gelötsht werden versuch bessere Ordnerstrukturaktuallisierung
+            // nicht gelöscht damit ich die Versuche noch weis
 //            if(rootStorageNode != null)this.rootStorageNode.addObserver(this)
     }
     oberverUpdate(){
@@ -39,21 +40,49 @@ export abstract class StorageNode2 extends Observable implements Observer,Storag
             self.observerUpdated())    
         }
 
-        insertStorage(source: StorageNode2){
+        moveStorage(source: StorageNode2){
             let self = this
-            console.log("inser Storage")
+            console.log("copy Storage")
+            globalThis.electron.copyFolderOrFile(source.getUrl(),self.getUrl()).then((state)=>{
+                // if filename exist try 
+                if(source instanceof FileNode && state === false){
+                    console.log("file exist or error")
+                    let dest: string = self.getUrl()+"\\"+source.name + "copy"
+                    globalThis.electron.copyFolderOrFile(source.getUrl(),dest).then((state)=>{
+                        if(state === true){
+                            source.rootStorageNode = self
+                            self.oberverUpdate()
+                            source.oberverUpdate();
+                            source.delete
+                        }
+                    })               
+                }
+                else{
+                    if(state === true){
+                    self.oberverUpdate()
+                    source.oberverUpdate();
+                    source.delete
+                    }
+                }
+            })
+        }
+
+        copyStorage(source: StorageNode2){
+            let self = this
+            console.log("copy Storage")
             globalThis.electron.copyFolderOrFile(source.getUrl(),self.getUrl()).then((state)=>{
                 if(source instanceof FileNode && state === false){
                     let dest: string = self.getUrl()+"\\"+source.name + "copy"
+                    console.log("file exist or error")
                     globalThis.electron.copyFolderOrFile(source.getUrl(),dest).then(()=>{
-                        self.observerUpdated();
-                        source.rootStorageNode.observerUpdated();
+                        self.oberverUpdate();
+                        source.oberverUpdate();
                     })               
-                    return dest
                 }
-            }).then(()=>{
-                self.observerUpdated();
-                source.rootStorageNode.observerUpdated();
+                else{
+                    self.oberverUpdate()
+                    self.rootStorageNode.oberverUpdate();
+                }
             })
         }
 

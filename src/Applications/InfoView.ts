@@ -11,8 +11,17 @@ import { Observer } from "../tecnicalServices/oberserver.js";
 export class InfoFileDiv implements FileDiv_I{
 
     private tabCreator : TabCreator
+    private fileTabOpenState : boolean
+    
     constructor(tabCreator: TabCreator){
         this.tabCreator = tabCreator
+        this.fileTabOpenState = false
+    }
+    openTabFileState(): void {
+        this.fileTabOpenState = true
+    }
+    closeTabFileState(): void {
+        this.fileTabOpenState = true
     }
     getUrl() {
         return "infoText"

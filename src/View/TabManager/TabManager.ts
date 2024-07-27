@@ -28,6 +28,7 @@ export class TABpage{
 }
 
 export class TAB implements Observer{
+
     tab : TABpage
     button : HTMLDivElement
     fileNode : FileDiv_I
@@ -42,6 +43,12 @@ export class TAB implements Observer{
             fileNode.openFile(applicationCreator)
         } ) 
         this.fileNode.addObserver(this)
+    }
+    close() {
+        this.fileNode.closeTabFileState()
+    }
+    open(){
+        this.fileNode.openTabFileState()
     }
     oberverUpdate(): void {
         this.headDiv.innerText = this.fileNode.getName()
@@ -155,6 +162,7 @@ export class TabManager implements TabManager_I{
     }
     removeTab(Tab : TAB): void {
         let indexOfTab = -1
+        Tab.close()
         for (let child in this.headTabContentDiv.childNodes){
             if(this.headTabContentDiv.childNodes[child] === Tab.headDiv){
                 indexOfTab = Number(child)

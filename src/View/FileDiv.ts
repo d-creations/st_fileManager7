@@ -8,6 +8,8 @@ import { ApplciationIndex } from "./TabManager/TabApplication"
 import { TabCreator } from "./TabManager/TabCreator.js"
 
 export interface FileDiv_I{
+    openTabFileState(): void
+    closeTabFileState(): void
     getUrl()
     saveText(text: string)
     openFile(createApplication : ApplciationIndex)
@@ -28,10 +30,12 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
     public fileNode : FileNode_EXC_I
     private tabCreator : TabCreator
     private obervers: Array<Observer>
+    private fileTabOpenState : boolean
 
     
     constructor(fileNode : FileNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator){
         super(editor,fileNode)
+        this.fileTabOpenState = true
         this.obervers = []
         this.fileNode = fileNode
         this.tabCreator = tabCreator
@@ -56,6 +60,17 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
         });
 
     }
+    openTabFileState(): void {
+        this.fileTabOpenState = false
+    }
+    closeTabFileState(): void {
+        this.fileTabOpenState = true
+    }
+
+    isManipulable() : boolean{
+        return this.fileTabOpenState
+    }
+
 
     getFileIsDeleted(): boolean{
         return this.fileNode.isDeleted()

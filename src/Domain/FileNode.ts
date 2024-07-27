@@ -16,8 +16,8 @@ export class FileNode extends StorageNode2 implements FileNode_EXC_I{
         return this.createFolder(url)
     }
 
-    insertStorage(source: StorageNode2) {
-        this.rootStorageNode.insertStorage(source)
+    copyStorage(source: StorageNode2) {
+        this.rootStorageNode.copyStorage(source)
     }
 
     createNewFile(rootDirectory: StorageNode2) :Promise<boolean | unknown> {

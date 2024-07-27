@@ -212,7 +212,7 @@ function handleGetFilesInDir (event,args) {
         if(state){
           fs.cp(oldUrl, newUrl, {recursive: true},function(err, data){
           if(err) {
-            throw new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl)
+            throw new MainIPC_Error(0,"cop< failed in Main process old\n" + oldUrl +"\nnew\n" + newUrl)
             }
           resolve(true);
         });
@@ -237,11 +237,11 @@ function handleGetFilesInDir (event,args) {
           if(err) {
             throw new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl)
             }
-          resolve(newUrl);
+          resolve(true);
         });
       }
       else{
-        resolve(oldUrl);
+        resolve(false);
       }
 
       })
@@ -252,6 +252,7 @@ function handleGetFilesInDir (event,args) {
   function notExists(url){
     let ret = new Promise((resolve, reject) => {
       fs.access(url,fs.constants.F_OK,(err)=>{
+        console.log("File Exists ? "+ err +" URL "+ url)
         if(err)
           resolve(true)
         else 

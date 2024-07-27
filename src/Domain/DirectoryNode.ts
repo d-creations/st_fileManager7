@@ -56,7 +56,7 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I{
 
     updateTree() {
         let self = this
-        console.log("udpate Tree")
+        console.log("udpate Tree "+ self.name)
         let ret = new Promise((resolve,rejeted) => {        
         globalThis.electron.getFilesInFolder(this.getUrl()  ).then(function(files){
             let objectNames: Array<string>= []
