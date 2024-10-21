@@ -1,3 +1,4 @@
+import { ApplicationSettings } from "../tecnicalServices/Settings.js";
 import { FileDiv } from "./FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
@@ -9,6 +10,7 @@ export class FileLeftClickMenu{
     private nameFile = ""
     private fileNode : FileDiv
     static target :HTMLDivElement;
+    private applications : ApplicationSettings[]
     public showMenu(e : Event){
         if(e.target instanceof HTMLDivElement && e.target.contentEditable != "true"){
             e.target.setAttribute("click","true")
@@ -19,31 +21,20 @@ export class FileLeftClickMenu{
             FileLeftClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
             FileLeftClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
             FileLeftClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
-            let openInEditor = document.createElement("div")
-            openInEditor.innerText = "OpenInEditor"
-            openInEditor.classList.add("selectable","rightClickMenu")
-            FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
-            openInEditor.addEventListener("click", (e)=> {
-                FileLeftClickMenu.removeMenu()
-                console.log("openFile")
-                let appIndex = new ApplciationIndex("../../src/Applications/EditorACE/index.html")
-                this.fileNode.openFile(appIndex)
-            })
-
-            let openInStarEditPro = document.createElement("div")
-            openInStarEditPro.innerText = "openInStarEditPro"
-            openInStarEditPro.classList.add("selectable","rightClickMenu")
-            FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInStarEditPro)
-            openInStarEditPro.addEventListener("click", (e)=> {
-                FileLeftClickMenu.removeMenu()
-                console.log("openFile")               
-                //let appIndex = new ApplciationIndex("https://nc-editx7pro.star-ncplot.com/")
-                let appIndex = new ApplciationIndex("http://172.22.242.37/")
-
-                this.fileNode.openFile(appIndex)               
-
-            })
-
+            for(let application of this.applications){
+                if(application.aktiv == "True"){
+                    let openInEditor = document.createElement("div")
+                    openInEditor.innerText = "Open" + application.name
+                    openInEditor.classList.add("selectable","rightClickMenu")
+                    FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
+                    openInEditor.addEventListener("click", (e)=> {
+                        FileLeftClickMenu.removeMenu()
+                        console.log("openFile")
+                        let appIndex = new ApplciationIndex(application.url)
+                        this.fileNode.openFile(appIndex)
+                        })
+                }
+        }
 
             console.log("shoe Menu")
         }
@@ -59,8 +50,9 @@ export class FileLeftClickMenu{
         FileLeftClickMenu.target.removeAttribute("click")
     }
     }
-    constructor (fileNode : FileDiv){
+    constructor (fileNode : FileDiv,applications){
         this.fileNode = fileNode
+        this.applications = applications
     }
 
     public getPosition(e) {

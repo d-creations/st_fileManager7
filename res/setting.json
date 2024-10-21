@@ -1,15 +1,1 @@
-{
-    "Name": "Setting",
-    "Applikations":
-    [{
-      "Name": "Editor",
-      "aktiv": "True",
-      "aktivSelection":["True","False"]
-    },
-    {
-      "Name": "StarNCPlot",
-      "aktiv": "True",
-      "aktivSelection":["True","False"]
-    }
-  ]
-  }
+{"name":"Setting","applications":[{"name":"Editor","aktiv":"False","aktivSelection":["True","False"],"url":"../../src/Applications/EditorACE/index.html","activ":"False"},{"name":"StarNCPlot","aktiv":"False","aktivSelection":["True","False"],"url":"https://nc-editx7pro.star-ncplot.com/"}]}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="./applications.css" type="text/css"?>
+
+<Application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation=".\..\application.xsd">
+    <URL>https://nc-editx7pro.star-ncplot.com/</URL>
+    <AktivStatus>true</AktivStatus>
+    <name>StarNCPlot</name>
+    <Setting>
+        <AktivStatus>true</AktivStatus>
+    </Setting>
+</Application>

@@ -1,5 +1,6 @@
 
 import { FileManager_I } from "../Domain/Filemanager_I.js"
+import { Settings } from "../tecnicalServices/Settings.js"
 import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
 import { DirectoryDiv } from "./DirectoryDiv.js"
 import { FileDiv } from "./FileDiv.js"
@@ -16,13 +17,15 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
     private tabManager : TabManager_I
     private rootStorageDiv : StorageDiv
     private editor : EditorControlerAdapter_EXC_I
+    private settings : Settings
     constructor(tabManager :TabManager_I,editor : EditorControlerAdapter_EXC_I){
         super()
         this.editor = editor
+        this.settings = new Settings(editor)
         this.tabManager = tabManager
     }
     getSettingFileDiv(tabCreator : TabCreator): FileDiv {
-        return new FileDiv(this.editor.getSettingFileNode(),this.editor,tabCreator)
+        return new FileDiv(this.editor.getSettingFileNode(),this.editor,tabCreator ,this.settings.applications )
     }
     display() {
         throw new Error("Method not implemented.")
@@ -41,7 +44,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         this.tabManager.closeAllTabs()
         let localfileManager = this
         this.editor.openDirectory().then(function(directoryNode : DirectoryNode_EXC_I){
-            localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator())
+            localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator(),this.settings.applications)
             localfileManager.updateElement()  
         })
     }
@@ -63,7 +66,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
     public async openFile () {
         let self = this
         this.editor.openFile().then(function(file : FileNode_EXC_I) {
-            self.rootStorageDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator())
+            self.rootStorageDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),this.settings)
             self.updateElement()
         })
     }
