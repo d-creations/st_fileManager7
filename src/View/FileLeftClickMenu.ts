@@ -1,4 +1,4 @@
-import { ApplicationSettings } from "../tecnicalServices/Settings.js";
+import { ApplicationSettings, Settings } from "../tecnicalServices/Settings.js";
 import { FileDiv } from "./FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
@@ -10,7 +10,7 @@ export class FileLeftClickMenu{
     private nameFile = ""
     private fileNode : FileDiv
     static target :HTMLDivElement;
-    private applications : ApplicationSettings[]
+    private settings : Settings
     public showMenu(e : Event){
         if(e.target instanceof HTMLDivElement && e.target.contentEditable != "true"){
             e.target.setAttribute("click","true")
@@ -21,7 +21,8 @@ export class FileLeftClickMenu{
             FileLeftClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
             FileLeftClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
             FileLeftClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
-            for(let application of this.applications){
+            this.settings.reloadSettings()
+            for(let application of this.settings.applications){
                 if(application.aktiv == "True"){
                     let openInEditor = document.createElement("div")
                     openInEditor.innerText = "Open" + application.name
@@ -50,9 +51,9 @@ export class FileLeftClickMenu{
         FileLeftClickMenu.target.removeAttribute("click")
     }
     }
-    constructor (fileNode : FileDiv,applications){
+    constructor (fileNode : FileDiv,settings){
         this.fileNode = fileNode
-        this.applications = applications
+        this.settings = settings
     }
 
     public getPosition(e) {

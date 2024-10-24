@@ -3,7 +3,7 @@ import { TabCreator } from "./TabManager/TabCreator.js";
 import { ContextMenu } from "./ContextMenu.js";
 import { FileDiv } from "./FileDiv.js";
 import { StorageDiv } from "./StorageDiv.js";
-import { ApplicationSettings } from "../tecnicalServices/Settings";
+import { ApplicationSettings, Settings } from "../tecnicalServices/Settings";
 
 
 
@@ -69,12 +69,12 @@ export class DirectoryDiv extends StorageDiv{
     private directoryBodyDiv : HTMLDivElement
     private directoryNode : DirectoryNode_EXC_I
     private tabCreator : TabCreator
-    private applications
+    private settings : Settings
 
-    constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator,applications : ApplicationSettings){
+    constructor(directoryNode : DirectoryNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator,settings : Settings){
         super(editor,directoryNode)
         this.tabCreator = tabCreator
-        this.applications = applications
+        this.settings = settings
         let self = this
         this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode,editor)
         this.directoryBodyDiv = document.createElement("div")
@@ -169,7 +169,7 @@ export class DirectoryDiv extends StorageDiv{
 
     insertDirectoryDiv(dir: DirectoryNode_EXC_I) {
         let insert = false
-        let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator,this.applications)
+        let fileDiv = new DirectoryDiv(dir,this.editor,this.tabCreator,this.settings)
         for(let i = 0; i < this.directoryBodyDiv.childNodes.length;i++){
             let item = this.directoryBodyDiv.childNodes.item(i) 
             if(item instanceof DirectoryDiv && item.getName() > fileDiv.getName()){
@@ -181,7 +181,7 @@ export class DirectoryDiv extends StorageDiv{
 
     insertFileDiv(file: FileNode_EXC_I) {
         let insert = false
-        let fileDiv = new FileDiv(file,this.editor,this.tabCreator,this.applications)
+        let fileDiv = new FileDiv(file,this.editor,this.tabCreator,this.settings)
         for(let i = 0; i < this.directoryBodyDiv.childNodes.length;i++){
             let item = this.directoryBodyDiv.childNodes.item(i) 
             if(!insert && item instanceof FileDiv && item.getName() > fileDiv.getName()){

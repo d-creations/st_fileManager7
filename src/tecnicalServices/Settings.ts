@@ -10,6 +10,9 @@ export class ApplicationSettings{
 }
 
 export class Settings{
+    reloadSettings() {
+        this.updateSettings()
+    }
     name : string
     applications : ApplicationSettings[]
     editor : EditorControlerAdapter_EXC_I

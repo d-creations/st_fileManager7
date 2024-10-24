@@ -1,5 +1,5 @@
 import { EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
-import { ApplicationSettings } from "../tecnicalServices/Settings.js"
+import { ApplicationSettings, Settings } from "../tecnicalServices/Settings.js"
 import { ObservableI, Observer } from "../tecnicalServices/oberserver"
 import { ContextMenu } from "./ContextMenu.js"
 import { FileLeftClickMenu } from "./FileLeftClickMenu.js"
@@ -33,7 +33,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
     private fileTabOpenState : boolean
 
     
-    constructor(fileNode : FileNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator,applications : ApplicationSettings[]){
+    constructor(fileNode : FileNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator,settings : Settings){
         super(editor,fileNode)
         this.fileTabOpenState = true
         this.obervers = []
@@ -54,7 +54,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
 
         this.addEventListener("click", (e) => {
             if(e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
-            let rightClickMenu = new FileLeftClickMenu(this,applications);
+            let rightClickMenu = new FileLeftClickMenu(this,settings);
             rightClickMenu.showMenu(e);
             }
         });

@@ -1,1 +1,1 @@
-{"name":"Setting","applications":[{"name":"Editor","aktiv":"False","aktivSelection":["True","False"],"url":"../../src/Applications/EditorACE/index.html","activ":"False"},{"name":"StarNCPlot","aktiv":"False","aktivSelection":["True","False"],"url":"https://nc-editx7pro.star-ncplot.com/"}]}
+{"name":"Setting","applications":[{"name":"Editor","aktiv":"True","aktivSelection":["True","False"],"url":"../../src/Applications/EditorACE/index.html","activ":"False"},{"name":"StarNCPlot","aktiv":"True","aktivSelection":["True","False"],"url":"https://nc-editx7pro.star-ncplot.com/"}]}

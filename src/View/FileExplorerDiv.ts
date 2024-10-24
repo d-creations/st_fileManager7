@@ -25,7 +25,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         this.tabManager = tabManager
     }
     getSettingFileDiv(tabCreator : TabCreator): FileDiv {
-        return new FileDiv(this.editor.getSettingFileNode(),this.editor,tabCreator ,this.settings.applications )
+        return new FileDiv(this.editor.getSettingFileNode(),this.editor,tabCreator ,this.settings )
     }
     display() {
         throw new Error("Method not implemented.")
@@ -44,7 +44,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         this.tabManager.closeAllTabs()
         let localfileManager = this
         this.editor.openDirectory().then(function(directoryNode : DirectoryNode_EXC_I){
-            localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator(),this.settings.applications)
+            localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator(),localfileManager.settings)
             localfileManager.updateElement()  
         })
     }
