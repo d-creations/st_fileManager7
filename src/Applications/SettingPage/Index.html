@@ -94,12 +94,34 @@
           optionFalse.value = "False";
           optionFalse.text = "False";
           selectList.appendChild(optionFalse);
+          if(application.fix == "True")selectList.disabled = true
           if(application.aktiv == "True")selectList.selectedIndex = 0
           else selectList.selectedIndex= 1
           selectList.addEventListener("change" , (e)=>{
             if(application.aktiv == "True")application.aktiv = "False"
             else application.aktiv = "True"
           })
+        let labelLocation =  document.createElement("label");
+        labelLocation.textContent = "location"
+        labelLocation.htmlFor = "location"+application.name
+          applicationDiv.appendChild(labelLocation)
+
+        let location = document.createElement("select");
+        location.id = "location"+application.name;
+          applicationDiv.appendChild(location);
+
+          let optionLocal = document.createElement("option");
+          optionLocal.value = "local";
+          optionLocal.text = "local";
+          location.appendChild(optionLocal);
+
+          let optionRemote = document.createElement("option");
+          optionRemote.value = "remote";
+          optionRemote.text = "remote";
+          location.appendChild(optionRemote);
+          location.disabled = true
+          if(application.status == "local")location.selectedIndex = 0
+          else location.selectedIndex= 1
         }
 
 

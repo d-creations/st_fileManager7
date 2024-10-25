@@ -38,16 +38,14 @@ export class Canal extends Observable{
         //editor.searchBox.show();
         this._editor.searchBox.hide();
         var editor = this._editor;
-        var tCanal 
-
         // Tool bar 
         var refs = {};
         function updateToolbar() {
-            refs.saveButton.disabled = editor.session.getUndoManager().isClean();
             refs.undoButton.disabled = !editor.session.getUndoManager().hasUndo();
             refs.redoButton.disabled = !editor.session.getUndoManager().hasRedo();
         }
-/*
+        
+        editor.on("input", updateToolbar);
         require('ace/lib/dom').buildDom(["div", { class: "toolbar" },
             ["button", {
                 ref: "undoButton",
@@ -61,24 +59,26 @@ export class Canal extends Observable{
                     editor.redo();
                 }
             }, "redo"],
+            ["button", {
+                ref: "searchButton",
+                onclick: function() {
+                    editor.searchBox.show();
+                }
+            }, "search"],
+            ["button", {
+                ref: "replaceButton",
+                onclick: function() {
+                    editor.searchBox.show("",true);
+                }
+            }, "replace"],
         ], this._parentDiv, refs);
     
 
         this._editor.setOptions({
-                theme: "ace/theme/xcode",
-                mode: "ace/mode/abc",
                 minLines: 2,
                 autoScrollEditorIntoView: true,
             });
-        this._editor.commands.addCommands([{
-                name: "showSettingsMenu",
-                bindKey: {win:"change"trl-q", mac: "Ctrl-q"},
-                exec: function(editor) {
-                    editor.showSettingsMenu();
-                },
-                readOnly: true
-            }]);
-*/
+
             
         this._textAreaCode.appendChild(editor.container)
         parentdiv.appendChild(this._textAreaCode);
