@@ -106,7 +106,8 @@ function handleGetFileText (event,url) {
   console.log("getText")
   console.log(url)
   let ret = new Promise((resolve, reject) => {
-    fs.readFile(url, 'utf8', function(err, data){
+//    fs.readFile(url, 'utf8', function(err, data){
+    fs.readFile(url, 'binary', function(err, data){
         if(err) {
             reject(new MainIPC_Error(0,"get File Text failed in Main process"));
         }
