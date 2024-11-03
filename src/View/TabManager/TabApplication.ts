@@ -1,6 +1,7 @@
 import { ApplicationCreator_I } from "../../Applications/Application_I.js"
 
 
+
 export class ApplciationIndex{
     url : string
     constructor(url : string){
@@ -61,10 +62,26 @@ export class TABApplicationFrame implements TABApplication{
             console.log("SET TEXT")
             this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
             
+            this.setText(text)    
+       /*    this.frame.contentDocument.addEventListener("keydown", (event) => {
+                if (event.ctrlKey && event.key === 's') {
+                    event.preventDefault();
+                    this.saveText();
+                }
+            });        */
           }
         this.frame.addEventListener("load",loadFunction );
         
         div.appendChild(this.frame)
+
+        // Add Ctrl+S listener
+
+        window.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                this.saveText();
+            }
+        });
     }
 
 
@@ -104,6 +121,7 @@ export class TABApplicationFrame implements TABApplication{
     }
 
     
+
 
 
 }

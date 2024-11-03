@@ -16,7 +16,6 @@ export class ViewTopBar{
         this.parentDiv  = parentDiv
         let openFileButton = ViewObjectCreator.createMenuBarButton("FILE",".\\..\\..\\image\\opendocument.png")
         openFileButton.style.left = 20 + "pt"
-
         parentDiv.appendChild(openFileButton);
         this.fileManager = fileManager
         this.baseTableManager = baseTableManager
@@ -28,6 +27,7 @@ export class ViewTopBar{
         })
 
         let openDirButton = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\openfolder.png")
+        openDirButton.style.left = 45 + "pt"    
         parentDiv.appendChild(openDirButton);
         openDirButton.addEventListener('click', function(e) {
             fileManager.openFolder()
@@ -35,11 +35,15 @@ export class ViewTopBar{
         })
 
         let saveFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\save.png")
+        saveFile.style.left =  70 + "pt"   
+
         parentDiv.appendChild(saveFile);
         saveFile.addEventListener('click', function(e) {
             fileManager.saveCurrentFile()
         })
         let saveAllFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\saveAll.png")
+        saveAllFile.style.left =  95 + "pt"   
+        saveAllFile.style.position ="absolute"        
         parentDiv.appendChild(saveAllFile);
         saveAllFile.addEventListener('click', function(e) {
             fileManager.saveAllFile()
@@ -55,7 +59,7 @@ export class ViewTopBar{
 
         let settingApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\setting.png")
         parentDiv.appendChild(settingApplication);
-        settingApplication.style.right = 20 + "pt"
+        settingApplication.style.right = 25 + "pt"
         settingApplication.style.position ="absolute"
         let self = this
         settingApplication.addEventListener('click', function(e) {
@@ -67,7 +71,7 @@ export class ViewTopBar{
 
         let infoApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\info.png")
         parentDiv.appendChild(infoApplication);
-        infoApplication.style.right = 40 + "pt"
+        infoApplication.style.right = 50 + "pt"
         infoApplication.style.position ="absolute"
         infoApplication.addEventListener('click', function(e) {
             let infoNode = new InfoFileDiv(self.tabCreator)
@@ -76,7 +80,5 @@ export class ViewTopBar{
             self.tabCreator.createTab(infoNode,appIndex)
 
         })
-
-        
     }
 }

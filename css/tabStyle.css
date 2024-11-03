@@ -1,5 +1,3 @@
-
-
 .baseTabManagerTable{
     display: grid;
     width: 100%;
@@ -7,9 +5,9 @@
     min-width: 0pt;
     min-height: 0pt;
     grid-template:
-    [header-left] "headTabManager" 30px [header-right]
+    [header-left] "headTabManager" 25pt [header-right]
     [main-left] " mainTabManager" 1fr [main-right]
-    [footer-left] " footTabManager" 3px [footer-right]
+    [footer-left] " footTabManager" 3pt [footer-right]
 / 1fr;
 }
 
@@ -69,12 +67,21 @@
     cursor: pointer;
     white-space: nowrap;
     min-width: 60pt;
+    padding-right: 1pt;
     height: 100%;
     width: fit-content;
     float:left;
     display: inline;
 }
 
+.TabCloseButton{
+    width: 20pt;
+    padding-top: 2pt;
+}
+
+.TabCloseButton:hover{
+ background-color: gainsboro;
+}
 .activeTab{
     background-color: rgb(165, 165, 165);
     border-width: 1pt;
@@ -82,11 +89,13 @@
     border-color: azure;
 }
 
+
 .inactiveTab{
-    background-color: whitesmoke;
+    background-color: rgba(165, 165, 165, 0.3); /* Existing background transparency */
     border-width: 1pt;
     border-style: solid;
     border-color: azure;
+    color: rgba(0, 0, 0, 0.3); /* Added text transparency */
 }
 
 .activeMainTab{

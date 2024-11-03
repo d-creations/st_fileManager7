@@ -9,10 +9,10 @@
     position: static;
     overflow: hidden;
     grid-template:
-    [header-left] "head head head head" 30px [header-right]
+    [header-left] "head head head head" 30pt [header-right]
     [main-left] "nav filetree bar main" 1fr [main-right]
-    [footer-left] "nav filetree bar foot" 10px [footer-right]
-/ 20pt 90pt 2pt 1fr;
+    [footer-left] "nav filetree bar foot" 20pt [footer-right]
+/ 30pt 90pt 2pt 1fr;
 }
 .fileExpolorer{
     background-color: rgb(215, 214, 214);
@@ -63,6 +63,7 @@
 .header {
     background-color: rgb(145, 145, 145);
     grid-area: head;
+    padding-left: 20pt;
   }
   .footer {
     background-color: rgb(145, 145, 145);

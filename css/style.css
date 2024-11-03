@@ -31,11 +31,36 @@
 .MenuBarButton{
     height: 20pt;
     width: 20pt;
+    padding: 2pt;
+    margin: 2pt;
+    position: absolute;
+    border: transparent;
+    border-width: 1pt;
 }
+
+.MenuBarButton:hover{
+    border: solid;
+    border-width: 1pt;
+}
+
+.MenuBarButton:active{
+    background-color: blanchedalmond;
+}   
 
 .NaviButton{
     height: 20pt;
     width: 20pt;
+    padding: 1pt;
+    margin: 1pt;
+}
+
+.NaviButton:hover{
+    border: solid;
+    border-width: 1pt;
+}
+
+.MenuBarButton:active{
+    background-color: blanchedalmond;
 }
 
 .showConextMenu{

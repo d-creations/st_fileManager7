@@ -16,6 +16,7 @@ export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {}
 
 
 export interface EditorControlerAdapter_EXC_I{
+    updateFileTree(directory : DirectoryNode_EXC_I): Promise<void>
     getSettingFileNode(): FileNode_EXC_I
     copyStorage(node: StorageNode2_EXC_I): void
     cutStorage(node: StorageNode2_EXC_I): void
@@ -25,7 +26,7 @@ export interface EditorControlerAdapter_EXC_I{
     saveFile(fileNode : FileNode_EXC_I,text): void 
     openDirectory()  :Promise<DirectoryNode_EXC_I | unknown>
     openFile():Promise<FileNode_EXC_I | unknown>
-    getFileTree(directory : DirectoryNode_EXC_I):{dirs:DirectoryNode_EXC_I[],files:FileNode_EXC_I[]}
+    getFileTree(directory : DirectoryNode_EXC_I):Promise<{dirs:DirectoryNode_EXC_I[],files:FileNode_EXC_I[]}>
     getFileText(fileNode : FileNode_EXC_I):Promise<String |unknown>
     closeApplication():void
     createFolder(rootDirectory  : StorageNode2_EXC_I):void

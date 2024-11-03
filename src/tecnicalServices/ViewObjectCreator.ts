@@ -40,7 +40,7 @@ export class ViewObjectCreator{
         input_button.type = "image"
         input_button.src = url
         input_button.alt = name;
-        input_button.classList.add("MenuBarButton");
+        input_button.classList.add("TabCloseButton");
         return input_button;
     }
 
