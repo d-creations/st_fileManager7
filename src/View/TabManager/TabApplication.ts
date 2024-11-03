@@ -63,12 +63,12 @@ export class TABApplicationFrame implements TABApplication{
             this.frame.contentWindow.postMessage(data, '*', [this.messageCanal.port2])
             
             this.setText(text)    
-       /*    this.frame.contentDocument.addEventListener("keydown", (event) => {
+           this.frame.contentDocument.addEventListener("keydown", (event) => {
                 if (event.ctrlKey && event.key === 's') {
                     event.preventDefault();
                     this.saveText();
                 }
-            });        */
+            });        
           }
         this.frame.addEventListener("load",loadFunction );
         

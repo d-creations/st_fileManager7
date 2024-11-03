@@ -130,7 +130,7 @@ function createWindow () {
   win.removeMenu()
   
 
-win.openDevTools();
+//win.openDevTools();
   win.loadFile('public/html/index.html')
 ipcMain.handle('openFile', handleFileOpen)
 ipcMain.handle('openFolder', handleFolderOpen)
