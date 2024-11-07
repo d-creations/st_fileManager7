@@ -93,10 +93,10 @@ export class BaseTableManager implements BaseTableManager_I{
         public moveBar(x : number){
             let leftColWidth = x;
             let cols = [
-                this.naviDiv.clientWidth,
+                this.naviDiv.offsetWidth,
                 leftColWidth,
                 this.barDiv.clientWidth,
-                this.baseTable.clientWidth - this.barDiv.clientWidth - this.naviDiv.clientWidth - leftColWidth,
+                this.baseTable.clientWidth - this.barDiv.clientWidth - this.naviDiv.offsetWidth- leftColWidth,
             ];
             
             let newColDefn = cols.map(c => c.toString() + "px").join(" ");

@@ -4,8 +4,15 @@ const fs = require('node:fs')
 const https = require('node:https')
 const electron = require('electron');
 const { resourceLimits } = require('node:worker_threads');
-const { updateElectronApp } = require('update-electron-app')
-updateElectronApp()
+const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
+updateElectronApp({
+  updateSource: {
+  type: UpdateSourceType.ElectronPublicUpdateService,
+  repo: 'd-creations/st_fileManager7',
+  host: "https://update.electronjs.org"
+},
+updateInterval: '60 minutes'
+})
 
 const MainIPC_ErrorCode = ["FileReadError","FolderReadError",
 "DirectoryReadError","FileWrite","CreateFolder","CreateFile","RemoveFile","RemoveFolder"]
@@ -75,11 +82,6 @@ function handleSquirrelEvent() {
   switch (squirrelEvent) {
     case '--squirrel-install':
     case '--squirrel-updated':
-      // Optionally do things such as:
-      // - Add your .exe to the PATH
-      // - Write to the registry for things like file associations and
-      //   explorer context menus
-
       // Install desktop and start menu shortcuts
       spawnUpdate(['--createShortcut', exeName]);
 
@@ -87,8 +89,6 @@ function handleSquirrelEvent() {
       return true;
 
     case '--squirrel-uninstall':
-      // Undo anything you did in the --squirrel-install and
-      // --squirrel-updated handlers
 
       // Remove desktop and start menu shortcuts
       spawnUpdate(['--removeShortcut', exeName]);
@@ -97,9 +97,6 @@ function handleSquirrelEvent() {
       return true;
 
     case '--squirrel-obsolete':
-      // This is called on the outgoing version of your app before
-      // we update to the new version - it's the opposite of
-      // --squirrel-updated
 
       app.quit();
       return true;
@@ -118,6 +115,9 @@ function createWindow () {
   const win = new BrowserWindow({
     width: width,
     height: height,
+    icon: path.join(__dirname, './resources/icon.ico'),
+    
+    titleBarStyle: 'customButtonsOnHover',
     webPreferences: {
       preload: path.join(__dirname, 'src/preload.js'),
     }

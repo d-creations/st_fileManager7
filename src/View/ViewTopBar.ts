@@ -15,7 +15,8 @@ export class ViewTopBar{
     constructor(parentDiv : HTMLDivElement,fileManager : FileManager_I,baseTableManager : BaseTableManager_I,tabCreator : TabCreator){
         this.parentDiv  = parentDiv
         let openFileButton = ViewObjectCreator.createMenuBarButton("FILE",".\\..\\..\\image\\opendocument.png")
-        openFileButton.style.left = 20 + "pt"
+        openFileButton.style.left = 30 + "pt"
+        openFileButton.style.display = "none"; // Make the button invisible
         parentDiv.appendChild(openFileButton);
         this.fileManager = fileManager
         this.baseTableManager = baseTableManager
@@ -27,29 +28,29 @@ export class ViewTopBar{
         })
 
         let openDirButton = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\openfolder.png")
-        openDirButton.style.left = 45 + "pt"    
+        openDirButton.style.left = 55 + "pt"    
         parentDiv.appendChild(openDirButton);
         openDirButton.addEventListener('click', function(e) {
             fileManager.openFolder()
             baseTableManager.openFileView()
         })
 
-        let saveFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\save.png")
-        saveFile.style.left =  70 + "pt"   
+        let saveFile = ViewObjectCreator.createMenuBarButton("SAVE",".\\..\\..\\image\\save.png")
+        saveFile.style.left =  80 + "pt"   
 
         parentDiv.appendChild(saveFile);
         saveFile.addEventListener('click', function(e) {
             fileManager.saveCurrentFile()
         })
-        let saveAllFile = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\saveAll.png")
-        saveAllFile.style.left =  95 + "pt"   
+        let saveAllFile = ViewObjectCreator.createMenuBarButton("SAVE_ALL",".\\..\\..\\image\\saveAll.png")
+        saveAllFile.style.left =  105 + "pt"   
         saveAllFile.style.position ="absolute"        
         parentDiv.appendChild(saveAllFile);
         saveAllFile.addEventListener('click', function(e) {
             fileManager.saveAllFile()
         })
 
-        let closeApplication = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\close.png")
+        let closeApplication = ViewObjectCreator.createMenuBarButton("CLOSE",".\\..\\..\\image\\close.png")
         parentDiv.appendChild(closeApplication);
         closeApplication.style.right ="0pt"
         closeApplication.style.position ="absolute"

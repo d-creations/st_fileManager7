@@ -113,9 +113,9 @@
     margin-left: 3pt;
     padding-left: 2pt;
     margin-top: 0pt;
-    padding-top: 0pt;
+    padding-top: 2pt;
     margin-bottom: 0pt;
-    padding-bottom: 0pt;
+    padding-bottom: 2pt;
     margin-right: 0pt;
     padding-right: 0pt;
     border-left-width: 1pt;
@@ -124,18 +124,18 @@
     border-bottom-width: 0pt;
     border-style:solid;
     border-color: black;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 .directoryDiv{
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
 
     margin-left: 3pt;
     padding-left: 2pt;
     margin-top: 0pt;
-    padding-top: 0pt;
+    padding-top: 2pt;
     margin-bottom: 0pt;
-    padding-bottom: 0pt;
+    padding-bottom: 2pt;
     margin-right: 0pt;
     padding-right: 0pt;
     border-left-width: 1pt;

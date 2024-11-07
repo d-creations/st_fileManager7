@@ -12,7 +12,7 @@
     [header-left] "head head head head" 30pt [header-right]
     [main-left] "nav filetree bar main" 1fr [main-right]
     [footer-left] "nav filetree bar foot" 20pt [footer-right]
-/ 30pt 90pt 2pt 1fr;
+/ 33pt 90pt 1.5pt 1fr;
 }
 .fileExpolorer{
     background-color: rgb(215, 214, 214);
@@ -20,12 +20,25 @@
     overflow: auto;
 }
 .menu{
-    background-color: rgb(145, 145, 145);
+  background-color: rgba(141, 155, 161, 0.845);
     grid-area: main;
 }
 .nav{
-    background-color: rgb(145, 145, 145);
+  background-color: rgba(141, 155, 161, 0.845);
+  border-right: whitesmoke;
+  border-right-style: solid;
+  border-right-width: 1px;
+
+/*    background-color: rgb(145, 145, 145);*/
     grid-area: nav;
+}
+
+.header {
+  background-color: rgba(141, 155, 161, 0.845);
+  grid-area: head;
+  border-bottom: whitesmoke;
+  border-bottom-style: solid;
+  border-bottom-width: 1pt;
 }
 
 .bar{
@@ -60,12 +73,6 @@
     min-width: 0pt;
     min-height: 0pt;
 }
-.header {
-    background-color: rgb(145, 145, 145);
-    grid-area: head;
-    padding-left: 20pt;
-  }
   .footer {
-    background-color: rgb(145, 145, 145);
-    grid-area: foot;
+    background-color: rgba(141, 155, 161, 0.845);
   }
