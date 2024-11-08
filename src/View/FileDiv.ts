@@ -27,10 +27,12 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
 
 
 
+
     public fileNode : FileNode_EXC_I
     private tabCreator : TabCreator
     private obervers: Array<Observer>
     private fileTabOpenState : boolean
+    private settings : Settings
 
     
     constructor(fileNode : FileNode_EXC_I,editor : EditorControlerAdapter_EXC_I,tabCreator : TabCreator,settings : Settings){
@@ -40,7 +42,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
         this.fileNode = fileNode
         this.tabCreator = tabCreator
         this.fileNode.addObserver(this)
-
+        this.settings = settings
         this.contentEditable ="false";
         this.classList.add("selectable");
         this.classList.add("directoryDiv")
@@ -53,9 +55,10 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
         });
 
         this.addEventListener("click", (e) => {
+            console.log("click left")
             if(e.target instanceof HTMLDivElement && e.target.contentEditable == "false"){
-            let rightClickMenu = new FileLeftClickMenu(this,settings);
-            rightClickMenu.showMenu(e);
+                let rightClickMenu = new FileLeftClickMenu(this,settings);
+                rightClickMenu.showMenu(e);
             }
         });
 
@@ -91,7 +94,10 @@ export class FileDiv extends StorageDiv implements FileDiv_I,ObservableI{
         this.tabCreator.createTab(this , createApplication)
     }
 
-
+    public openFileWithSelector() {
+        let rightClickMenu = new FileLeftClickMenu(this,this.settings);
+        rightClickMenu.showSimpleMenu();
+    }
 
     setEditable(state : string){
         this.contentEditable = state

@@ -11,6 +11,7 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
 
     constructor() {}
 
+
     updateFileTree(directoryNode: DirectoryNode_EXC_I): Promise<void> {
         if (directoryNode instanceof DirectoryNode) return directoryNode.updateTree();
     }
@@ -92,23 +93,37 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         let self = this;
         let ret = new Promise((resolve, reject) => {
             console.log("openFile");
-            globalThis.electron.openFile().then(function (filePath: string) {
-                let filename = filePath.split("\\").at(-1);
-                if (filePath.indexOf("\\") > 0) {
-                    filePath = filePath.substring(0, filePath.lastIndexOf("\\"));
+            globalThis.electron.openFile().then(
+                function(filepath){
+                    self.openFileByUrl(filepath).then((fileNode) => {
+                        resolve(fileNode)
                 }
-                let rootStorageNode = new RootStorageNode(filePath);
-                let fileNode = new FileNode(rootStorageNode, filename);
-                self.storageNode = fileNode;
-                resolve(fileNode);
-            }).catch(() => {
+                ).catch(() => {
                 throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+                });
             });
         });
         return ret;
     }
 
-    getFileText(fileNode: FileNode_EXC_I): Promise<String | unknown> {
+
+    public openFileByUrl(url: string): Promise<FileNode_EXC_I | unknown> {
+        let self = this
+        let ret = new Promise((resolve, reject) => {
+            let filePath = url;
+            let filename = filePath.split("\\").at(-1);
+            if (filePath.indexOf("\\") > 0) {
+                filePath = filePath.substring(0, filePath.lastIndexOf("\\"));
+            }
+            let rootStorageNode = new RootStorageNode(filePath);
+            let fileNode = new FileNode(rootStorageNode, filename);
+            self.storageNode = fileNode;
+            resolve(fileNode);            
+        });
+        return ret;
+    }
+
+    getFileText(fileNode: FileNode_EXC_I): Promise<String> {
         if (fileNode instanceof FileNode) return globalThis.electron.getFileText(fileNode.getUrl());
         else throw new Error("Root Directory type unkown");
     }

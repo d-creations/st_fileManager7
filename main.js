@@ -5,6 +5,7 @@ const https = require('node:https')
 const electron = require('electron');
 const { resourceLimits } = require('node:worker_threads');
 const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
+const args = process.argv
 updateElectronApp({
   updateSource: {
   type: UpdateSourceType.ElectronPublicUpdateService,
@@ -130,29 +131,27 @@ function createWindow () {
   win.removeMenu()
   
 
-//win.openDevTools();
-  win.loadFile('public/html/index.html')
-ipcMain.handle('openFile', handleFileOpen)
-ipcMain.handle('openFolder', handleFolderOpen)
-ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
-ipcMain.handle('getFileText', handleGetFileText)
-ipcMain.handle('saveFile', handleSaveFile)
-ipcMain.handle('createFolder', handleCreateFolder)
-ipcMain.handle('deleteFileOrFolder', handleDeleteFileOrFolder)
-ipcMain.handle('renameFileOrFolder', handleRenameFileOrFolder)
+  win.openDevTools();
+    win.loadFile('public/html/index.html')
+  ipcMain.handle('openFile', handleFileOpen)
+  ipcMain.handle('openFolder', handleFolderOpen)
+  ipcMain.handle('getFilesInFolder', handleGetFilesInDir)
+  ipcMain.handle('getFileText', handleGetFileText)
+  ipcMain.handle('saveFile', handleSaveFile)
+  ipcMain.handle('createFolder', handleCreateFolder)
+  ipcMain.handle('deleteFileOrFolder', handleDeleteFileOrFolder)
+  ipcMain.handle('renameFileOrFolder', handleRenameFileOrFolder)
 
-ipcMain.handle('closeApplication', handleCloseApplication)
-ipcMain.handle('moveFolderOrFile', handleMoveFolderOrFile)
-ipcMain.handle('copyFolderOrFile', handleCopyFolderOrFile)
-
-
-
-
-
-
+  ipcMain.handle('closeApplication', handleCloseApplication)
+  ipcMain.handle('moveFolderOrFile', handleMoveFolderOrFile)
+  ipcMain.handle('copyFolderOrFile', handleCopyFolderOrFile)
+  ipcMain.handle('getArgs', getArgs)
 
 }
 
+function getArgs(){
+  return args
+}
 function handleCloseApplication(event){
   BrowserWindow.getAllWindows().forEach(window => {
     window.close()

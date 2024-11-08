@@ -37,9 +37,15 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
         FileLeftClickMenu.removeMenu();
     });
     document.addEventListener("click", (e) => {
-        if (e.target instanceof HTMLDivElement && e.target.getAttribute("click") != "true") {
+        if (e.target instanceof HTMLDivElement && FileLeftClickMenu.state == "true" && FileLeftClickMenu.target != e.target) {
             FileLeftClickMenu.removeMenu();
         }
         ContextMenu.removeMenu();
+    });
+    globalThis.electron.getArgs().then((args) => {
+        if (args.length > 1 && args[1].length > 2) {
+            fileManager.openBootArgsFile(args[1]);
+        }
+        console.log("ARGS" + args);
     });
 }

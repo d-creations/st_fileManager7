@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electron', {
 
   createFolder: (filepath) => ipcRenderer.invoke('createFolder',filepath),
   deleteFileOrFolder:(filepath) =>ipcRenderer.invoke('deleteFileOrFolder',filepath),
-  renameFileOrFolder: (oldfilepath,newfilepath) => ipcRenderer.invoke('renameFileOrFolder',oldfilepath,newfilepath)
+  renameFileOrFolder: (oldfilepath,newfilepath) => ipcRenderer.invoke('renameFileOrFolder',oldfilepath,newfilepath),
+  getArgs: () => ipcRenderer.invoke('getArgs')
 })
 

@@ -14,6 +14,7 @@ import { TabManager_I } from "./TabManager/TabManager.js"
 
 
 export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,NaviMenu_I{
+
     private tabManager : TabManager_I
     private rootStorageDiv : StorageDiv
     private editor : EditorControlerAdapter_EXC_I
@@ -41,7 +42,7 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
 
     public openFolder () : void {
         console.log("openDirectory")        
-        this.tabManager.closeAllTabs()
+//        this.tabManager.closeAllTabs()   Try how the application Works when tabs stays open
         let localfileManager = this
         this.editor.openDirectory().then(function(directoryNode : DirectoryNode_EXC_I){
             localfileManager.rootStorageDiv = new DirectoryDiv(directoryNode,localfileManager.editor,localfileManager.tabManager.getTabCreator(),localfileManager.settings)
@@ -64,11 +65,23 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         this.tabManager.saveAllFile()
     }
     public async openFile () {
+        
         let self = this
         this.editor.openFile().then(function(file : FileNode_EXC_I) {
-            self.rootStorageDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),this.settings)
-            self.updateElement()
+            let fileDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),self.settings)
+            fileDiv.openFileWithSelector()
+
         })
+    }
+
+    openBootArgsFile(url: string) {
+        
+        let self = this;
+        this.editor.openFileByUrl(url).then(function(file : FileNode_EXC_I) {
+            let fileDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),self.settings)            
+            fileDiv.openFileWithSelector()
+        })
+      
     }
 
 }

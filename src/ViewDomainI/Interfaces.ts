@@ -16,6 +16,7 @@ export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {}
 
 
 export interface EditorControlerAdapter_EXC_I{
+    openFileByUrl(url: string): Promise<FileNode_EXC_I | unknown>
     updateFileTree(directory : DirectoryNode_EXC_I): Promise<void>
     getSettingFileNode(): FileNode_EXC_I
     copyStorage(node: StorageNode2_EXC_I): void

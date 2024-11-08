@@ -5,39 +5,25 @@ import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
 
 export class FileLeftClickMenu{
+
     static fileRightClickMenuDiv = document.createElement("div")
     private pathDir = ""
     private nameFile = ""
     private fileNode : FileDiv
     static target :HTMLDivElement;
     private settings : Settings
+    static state = "false"
+
+    public showSimpleMenu() {
+        this.openMenu({x:0,y:0})
+    }
+
     public showMenu(e : Event){
+        FileLeftClickMenu.target = e.target as HTMLDivElement
         if(e.target instanceof HTMLDivElement && e.target.contentEditable != "true"){
             e.target.setAttribute("click","true")
-            FileLeftClickMenu.target = e.target
             let pos = this.getPosition(e)
-            FileLeftClickMenu.removeMenu()
-            FileLeftClickMenu.fileRightClickMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")
-            FileLeftClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
-            FileLeftClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
-            FileLeftClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
-            this.settings.reloadSettings()
-            for(let application of this.settings.applications){
-                if(application.aktiv == "True"){
-                    let openInEditor = document.createElement("div")
-                    openInEditor.innerText = "Open" + application.name
-                    openInEditor.classList.add("selectable","rightClickMenu")
-                    FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
-                    openInEditor.addEventListener("click", (e)=> {
-                        FileLeftClickMenu.removeMenu()
-                        console.log("openFile")
-                        let appIndex = new ApplciationIndex(application.url)
-                        this.fileNode.openFile(appIndex)
-                        })
-                }
-        }
-
-            console.log("shoe Menu")
+            this.openMenu(pos)
         }
     }
 
@@ -48,13 +34,39 @@ export class FileLeftClickMenu{
         while(FileLeftClickMenu.fileRightClickMenuDiv.firstChild){
             FileLeftClickMenu.fileRightClickMenuDiv.removeChild(FileLeftClickMenu.fileRightClickMenuDiv.firstChild)
         }
-        FileLeftClickMenu.target.removeAttribute("click")
+        }
+            
+        FileLeftClickMenu.state = "false"
     }
-    }
+
     constructor (fileNode : FileDiv,settings){
         this.fileNode = fileNode
         this.settings = settings
     }
+    private openMenu(pos){
+        console.log("openMenu")
+        FileLeftClickMenu.removeMenu()
+        FileLeftClickMenu.fileRightClickMenuDiv.classList.remove("showRightClickMenu","hiddenRightClickMenu")
+        FileLeftClickMenu.fileRightClickMenuDiv.classList.add("showRightClickMenu")
+        FileLeftClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
+        FileLeftClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
+        this.settings.reloadSettings()
+        for(let application of this.settings.applications){
+            if(application.aktiv == "True"){
+                let openInEditor = document.createElement("div")
+                openInEditor.innerText = "Open" + application.name
+                openInEditor.classList.add("selectable","rightClickMenu")
+                FileLeftClickMenu.fileRightClickMenuDiv.appendChild(openInEditor)
+                openInEditor.addEventListener("click", (e)=> {
+                    FileLeftClickMenu.removeMenu()
+                    let appIndex = new ApplciationIndex(application.url)
+                    this.fileNode.openFile(appIndex)
+                    })
+            }
+        }
+        FileLeftClickMenu.state = "true"
+    }
+
 
     public getPosition(e) {
         let posx = 0;

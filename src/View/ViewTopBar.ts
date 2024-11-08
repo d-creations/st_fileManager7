@@ -16,15 +16,13 @@ export class ViewTopBar{
         this.parentDiv  = parentDiv
         let openFileButton = ViewObjectCreator.createMenuBarButton("FILE",".\\..\\..\\image\\opendocument.png")
         openFileButton.style.left = 30 + "pt"
-        openFileButton.style.display = "none"; // Make the button invisible
+        //openFileButton.style.display = "none"; // Make the button invisible
         parentDiv.appendChild(openFileButton);
         this.fileManager = fileManager
         this.baseTableManager = baseTableManager
         this.tabCreator = tabCreator
         openFileButton.addEventListener('click', function(e) {
             fileManager.openFile()
-            baseTableManager.openFileView()
-
         })
 
         let openDirButton = ViewObjectCreator.createMenuBarButton("FOLDER",".\\..\\..\\image\\openfolder.png")

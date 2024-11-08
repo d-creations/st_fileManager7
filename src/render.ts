@@ -39,10 +39,6 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
   let fileManager = new FileExplorerDiv(tabManager,editor) 
   let headBar = new ViewTopBar(headBarDiv,fileManager,baseTableManager,tabManager.getTabCreator())
   let navi : NaviMenu = new NaviMenu(naviDiv,div,[fileManager],baseTableManager)
-  
-
-  
-  
   document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv)
   document.body.appendChild(ContextMenu.contextMenuDiv)
   ContextMenu.contextMenuDiv.id = "TESTID"
@@ -50,11 +46,20 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     FileLeftClickMenu.removeMenu()
   });
   document.addEventListener("click", (e) => {
-    if(e.target instanceof HTMLDivElement && e.target.getAttribute("click")!= "true" ){
+    //if(e.target instanceof HTMLDivElement && e.target.getAttribute("click")!= "true" ){
+    
+    if(e.target instanceof HTMLDivElement && FileLeftClickMenu.state == "true" && FileLeftClickMenu.target != e.target){
       FileLeftClickMenu.removeMenu()
     }
       ContextMenu.removeMenu()
     })
+    globalThis.electron.getArgs().then((args)=>{
+      if(args.length>1 && args[1].length>2){  
+        fileManager.openBootArgsFile(args[1])
+      }
+      console.log("ARGS"+ args)
+    })
+  
 
 
 }
