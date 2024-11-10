@@ -15,5 +15,7 @@ contextBridge.exposeInMainWorld('electron', {
   deleteFileOrFolder:(filepath) =>ipcRenderer.invoke('deleteFileOrFolder',filepath),
   renameFileOrFolder: (oldfilepath,newfilepath) => ipcRenderer.invoke('renameFileOrFolder',oldfilepath,newfilepath),
   getArgs: () => ipcRenderer.invoke('getArgs')
+  
 })
+
 

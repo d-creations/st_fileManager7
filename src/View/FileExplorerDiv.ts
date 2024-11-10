@@ -65,17 +65,14 @@ export class FileExplorerDiv extends HTMLDivElement implements FileManager_I,Nav
         this.tabManager.saveAllFile()
     }
     public async openFile () {
-        
         let self = this
         this.editor.openFile().then(function(file : FileNode_EXC_I) {
             let fileDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),self.settings)
             fileDiv.openFileWithSelector()
-
         })
     }
 
-    openBootArgsFile(url: string) {
-        
+    openFileByUrl(url: string) {
         let self = this;
         this.editor.openFileByUrl(url).then(function(file : FileNode_EXC_I) {
             let fileDiv = new FileDiv(file,self.editor,self.tabManager.getTabCreator(),self.settings)            

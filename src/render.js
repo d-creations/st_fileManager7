@@ -44,8 +44,19 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
     });
     globalThis.electron.getArgs().then((args) => {
         if (args.length > 1 && args[1].length > 2) {
-            fileManager.openBootArgsFile(args[1]);
+            fileManager.openFileByUrl(args[1]);
         }
-        console.log("ARGS" + args);
+    });
+    document.addEventListener('drop', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        for (const file of event.dataTransfer.files) {
+            let path = file.path;
+            fileManager.openFileByUrl(path);
+        }
+    });
+    document.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
     });
 }

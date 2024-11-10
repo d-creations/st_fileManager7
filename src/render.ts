@@ -46,8 +46,6 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     FileLeftClickMenu.removeMenu()
   });
   document.addEventListener("click", (e) => {
-    //if(e.target instanceof HTMLDivElement && e.target.getAttribute("click")!= "true" ){
-    
     if(e.target instanceof HTMLDivElement && FileLeftClickMenu.state == "true" && FileLeftClickMenu.target != e.target){
       FileLeftClickMenu.removeMenu()
     }
@@ -55,13 +53,29 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     })
     globalThis.electron.getArgs().then((args)=>{
       if(args.length>1 && args[1].length>2){  
-        fileManager.openBootArgsFile(args[1])
+        fileManager.openFileByUrl(args[1])
       }
-      console.log("ARGS"+ args)
     })
-  
 
 
+
+    document.addEventListener('drop', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      for (const file of event.dataTransfer.files) {
+        let path = (file as unknown as { path }).path
+        fileManager.openFileByUrl(path);
+      }           
+    });
+    
+    document.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+
+    
+    
 }
 
 
