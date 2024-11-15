@@ -15,7 +15,7 @@ export class PdfFacade{
   constructor(canvasContainer,toolBarContainer){
     this.canvasContainer = canvasContainer
     this.toolBarContainer = toolBarContainer
-    this.scale= 2
+    this.scale= 5
     this.orientation = 0
     this.canvasList = []
     this.createToolbar()

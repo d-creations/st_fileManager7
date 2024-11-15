@@ -20,11 +20,11 @@
     overflow: auto;
 }
 .menu{
-  background-color: rgba(141, 155, 161, 0.845);
+  background-color: rgba(117, 117, 117, 0.845);
     grid-area: main;
 }
 .nav{
-  background-color: rgba(141, 155, 161, 0.845);
+  background-color: rgba(117, 117, 117, 0.845);
   border-right: whitesmoke;
   border-right-style: solid;
   border-right-width: 1px;
@@ -34,7 +34,7 @@
 }
 
 .header {
-  background-color: rgba(141, 155, 161, 0.845);
+  background-color: rgba(117, 117, 117, 0.845);
   grid-area: head;
   border-bottom: whitesmoke;
   border-bottom-style: solid;
@@ -74,5 +74,5 @@
     min-height: 0pt;
 }
   .footer {
-    background-color: rgba(141, 155, 161, 0.845);
+    background-color: rgba(117, 117, 117, 0.845);
   }
