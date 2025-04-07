@@ -34,8 +34,9 @@ export interface EditorControlerAdapter_EXC_I{
     createFile(rootDirectory  : StorageNode2_EXC_I):void
     deleteFileOrFolder(storageNode2 : StorageNode2_EXC_I):void
     renameFileOrFolder(storageNode2: StorageNode2_EXC_I,newName : String):void
-
-
+    undoFileOperation():Promise<String | unknown>
+    redoFileOperation():Promise<String | unknown>
+    getNCToolPath(NCcode : string):Promise<String | unknown>
 }
 
 

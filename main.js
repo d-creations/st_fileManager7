@@ -4,7 +4,8 @@ const fs = require('node:fs')
 const https = require('node:https')
 const electron = require('electron');
 const { resourceLimits } = require('node:worker_threads');
-const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
+const { updateElectronApp, UpdateSourceType } = require('update-electron-app');
+const { get } = require('node:http');
 const args = process.argv
 updateElectronApp({
   updateSource: {
@@ -14,6 +15,15 @@ updateElectronApp({
 },
 updateInterval: '60 minutes'
 })
+let executionPath = process.cwd()
+const cacheFolder = path.join(executionPath, 'cache');  // Create cache folder in execution path
+if (!fs.existsSync(cacheFolder)) {
+    fs.mkdirSync(cacheFolder);
+}
+console.log("Cache folder created at: " + cacheFolder);
+
+// Global undo stack
+let undoStack = [];
 
 const MainIPC_ErrorCode = ["FileReadError","FolderReadError",
 "DirectoryReadError","FileWrite","CreateFolder","CreateFile","RemoveFile","RemoveFolder"]
@@ -26,8 +36,8 @@ let MainIPC_Error = /** @class */ (function () {
       configurable: true
     }
   });
-  function MainIPC_Error(mainIPC_ErrorCode,message) {
-          this.errorCode = mainIPC_ErrorCode
+  function MainIPC_Error(MainIPC_ErrorCode,message) {
+          this.errorCode = MainIPC_ErrorCode
           this.message = message
   }
 
@@ -67,7 +77,6 @@ function handleSquirrelEvent() {
 
   const spawn = function(command, args) {
     let spawnedProcess, error;
-
     try {
       spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
     } catch (error) {}
@@ -116,11 +125,11 @@ function createWindow () {
   const win = new BrowserWindow({
     width: width,
     height: height,
-    icon: path.join(__dirname, './resources/icon.ico'),
+    icon: path.join(executionPath, './resources/icon.ico'),
     
     titleBarStyle: 'customButtonsOnHover',
     webPreferences: {
-      preload: path.join(__dirname, 'src/preload.js'),
+      preload: path.join(executionPath, 'src/preload.js'),
     }
   })
   const ses = win.webContents.session;
@@ -131,7 +140,7 @@ function createWindow () {
   win.removeMenu()
   
 
-  //win.openDevTools();
+  win.openDevTools();
     win.loadFile('public/html/index.html')
   ipcMain.handle('openFile', handleFileOpen)
   ipcMain.handle('openFolder', handleFolderOpen)
@@ -141,12 +150,12 @@ function createWindow () {
   ipcMain.handle('createFolder', handleCreateFolder)
   ipcMain.handle('deleteFileOrFolder', handleDeleteFileOrFolder)
   ipcMain.handle('renameFileOrFolder', handleRenameFileOrFolder)
-
   ipcMain.handle('closeApplication', handleCloseApplication)
   ipcMain.handle('moveFolderOrFile', handleMoveFolderOrFile)
   ipcMain.handle('copyFolderOrFile', handleCopyFolderOrFile)
   ipcMain.handle('getArgs', getArgs)
-
+  ipcMain.handle('undoOperation',undoOperation);
+  ipcMain.handle('getNCToolPath',handleGetNCToolPath);
 }
 
 function getArgs(){
@@ -249,81 +258,174 @@ function handleGetFilesInDir (event,args) {
     return ret
   }
 
-  function handleCreateFolder (event,url){
-    console.log("create File or Folder ")
-    console.log(url)
-    let ret = new Promise((resolve, reject) => {
-      fs.mkdir(url, function(err, data){
-          if(err) {
-              reject(new MainIPC_Error(0,"create Folder failed in Main process"));
-          }
-          resolve(data);
-      });
-  });
-    return ret
-  }
+// Modified handleCreateFolder: push undo record to delete the created folder
+function handleCreateFolder(event, url) {
+    console.log("create Folder", url);
+    return new Promise((resolve, reject) => {
+        fs.mkdir(url, function(err, data) {
+            if(err) {
+                reject(new MainIPC_Error(0, "create Folder failed in Main process"));
+            } else {
+                undoStack.push({ op: 'createFolder', path: url });
+                console.log("undoStack", undoStack);
 
-
-  function handleMoveFolderOrFile (event,oldUrl,newUrl){
-    console.log("create File or Folder ")
-    console.log(url)
-    let ret = new Promise((resolve, reject) => {
-      fs.cp(src, dest, {recursive: true},function(err, data){
-          if(err) {
-              reject(new MainIPC_Error(0,"ove Folder failed in Main process"));
-          }
-          resolve(data);
-      });
-  });
-    return ret
-  }
-
-
-  function handleCopyFolderOrFile (event,oldUrl,newUrl){
-    console.log("copy File or Folder ")
-    let ret = new Promise((resolve, reject) => {
-      notExists(newUrl).then((state)=>{
-        if(state){
-          fs.cp(oldUrl, newUrl, {recursive: true},function(err, data){
-          if(err) {
-            throw new MainIPC_Error(0,"cop< failed in Main process old\n" + oldUrl +"\nnew\n" + newUrl)
+                resolve(data);
             }
-          resolve(true);
         });
-      }
-      else{
-        resolve(false);
-      }
+    });
+}
 
-      })
-  });
-    return ret
-
-  }
-
-  function handleRenameFileOrFolder(event,oldUrl,newUrl){
-
-    console.log("rename File or Folder ")
-    let ret = new Promise((resolve, reject) => {
-      notExists(newUrl).then((state)=>{
-        if(state){
-        fs.rename(oldUrl, newUrl, function(err, data){
-          if(err) {
-            throw new MainIPC_Error(0,"rename failed in Main process old\n" + oldUrl +"new\n" + newUrl)
+// Modified handleDeleteFileOrFolder: backup before deletion and record undo info
+function handleDeleteFileOrFolder(event, url) {
+    console.log("delete File or Folder", url);
+    return new Promise((resolve, reject) => {
+        // Create a backup path inside cacheFolder using timestamp and basename
+        const backupPath = path.join(cacheFolder, `delete-${Date.now()}-${path.basename(url)}`);
+        fs.cp(url, backupPath, { recursive: true }, function(copyErr) {
+            if (copyErr) {
+                reject(new MainIPC_Error(0, "backup before delete failed"));
+            } else {
+                // Push undo record to restore from backup
+                undoStack.push({ op: 'delete', original: url, backup: backupPath });
+                fs.rm(url, { recursive: true, force: true }, function(err, data) {
+                    if (err) {
+                        reject(new MainIPC_Error(0, "delete File or Folder Failed"));
+                    } else {
+                        resolve();
+                    }
+                });
             }
-          resolve(true);
         });
-      }
-      else{
-        resolve(false);
-      }
+    });
+}
 
-      })
-  });
-    return ret
-  }
+// Modified handleRenameFileOrFolder: push undo record to reverse the rename
+function handleRenameFileOrFolder(event, oldUrl, newUrl) {
+    console.log("rename File or Folder");
+    return new Promise((resolve, reject) => {
+        notExists(newUrl).then((state) => {
+            if(state) {
+                // Push undo record to move newUrl back to oldUrl
+                undoStack.push({ op: 'rename', old: oldUrl, new: newUrl });
+                fs.rename(oldUrl, newUrl, function(err, data) {
+                    if(err) {
+                        reject(new MainIPC_Error(0, "rename failed in Main process old\n" + oldUrl + " new\n" + newUrl));
+                    }
+                    resolve(true);
+                });
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
 
-  function notExists(url){
+// Modified handleMoveFolderOrFile: push undo record, undo by moving back
+function handleMoveFolderOrFile(event, oldUrl, newUrl) {
+    console.log("move Folder or File");
+    return new Promise((resolve, reject) => {
+        // Push undo record to move newUrl back to oldUrl
+        undoStack.push({ op: 'move', old: oldUrl, new: newUrl });
+        fs.cp(oldUrl, newUrl, { recursive: true }, function(err, data) {
+            if(err) {
+                reject(new MainIPC_Error(0, "move failed in Main process"));
+            }
+            fs.rm(oldUrl, { recursive: true, force: true }, function(rmErr) {
+                if(rmErr) {
+                    reject(new MainIPC_Error(0, "move cleanup failed in Main process"));
+                }
+                resolve(data);
+            });
+        });
+    });
+}
+
+// Modified handleCopyFolderOrFile: push undo record to delete the copied item for undo
+function handleCopyFolderOrFile(event, oldUrl, newUrl) {
+    console.log("copy File or Folder");
+    return new Promise((resolve, reject) => {
+        notExists(newUrl).then((state) => {
+            if(state) {
+                fs.cp(oldUrl, newUrl, { recursive: true }, function(err, data) {
+                    if(err) {
+                        throw new MainIPC_Error(0, "copy failed in Main process old\n" + oldUrl + "\nnew\n" + newUrl);
+                    }
+                    // Push undo record to remove the copied item
+                    undoStack.push({ op: 'copy', new: newUrl });
+                    resolve(true);
+                });
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
+
+// New undoOperation function to revert the last operation
+function undoOperation() {
+    return new Promise((resolve, reject) => {
+      console.log("undo operation");
+        if (undoStack.length === 0) {
+            return resolve("No operations to undo");
+        }
+        const lastOp = undoStack.pop();
+        switch(lastOp.op) {
+            case 'createFolder':
+                fs.rm(lastOp.path, { recursive: true, force: true }, (err) => {
+                    if(err) reject(new MainIPC_Error(0, "undo createFolder failed"));
+                    else resolve("Undo createFolder successful");
+                });
+                break;
+            case 'delete':
+                fs.cp(lastOp.backup, lastOp.original, { recursive: true }, (err) => {
+                    if(err) reject(new MainIPC_Error(0, "undo delete failed"));
+                    else {
+                        fs.rm(lastOp.backup, { recursive: true, force: true }, () => {});
+                        resolve("Undo delete successful");
+                    }
+                });
+                break;
+            case 'rename':
+                fs.rename(lastOp.new, lastOp.old, (err) => {
+                    if(err) reject(new MainIPC_Error(0, "undo rename failed"));
+                    else resolve("Undo rename successful");
+                });
+                break;
+            case 'move':
+                fs.cp(lastOp.new, lastOp.old, { recursive: true }, (err) => {
+                    if(err) reject(new MainIPC_Error(0, "undo move failed"));
+                    else {
+                        fs.rm(lastOp.new, { recursive: true, force: true }, () => {});
+                        resolve("Undo move successful");
+                    }
+                });
+                break;
+            case 'copy':
+                fs.rm(lastOp.new, { recursive: true, force: true }, (err) => {
+                    if(err) reject(new MainIPC_Error(0, "undo copy failed"));
+                    else resolve("Undo copy successful");
+                });
+                break;
+            default:
+                resolve("Unknown operation");
+        }
+    });
+}
+
+function handleGetNCToolPath(event, toolpath) {
+    return new Promise((resolve, reject) => {
+        const { execFile } = require('child_process');
+        execFile(toolpath, [], (err, stdout, stderr) => {
+            if(err) {
+                reject(new MainIPC_Error(0, "Execution failed: " + err.message));
+            } else {
+                resolve(stdout);
+            }
+        });
+    });
+}
+
+function notExists(url){
     let ret = new Promise((resolve, reject) => {
       fs.access(url,fs.constants.F_OK,(err)=>{
         console.log("File Exists ? "+ err +" URL "+ url)
@@ -335,23 +437,12 @@ function handleGetFilesInDir (event,args) {
     })
     return ret  
   }
-  function handleDeleteFileOrFolder(event,url){
-    console.log("delete File or Folder ")
-    console.log(url)
-    let ret = new Promise((resolve, reject) => {
-      fs.rm(url, { recursive: true, force: true },function(err, data){
-          if(err) {
-            throw new MainIPC_Error(0,"delete File or Folder Failed")
-          }
-          resolve();
-      });
-  });
-    return ret
-  }
 
-
-
-
+app.on('before-quit', () => {  // Remove cache folder when closing the application
+    if (fs.existsSync(cacheFolder)) {
+        fs.rmSync(cacheFolder, { recursive: true, force: true });
+    }
+});
 
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => {

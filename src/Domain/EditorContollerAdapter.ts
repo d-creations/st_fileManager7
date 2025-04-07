@@ -10,6 +10,24 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
     clipboardStorage: objectManipulation;
 
     constructor() {}
+    undoFileOperation(): Promise<String | unknown> {
+        let that = this;
+        let ret = new Promise((resolve, reject) => {
+            let retPromis = globalThis.electron.undoFileOperation(); 
+            console.log("return undo" + retPromis);
+            retPromis
+                .then(function () {     
+                    that.storageNode.oberverUpdate();
+        })
+    })   
+        return  ret         
+    }
+    redoFileOperation(): Promise<String | unknown> {
+        throw new Error("Method not implemented.");
+    }
+    getNCToolPath(NCcode: string): Promise<String | unknown> {
+        return globalThis.electron.getNCToolPath();    
+    }
 
 
     updateFileTree(directoryNode: DirectoryNode_EXC_I): Promise<void> {
