@@ -109,7 +109,10 @@ export class DirectoryDiv extends StorageDiv {
     }
 
     private createSubContainer(type: "files" | "dirs"): HTMLDivElement {
-        const container = document.createElement("div");
+        let container = document.createElement("div");
+         // Make node selectable but draggable
+         container.draggable = false; // Enable dragging
+         container.style.userSelect = "text"; // Allow text selection
         container.setAttribute("divname", `FOLDER ${type} ${this.editor.getStorageName(this.directoryNode)}`);
         return container;
     }
@@ -147,6 +150,11 @@ export class DirectoryDiv extends StorageDiv {
         event.stopPropagation();
         // Add visual cue to the appropriate element (e.g., the head or body)
         const targetElement = event.currentTarget as HTMLElement;
+        // Check if the dragged file is already a child of the directoryFilesDiv
+        if (this.directoryFilesDiv.contains(event.target as Node)) {
+            console.log("Dragged file is already a child of this directory.");
+            return;
+        }
         targetElement.classList.add("dragover");
         console.log("Drag enter:", this.getName());
     }
@@ -172,14 +180,20 @@ export class DirectoryDiv extends StorageDiv {
         event.stopPropagation();
         (event.currentTarget as HTMLElement).classList.remove("dragover"); // Remove visual cue
         console.log("Drop on:", this.getName());
-
-        if (event.dataTransfer?.files) {
+        if (event.dataTransfer?.getData("application/x-internal-cut") === "true") {
+            console.log("Cut operation detected. Inserting cut object.");
+            const cutObject = await this.editor.insertStorage(this.directoryNode);
+            await this.refreshStorageRekursiv()
+            console.log(`Cut object moved to ${this.getName()}`);
+            }
+        else if (event.dataTransfer?.files) {
             for (const file of event.dataTransfer.files) {
                 await this.importDroppedFile(file);
             }
             // Optionally refresh after all files are processed
             // await this.refreshStorageRekursiv();
         }
+        // Check if the dropped
     }
 
     private async importDroppedFile(file: File): Promise<void> {
