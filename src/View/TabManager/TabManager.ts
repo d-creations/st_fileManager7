@@ -1,6 +1,6 @@
 import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
-import { Observer, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
+import { ObserverI, ObserverFunction, observerFunc } from "../../tecnicalServices/oberserver.js"
 import { FileDiv_I } from "../FileDiv.js"
 import { ApplciationIndex, FrameAppCreator, TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
@@ -27,7 +27,7 @@ export class TABpage{
     }
 }
 
-export class TAB implements Observer{
+export class TAB implements ObserverI{
 
     tab : TABpage
     button : HTMLDivElement
@@ -93,6 +93,11 @@ export class TabManager implements TabManager_I{
         this.baseTabManagerDiv.appendChild(this.mainTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.footTabManagerDiv)
         this.tabCreator = new TabCreator(this)
+
+        
+
+      
+      
     }
     getTabCreator(): TabCreator {
         return this.tabCreator

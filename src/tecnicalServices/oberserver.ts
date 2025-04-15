@@ -1,10 +1,10 @@
-export interface Observer{
+export interface ObserverI{
     oberverUpdate() : void
 }
 
 export type observerFunc = () => void;
 
-export class ObserverFunction implements Observer{
+export class ObserverFunction implements ObserverI{
 
     oberverUpdate : observerFunc
     constructor(func : observerFunc){
@@ -14,20 +14,20 @@ export class ObserverFunction implements Observer{
 
 
 export interface ObservableI{
-    addObserver( observer : Observer)
+    addObserver( observer : ObserverI)
      
-    observerUpdated()
+    observerUpdated() 
 }
 
 
 export class Observable implements ObservableI{
-   private obervers: Array<Observer>
+   private obervers: Array<ObserverI>
 
    constructor(){
        this.obervers = []
    }
    
-   public addObserver( observer : Observer) {
+   public addObserver( observer : ObserverI) {
    this.obervers.push(observer);
    }  
 

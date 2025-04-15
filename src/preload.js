@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electron', {
   saveFile: (filepath,text) => ipcRenderer.invoke('saveFile',filepath,text),
   closeApplication: () => ipcRenderer.invoke('closeApplication'),
 
-  moveFolderOrFile: (oldfilepath,newfilepath) => ipcRenderer.invoke('moveFolderOrFile',oldfilepath,newfilepath),
+  moveFileOrFolder: (oldfilepath,newfilepath) => ipcRenderer.invoke('moveFolderOrFile',oldfilepath,newfilepath),
   copyFolderOrFile: (oldfilepath,newfilepath) => ipcRenderer.invoke('copyFolderOrFile',oldfilepath,newfilepath),
 
   createFolder: (filepath) => ipcRenderer.invoke('createFolder',filepath),

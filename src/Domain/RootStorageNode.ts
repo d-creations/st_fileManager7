@@ -8,12 +8,7 @@ import { StorageNode2 } from "./StorageNode2.js"
 
 
 export class RootStorageNode extends StorageNode2{
-    createNewFolder(rootDirectory: StorageNode2) {
-        throw new Error("Method not implemented.")
-    }
-    createNewFile(file: StorageNode2): Promise<unknown> {
-        throw new Error("Method not implemented.")
-    }
+
 
     private path
     constructor( path: string){
@@ -36,5 +31,12 @@ export class RootStorageNode extends StorageNode2{
     }
     createDivs(parentDiv: HTMLDivElement, spaceLeft: number) {
         throw new Error("Method not implemented.");
+    }
+
+    createNewFolder(rootDirectory: StorageNode2): Promise<void> {
+        throw new Error("Method not implemented.")
+    }
+    createNewFile(file: StorageNode2): Promise<void> {
+        throw new Error("Method not implemented.")
     }
 }

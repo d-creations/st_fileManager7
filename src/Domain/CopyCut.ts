@@ -15,7 +15,7 @@ export class mvObject implements objectManipulation{
         return (this.source instanceof StorageNode2)
     }
     insertStorage(rootDestination : StorageNode2){
-        rootDestination.moveStorage(this.source)
+        return this.source.moveFileOrFolder(rootDestination )
     }
 }
 
@@ -30,8 +30,7 @@ export class cutObject implements objectManipulation{
         return (this.source instanceof StorageNode2)
     }
     insertStorage(rootDestination : StorageNode2){
-        rootDestination.copyStorage(this.source)
-        this.source.delete()
+        return this.source.moveFileOrFolder(rootDestination )
     }
 }
 export class cpObject implements objectManipulation{

@@ -17,26 +17,24 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         return this.name;
     }
 
-    createNewFolder(rootDirectory: StorageNode2): Promise<boolean | unknown> {
+    createNewFolder(rootDirectory: StorageNode2): Promise<void> {
         let self = this;
-        let ret = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let url = rootDirectory.getUrl();
             self.createFolder(url).then(() => {
-                self.updateTree();
-            });
+                self.updateTree().then(resolve).catch(reject);
+            }).catch(reject);
         });
-        return ret;
     }
 
-    createNewFile(rootDirectory: StorageNode2): Promise<boolean | unknown> {
+    createNewFile(rootDirectory: StorageNode2): Promise<void> {
         let self = this;
-        let ret = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let url = rootDirectory.getUrl();
             self.createFile(url).then(() => {
-                self.updateTree();
-            });
+                self.updateTree().then(resolve).catch(reject);
+            }).catch(reject);
         });
-        return ret;
     }
 
     getFiles() {
@@ -47,9 +45,13 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         return this.dirs;
     }
 
-    oberverUpdate() {
-        let self = this;
-        self.updateTree();
+    oberverUpdate(): Promise<void> {
+        return this.updateTree();
+    }
+
+    
+    updateStorage(): Promise<void> {
+        return this.updateTree();
     }
 
     updateTree(): Promise<void> {

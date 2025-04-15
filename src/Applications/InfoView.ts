@@ -1,7 +1,7 @@
 import { FileDiv_I } from "../View/FileDiv.js";
 import { ApplciationIndex, TABApplication } from "../View/TabManager/TabApplication.js";
 import { TabCreator } from "../View/TabManager/TabCreator.js";
-import { Observer } from "../tecnicalServices/oberserver.js";
+import { ObserverI } from "../tecnicalServices/oberserver.js";
 
 
 
@@ -55,7 +55,7 @@ export class InfoFileDiv implements FileDiv_I{
     getFileIsDeleted(): boolean {
         return false
     }
-    addObserver(observer: Observer) {
+    addObserver(observer: ObserverI) {
         return
     }
 }

@@ -326,6 +326,8 @@ function handleMoveFolderOrFile(event, oldUrl, newUrl) {
     return new Promise((resolve, reject) => {
         // Push undo record to move newUrl back to oldUrl
         undoStack.push({ op: 'move', old: oldUrl, new: newUrl });
+        console.log("destination", newUrl)
+        console.log("source", oldUrl)
         fs.cp(oldUrl, newUrl, { recursive: true }, function(err, data) {
             if(err) {
                 reject(new MainIPC_Error(0, "move failed in Main process"));

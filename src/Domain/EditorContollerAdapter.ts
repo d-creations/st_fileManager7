@@ -10,18 +10,11 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
     clipboardStorage: objectManipulation;
 
     constructor() {}
+
     undoFileOperation(): Promise<String | unknown> {
-        let that = this;
-        let ret = new Promise((resolve, reject) => {
-            let retPromis = globalThis.electron.undoFileOperation(); 
-            console.log("return undo" + retPromis);
-            retPromis
-                .then(function () {     
-                    that.storageNode.oberverUpdate();
-        })
-    })   
-        return  ret         
+        return globalThis.electron.undoFileOperation();
     }
+     
     redoFileOperation(): Promise<String | unknown> {
         throw new Error("Method not implemented.");
     }
@@ -29,7 +22,10 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         return globalThis.electron.getNCToolPath();    
     }
 
-
+    moveFileOrFolder(source: StorageNode2_EXC_I, rootDestination: StorageNode2_EXC_I): Promise<void> {
+        if(source instanceof StorageNode2 && rootDestination instanceof StorageNode2)return  source.moveFileOrFolder(rootDestination);
+        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+    }
     updateFileTree(directoryNode: DirectoryNode_EXC_I): Promise<void> {
         if (directoryNode instanceof DirectoryNode) return directoryNode.updateTree();
     }
@@ -38,10 +34,15 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         return new FileNode(new RootStorageNode("resources"), "setting.json");
     }
 
-    copyStorage(node: StorageNode2_EXC_I): void {
-        if (node instanceof StorageNode2) {
-            this.clipboardStorage = new cpObject(node);
-        }
+    copyStorage(node: StorageNode2_EXC_I): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (node instanceof StorageNode2) {
+                this.clipboardStorage = new cpObject(node);
+                resolve();
+            } else {
+                reject(new EditorControlerAdapter_EXC_TYPE_ERROR("Not a StorageNode2_EXC_I"));
+            }
+        });
     }
 
     cutStorage(node: StorageNode2_EXC_I): void {
@@ -50,12 +51,23 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         }
     }
 
-    insertStorage(rootDestination: StorageNode2_EXC_I): void {
-        if (rootDestination instanceof StorageNode2) {
-            if (this.clipboardStorage.containsNode()) {
-                this.clipboardStorage.insertStorage(rootDestination);
+    insertStorage(rootDestination: StorageNode2_EXC_I): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (rootDestination instanceof StorageNode2) {
+                if (this.clipboardStorage.containsNode()) {
+                    try {
+                        this.clipboardStorage.insertStorage(rootDestination);
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                } else {
+                    reject();
+                }
+            } else {
+                reject();
             }
-        }
+        });
     }
 
     saveFile(fileNode: FileNode_EXC_I, text): void {
@@ -72,6 +84,8 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         if (directoryNode instanceof StorageNode2) return directoryNode.name;
         else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
     }
+
+
 
     openDirectory(): Promise<DirectoryNode_EXC_I | unknown> {
         let ret = new Promise((resolve, reject) => {
@@ -160,12 +174,12 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
         else throw new Error("Root Directory type unkown");
     }
 
-    deleteFileOrFolder(storageNode2: StorageNode2_EXC_I) {
-        if (storageNode2 instanceof StorageNode2) storageNode2.delete();
+    deleteFileOrFolder(storageNode2: StorageNode2_EXC_I): Promise<void> {
+        if (storageNode2 instanceof StorageNode2) return storageNode2.delete();
         else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
     }
 
-    renameFileOrFolder(storageNode2: StorageNode2_EXC_I, newName: String) {
+    renameFileOrFolder(storageNode2: StorageNode2_EXC_I, newName: String) : Promise<boolean | unknown>{
         if (storageNode2 instanceof StorageNode2) return storageNode2.renameFileOrFolder(storageNode2, newName);
         else throw new Error("Root Directory type unkown");
     }

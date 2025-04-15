@@ -1,17 +1,23 @@
 import { EditorControlerAdapter_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
-import {Observer } from "../tecnicalServices/oberserver.js";
+import {ObservableI, ObserverI } from "../tecnicalServices/oberserver.js";
 
-
-
-export class StorageDiv extends HTMLDivElement implements Observer{
+export class StorageDiv extends HTMLDivElement {
 
     protected editor : EditorControlerAdapter_EXC_I
     protected storageNode : StorageNode2_EXC_I
+    protected isCut : boolean
     constructor(editor : EditorControlerAdapter_EXC_I,storageNode : StorageNode2_EXC_I){
         super()
-        this.innerHTML = "StorageDiv"
         this.editor = editor
         this.storageNode = storageNode
+        this.isCut = false
+
+
+    }
+
+
+    refreshStorageRekursiv() : Promise<void>{
+        throw new Error("Method not implemented.");
     }
 
     exists() : boolean{
@@ -29,12 +35,19 @@ export class StorageDiv extends HTMLDivElement implements Observer{
         this.contentEditable = state
     }
 
-    oberverUpdate(): void {
+    updateThisDiv(): void {
         throw new Error("Method not implemented.");
     }
 
     createFolder(): void {
-        this.editor.createFolder(this.storageNode)
+        
+        this.editor.createFolder(this.storageNode).then((bool) => {
+            this.refreshStorageRekursiv()
+        }
+        ).catch((error) => {
+            console.log("create error")
+        }
+        )
     }
 
     copyStorage():void{
@@ -42,7 +55,11 @@ export class StorageDiv extends HTMLDivElement implements Observer{
     }
 
     cutStorage():void{
-        if(this.isManipulable())this.editor.cutStorage(this.storageNode)
+        if(this.isManipulable()){
+            this.isCut = true
+            this.editor.cutStorage(this.storageNode)
+            this.updateThisDiv()
+        }
         else alert("Please close the File")
     }
     isManipulable() : boolean{
@@ -50,16 +67,44 @@ export class StorageDiv extends HTMLDivElement implements Observer{
     }
 
     insertStorage():void{
-        this.editor.insertStorage(this.storageNode)
+        this.isCut = false
+        this.editor.insertStorage(this.storageNode).then(() => {
+            this.refreshStorageRekursiv()
+            
+        }
+        ).catch((error) => {
+            console.log("insert error")
+        })
     }
 
+    
     createFile(): void {
-        this.editor.createFile(this.storageNode)
+        
+        this.editor.createFile(this.storageNode).then((bool) => {
+            this.refreshStorageRekursiv()
+        }
+        ).catch((error) => {
+            console.log("create error")
+        }
+        )
     }
 
-    deleteFileOrFolder(): void{
-        if(confirm("delete" + this.editor.getStorageUrl(this.storageNode)))this.editor.deleteFileOrFolder(this.storageNode)
+    isCutStorage(): boolean {
+        return this.isCut   
+    }
 
+    deleteFileOrFolder(): Promise<void>{
+        return new Promise((resolve) => {
+            if(confirm("delete" + this.editor.getStorageUrl(this.storageNode)))this.editor.deleteFileOrFolder(this.storageNode).
+            then(() => {
+                resolve()
+                this.refreshStorageRekursiv()
+            }).
+            catch((error) => {
+                console.log("delete error")
+                resolve()
+            })
+        })
     }
 
     setFocus(){
@@ -74,14 +119,14 @@ export class StorageDiv extends HTMLDivElement implements Observer{
         let self = this
         this.setFocus()
         this.waitingKeypress().then(
-            (emptyString) => {
+            () => {
                 console.log(self.getName())
-                self.editor.renameFileOrFolder(self.storageNode,self.getName())
+                self.editor.renameFileOrFolder(self.storageNode,self.getName()).then(() => {
                 self.setEditable("false")  
-                self.oberverUpdate() 
+                self.updateThisDiv() 
                 self.classList.remove("writeable")
                 self.classList.add("selectable")
-              
+                })
         } 
     )
     }

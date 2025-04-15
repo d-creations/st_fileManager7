@@ -1,0 +1,16 @@
+@startuml
+
+FileDiveExprorer --> EditorControllerAdapter: undo()
+EditorControllerAdapter --> render: undoFileOperation()
+render --> main: undoFileOperation()
+main --> render: return(Promise)
+render --> EditorControllerAdapter : return(Promise)
+EditorControllerAdapter --> rootstroageNode: updateStorage()
+EditorControllerAdapter <-- rootstroageNode: updateStorage()
+EditorControllerAdapter--> FileDiveExprorer: return(Promise)
+FileDiveExprorer --> FileDiveExprorer : refreshView()
+FileDiveExprorer --> DirectoryDiv : observerUpdate()
+DirectoryDiv --> DirectoryDiv : updateDiv()
+DirectoryDiv --> DirectoryDiv : updateDiv()
+
+@enduml

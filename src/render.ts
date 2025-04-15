@@ -58,24 +58,21 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     })
 
 
-
-    document.addEventListener('drop', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      for (const file of event.dataTransfer.files) {
-        let path = (file as unknown as { path }).path
-        fileManager.openFileByUrl(path);
-      }           
-    });
-    
-    document.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-    });
-
+      tabDiv.addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            for (const file of event.dataTransfer.files) {
+              let path = (file as unknown as { path }).path
+              fileManager.openFileByUrl(path);
+            }           
+          });
 
     
-    
+      tabDiv.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          });
+
 }
 
 

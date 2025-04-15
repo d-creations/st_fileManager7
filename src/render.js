@@ -47,7 +47,7 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
             fileManager.openFileByUrl(args[1]);
         }
     });
-    document.addEventListener('drop', (event) => {
+    tabDiv.addEventListener('drop', (event) => {
         event.preventDefault();
         event.stopPropagation();
         for (const file of event.dataTransfer.files) {
@@ -55,7 +55,7 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
             fileManager.openFileByUrl(path);
         }
     });
-    document.addEventListener('dragover', (event) => {
+    tabDiv.addEventListener('dragover', (event) => {
         event.preventDefault();
         event.stopPropagation();
     });
