@@ -129,7 +129,8 @@ function createWindow () {
     
     titleBarStyle: 'customButtonsOnHover',
     webPreferences: {
-      preload: path.join(executionPath, 'src/preload.js'),
+      contextIsolation: true, 
+      preload: path.join(__dirname, 'src/preload.cjs'),
     }
   })
   const ses = win.webContents.session;

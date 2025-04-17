@@ -1,6 +1,6 @@
 {
   "name": "st_tool_unit_manager",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Star tool unit manager",
   "main": "main.js",
   "type": "commonjs",
