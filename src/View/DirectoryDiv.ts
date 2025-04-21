@@ -1,406 +1,274 @@
-import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces";
-import { TabCreator } from "./TabManager/TabCreator.js";
 import { ContextMenu } from "./ContextMenu.js";
-import { FileDiv } from "./FileDiv.js";
+import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_I, FileNode_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js"; // Added StorageNode2_EXC_I
 import { StorageDiv } from "./StorageDiv.js";
-import { ApplicationSettings, Settings } from "../tecnicalServices/Settings";
+import { FileDiv } from "./FileDiv.js";
+import { TabCreator } from "./TabManager/TabCreator.js";
+import { InstantiationService } from "../tecnicalServices/instantiation/InstantiationService.js";
+import { FileNode } from "../Domain/FileNode.js";
 
 export class DirectoryHeadDiv extends StorageDiv {
-    public stateOpen: boolean = false; // Default state
-    private readonly directoryNode: DirectoryNode_EXC_I;
-    private readonly symbolDiv: HTMLDivElement;
-    public readonly nameDiv: HTMLDivElement;
+    private baseName: string;
 
-    constructor(directoryNode: DirectoryNode_EXC_I, editor: EditorControlerAdapter_EXC_I) {
+    constructor(directoryNode: DirectoryNode_EXC_I, editor: EditorControlerAdapter_EXC_I, tabCreator: TabCreator, instantiationService: InstantiationService) {
         super(editor, directoryNode);
-        this.directoryNode = directoryNode;
+        this.baseName = this.editor.getStorageName(this.storageNode);
+        this.updateDisplay(false); // Initial state is closed
+        this.classList.add("directoryHeadDiv");
+        this.classList.add("selectable");
+        this.contentEditable = "false";
+        this.draggable = true;
+        this.style.userSelect = "text";
+        this.setAttribute("divname", `DIR head ${this.editor.getStorageName(this.storageNode)}`);
 
-        this.symbolDiv = this.createSymbolDiv();
-        this.nameDiv = this.createNameDiv();
+        this.addEventListener("dragstart", (e) => {
+            e.dataTransfer?.clearData();
+            this.editor.cutStorage(this.storageNode);
+            const realFilePath = this.editor.getStorageUrl(this.storageNode);
+            e.dataTransfer?.setData("DownloadURL", `application/octet-stream:${this.getName()}:${realFilePath}`);
+            e.dataTransfer?.setData("text/uri-list", realFilePath);
+            e.dataTransfer?.setData("application/x-internal-cut", "true");
+            console.log("dragstart", realFilePath, this.getName());
+        });
 
-        this.appendChild(this.symbolDiv);
-        this.appendChild(this.nameDiv);
+        this.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer)
+                e.dataTransfer.dropEffect = "move";
+        });
 
-        this.updateElement(); // Initial state
-        this.directoryNode.addObserver(this);
     }
 
-    private createSymbolDiv(): HTMLDivElement {
-        const div = document.createElement("div");
-        div.contentEditable = "false";
-        div.classList.add("inline");
-        return div;
-    }
-
-    private createNameDiv(): HTMLDivElement {
-        const div = document.createElement("div");
-        div.contentEditable = "false";
-        div.innerText = this.editor.getStorageName(this.directoryNode);
-        div.classList.add("inline");
-        return div;
-    }
-
-    updateElement() {
-        this.symbolDiv.innerText = this.stateOpen ? "v " : "> ";
-    }
-
-    getName(): string {
-        return this.nameDiv.innerText;
-    }
-
-    setName(name: string): void {
-        this.nameDiv.innerText = name;
-    }
-
-    setEditable(state: "true" | "false"): void {
-        this.nameDiv.contentEditable = state;
-    }
-
-    public oberverUpdate(): void {
-        console.log("FS update observed in DirectoryHeadDiv for:", this.getName());
-        this.setName(this.editor.getStorageName(this.directoryNode));
+    updateDisplay(isExpanded: boolean): void {
+        const prefix = isExpanded ? "v " : "> ";
+        this.innerText = prefix + this.baseName;
     }
 }
 
+customElements.define("directory-head-div", DirectoryHeadDiv, { extends: "div" });
+
 export class DirectoryDiv extends StorageDiv {
-    private readonly directoryHeadDiv: DirectoryHeadDiv;
-    private readonly directoryFilesDiv: HTMLDivElement;
-    private readonly directoryDirsDiv: HTMLDivElement;
-    private readonly directoryBodyDiv: HTMLDivElement;
-    private readonly directoryNode: DirectoryNode_EXC_I;
-    private readonly tabCreator: TabCreator;
-    private readonly settings: Settings;
+    public node: DirectoryNode_EXC_I;
+    private directoryHeadDiv: DirectoryHeadDiv;
+    private directoryBodyDiv: HTMLDivElement;
+    private tabCreator: TabCreator;
+    private instantiationService: InstantiationService;
+    private isExpanded: boolean = false;
 
-    constructor(directoryNode: DirectoryNode_EXC_I, editor: EditorControlerAdapter_EXC_I, tabCreator: TabCreator, settings: Settings) {
+    constructor(directoryNode: DirectoryNode_EXC_I, editor: EditorControlerAdapter_EXC_I, tabCreator: TabCreator, instantiationService: InstantiationService) {
         super(editor, directoryNode);
-        this.directoryNode = directoryNode;
+        this.node = directoryNode;
         this.tabCreator = tabCreator;
-        this.settings = settings;
+        this.instantiationService = instantiationService;
 
-        this.directoryHeadDiv = this.createDirectoryHead();
-        this.directoryBodyDiv = this.createDirectoryBody();
-        this.directoryFilesDiv = this.createSubContainer("files");
-        this.directoryDirsDiv = this.createSubContainer("dirs");
+        this.classList.add("directoryDiv");
+        this.setAttribute("divname", `DIR bodydiv${this.editor.getStorageName(this.node)}`);
 
-        this.directoryBodyDiv.appendChild(this.directoryFilesDiv);
-        this.directoryBodyDiv.appendChild(this.directoryDirsDiv);
+        this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode, editor, tabCreator, instantiationService);
+        this.directoryBodyDiv = document.createElement("div");
+        this.directoryBodyDiv.classList.add("directoryBodyDiv");
+        this.directoryBodyDiv.style.display = "none";
 
         this.appendChild(this.directoryHeadDiv);
         this.appendChild(this.directoryBodyDiv);
-        this.classList.add("directoryDiv");
 
         this.setupEventListeners();
-        this.closeDirectory(); // Initial state
-        this.directoryNode.addObserver(this); // Observe the node itself for changes
-    }
-
-    private createDirectoryHead(): DirectoryHeadDiv {
-        const headDiv = new DirectoryHeadDiv(this.directoryNode, this.editor);
-        headDiv.setAttribute("divname", `FOLDER HEADDIV ${this.editor.getStorageName(this.directoryNode)}`);
-        headDiv.classList.add("selectable");
-        return headDiv;
-    }
-
-    private createDirectoryBody(): HTMLDivElement {
-        const bodyDiv = document.createElement("div");
-        bodyDiv.setAttribute("divname", `FOLDER bodydiv ${this.editor.getStorageName(this.directoryNode)}`);
-        bodyDiv.style.display = "none"; // Initially hidden
-        return bodyDiv;
-    }
-
-    private createSubContainer(type: "files" | "dirs"): HTMLDivElement {
-        let container = document.createElement("div");
-         // Make node selectable but draggable
-         container.draggable = false; // Enable dragging
-         container.style.userSelect = "text"; // Allow text selection
-        container.setAttribute("divname", `FOLDER ${type} ${this.editor.getStorageName(this.directoryNode)}`);
-        return container;
+        this.attachDirectoryNodeListeners();
     }
 
     private setupEventListeners(): void {
-        // Click to toggle open/close
         this.directoryHeadDiv.addEventListener("click", (e) => {
-            if (e.target instanceof HTMLElement && e.target.contentEditable === "false") {
-                this.toggleDirectory();
+            if (this.directoryHeadDiv.contentEditable !== "true") {
+                this.toggleExpand();
             }
         });
 
-        // Context menu
         this.directoryHeadDiv.addEventListener("contextmenu", (e) => {
             const contextMenu = new ContextMenu(this.directoryHeadDiv);
             contextMenu.showMenu(e);
         });
 
-        // Drop listener on the main div (catches drops on head or body)
-        this.addEventListener('drop', this.handleDrop.bind(this));
+        this.directoryHeadDiv.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer)
+                e.dataTransfer.dropEffect = "move";
+        });
 
-        // Drag enter/leave/over for visual feedback
-        this.directoryHeadDiv.addEventListener("dragenter", this.handleDragEnter.bind(this));
-        this.directoryHeadDiv.addEventListener("dragleave", this.handleDragLeave.bind(this));
-        this.directoryHeadDiv.addEventListener("dragover", this.handleDragOver.bind(this));
-
-        // Also apply drag feedback to the body/subcontainers if needed
-        this.directoryFilesDiv.addEventListener("dragenter", this.handleDragEnter.bind(this));
-        this.directoryFilesDiv.addEventListener("dragleave", this.handleDragLeave.bind(this));
-        this.directoryFilesDiv.addEventListener("dragover", this.handleDragOver.bind(this));
-    }
-
-    private handleDragEnter(event: DragEvent): void {
-        event.preventDefault();
-        event.stopPropagation();
-        // Add visual cue to the appropriate element (e.g., the head or body)
-        const targetElement = event.currentTarget as HTMLElement;
-        // Check if the dragged file is already a child of the directoryFilesDiv
-        if (this.directoryFilesDiv.contains(event.target as Node)) {
-            console.log("Dragged file is already a child of this directory.");
-            return;
-        }
-        targetElement.classList.add("dragover");
-        console.log("Drag enter:", this.getName());
-    }
-
-    private handleDragLeave(event: DragEvent): void {
-        event.preventDefault();
-        event.stopPropagation();
-        const targetElement = event.currentTarget as HTMLElement;
-        // Check relatedTarget to prevent flickering when moving over child elements
-        if (!targetElement.contains(event.relatedTarget as Node)) {
-            targetElement.classList.remove("dragover");
-            console.log("Drag leave:", this.getName());
-        }
-    }
-
-    private handleDragOver(event: DragEvent): void {
-        event.preventDefault(); // Necessary to allow dropping
-        event.stopPropagation();
-    }
-
-    private async handleDrop(event: DragEvent): Promise<void> {
-        event.preventDefault();
-        event.stopPropagation();
-        (event.currentTarget as HTMLElement).classList.remove("dragover"); // Remove visual cue
-        console.log("Drop on:", this.getName());
-        if (event.dataTransfer?.getData("application/x-internal-cut") === "true") {
-            console.log("Cut operation detected. Inserting cut object.");
-            const cutObject = await this.editor.insertStorage(this.directoryNode);
-            await this.refreshStorageRekursiv()
-            console.log(`Cut object moved to ${this.getName()}`);
+        this.directoryHeadDiv.addEventListener("drop", (e) => {
+            e.preventDefault();
+            console.log("drop on head");
+            if (e.dataTransfer?.getData("application/x-internal-cut")) {
+                this.insertStorage();
             }
-        else if (event.dataTransfer?.files) {
-            for (const file of event.dataTransfer.files) {
-                await this.importDroppedFile(file);
+            else if (e.dataTransfer?.files) {
+                
+                for(let i = 0; i < e.dataTransfer.files.length; i++) {
+                    const file = e.dataTransfer.files[i];
+                    console.log("File dropped:", file.name);
+                    this.editor.openFileByUrl((file as any).path).then((filen) => {
+                        if(filen instanceof FileNode) {
+                        this.editor.copyStorage(filen).then(() => {
+                            
+                            console.log("File copied successfully.");
+                        }
+                        ).catch((error) => {
+                            console.error("Error copying file:", error);
+                        });
+                    }
+                    }
+                    ).catch((error) => {
+                        console.error("Error opening file:", error);
+                    }
+                    );
+                        console.log("File created successfully.");
+                    }
+                }
+            })
+       
+    }
+
+    private attachDirectoryNodeListeners(): void {
+        const eventNode = this.node as any;
+        if (typeof eventNode.on === 'function') {
+            eventNode.on('updated', this.handleNodeUpdate.bind(this));
+            eventNode.on('child-added', this.handleChildAdded.bind(this));
+            eventNode.on('child-removed', this.handleChildRemoved.bind(this));
+        }
+    }
+
+    private handleNodeUpdate(details: { addedFiles: FileNode_EXC_I[], addedDirs: DirectoryNode_EXC_I[], removedFiles: FileNode_EXC_I[], removedDirs: DirectoryNode_EXC_I[] }): void {
+        console.log(`DirectoryDiv (${this.getName()}): Node updated`, details);
+        if (this.isExpanded) {
+            this.renderChildren(details.addedFiles, details.addedDirs, details.removedFiles, details.removedDirs);
+        }
+    }
+
+    private handleChildAdded(child: { name: string, type?: 'file' | 'directory' }): void {
+        console.log(`DirectoryDiv (${this.getName()}): Child added`, child);
+        if (this.isExpanded) {
+            this.refreshContent();
+        }
+    }
+
+    private handleChildRemoved(child: StorageDiv): void {
+        console.log(`DirectoryDiv (${this.getName()}): Child removed`, child.getName());
+        if (this.isExpanded) {
+            const childDiv = this.directoryBodyDiv.querySelector(`[divname*="${child.getName()}"]`);
+            childDiv?.remove();
+        }
+    }
+
+    private toggleExpand(): void {
+        this.isExpanded = !this.isExpanded;
+        this.directoryHeadDiv.updateDisplay(this.isExpanded); // Update display based on new state
+        this.directoryBodyDiv.style.display = this.isExpanded ? "block" : "none";
+        if (this.isExpanded) {
+            this.refreshContent();
+        }
+    }
+
+    public refreshContent(): Promise<void> {
+        console.log(`Refreshing content for ${this.getName()}`);
+        this.directoryBodyDiv.innerHTML = '';
+        return this.node.updateStorage().then(() => {
+            this.renderChildren(this.node.getFiles(), this.node.getDirectories(), [], []);
+        }).catch(error => {
+            console.error(`Failed to refresh content for ${this.getName()}:`, error);
+        });
+    }
+
+    refreshStorageRekursiv(): Promise<void> {
+        return this.refreshContent().then(() => {
+            const childDirs = Array.from(this.directoryBodyDiv.children)
+                                   .filter(el => el instanceof DirectoryDiv) as DirectoryDiv[];
+            return Promise.all(childDirs.map(child => child.refreshStorageRekursiv())).then(() => {});
+        });
+    }
+
+    private renderChildren(
+        addedFiles: FileNode_EXC_I[],
+        addedDirs: DirectoryNode_EXC_I[],
+        removedFiles: FileNode_EXC_I[],
+        removedDirs: DirectoryNode_EXC_I[]
+    ): void {
+        console.log(`Rendering children for ${this.getName()}`);
+
+        removedDirs.forEach(dirNode => {
+            const divToRemove = Array.from(this.directoryBodyDiv.children)
+                                     .find(el => (el as StorageDiv).storageNode === dirNode);
+            divToRemove?.remove();
+        });
+        removedFiles.forEach(fileNode => {
+            const divToRemove = Array.from(this.directoryBodyDiv.children)
+                                     .find(el => (el as StorageDiv).storageNode === fileNode);
+            divToRemove?.remove();
+        });
+
+        this.renderItems<DirectoryNode_EXC_I>(addedDirs, (dirNode) =>
+            new DirectoryDiv(dirNode, this.editor, this.tabCreator, this.instantiationService)
+        );
+        this.renderItems<FileNode_EXC_I>(addedFiles, (fileNode) =>
+            new FileDiv(fileNode, this.editor, this.tabCreator, this.instantiationService)
+        );
+
+        this.sortChildren();
+    }
+
+    private renderItems<T extends StorageNode2_EXC_I>(items: T[], createElement: (node: T) => StorageDiv): void {
+        items.forEach(item => {
+            const existingDiv = Array.from(this.directoryBodyDiv.children)
+                                     .find(el => (el as StorageDiv).storageNode === item);
+            if (!existingDiv) {
+                const element = createElement(item);
+                this.directoryBodyDiv.appendChild(element);
             }
-            // Optionally refresh after all files are processed
-            // await this.refreshStorageRekursiv();
-        }
-        // Check if the dropped
+        });
     }
 
-    private async importDroppedFile(file: File): Promise<void> {
-        const path = (file as any).path; // Note: 'path' is Electron-specific
-        if (!path) {
-            console.error("Dropped item is not a file with a path:", file.name);
-            return;
-        }
-        try {
-            console.log(`Importing file: ${path} into ${this.getName()}`);
-            const fileNode = await this.editor.openFileByUrl(path);
-            await this.editor.moveFileOrFolder(fileNode, this.directoryNode);
-            // Refresh is handled by the observer update triggered by moveFileOrFolder
-            // await this.refreshStorageRekursiv(); // Consider if needed immediately
-        } catch (error) {
-            console.error(`Failed to import file "${file.name}":`, error);
-            // Optionally show user feedback
-        }
+    private sortChildren(): void {
+        const children = Array.from(this.directoryBodyDiv.children) as StorageDiv[];
+        children.sort((a, b) => {
+            const aIsDir = a instanceof DirectoryDiv;
+            const bIsDir = b instanceof DirectoryDiv;
+            if (aIsDir && !bIsDir) return -1;
+            if (!aIsDir && bIsDir) return 1;
+            return a.getName().localeCompare(b.getName());
+        });
+        children.forEach(child => this.directoryBodyDiv.appendChild(child));
     }
 
-    toggleDirectory(): void {
-        if (this.directoryHeadDiv.stateOpen) {
-            this.closeDirectory();
-        } else {
-            this.openDirectory();
-        }
+    createFolder(): void {
+        this.directoryHeadDiv.createFolder();
     }
-
-    async openDirectory(): Promise<void> {
-        if (this.directoryHeadDiv.stateOpen) return; // Already open
-
-        this.directoryHeadDiv.stateOpen = true;
-        this.directoryHeadDiv.updateElement();
-        this.directoryBodyDiv.style.display = "block";
-        try {
-            await this.editor.updateFileTree(this.directoryNode);
-            await this.updateThisDiv(); // Populate content after ensuring node is up-to-date
-        } catch (error) {
-            console.error(`Failed to open directory "${this.getName()}":`, error);
-            // Optionally revert state or show error
-            this.closeDirectory(); // Revert to closed state on error
-        }
+    copyStorage(): void {
+        this.directoryHeadDiv.copyStorage();
     }
-
-    closeDirectory(): void {
-        this.directoryHeadDiv.stateOpen = false;
-        this.directoryHeadDiv.updateElement();
-        this.directoryBodyDiv.style.display = "none";
-        // No need to clear children immediately, they will be updated on next open
+    cutStorage(): void {
+        this.directoryHeadDiv.cutStorage();
     }
-
-    getName(): string {
-        return this.directoryHeadDiv.getName();
+    insertStorage(): void {
+        this.directoryHeadDiv.insertStorage();
     }
-
-    setName(name: string): void {
-        this.directoryHeadDiv.setName(name);
+    createFile(): void {
+        this.directoryHeadDiv.createFile();
     }
-
-    setEditable(state: "true" | "false"): void {
-        this.directoryHeadDiv.setEditable(state);
-    }
-
-    // Called by the observed DirectoryNode_EXC_I
-    public oberverUpdate(): void {
-        console.log(`Observer update triggered for DirectoryDiv: ${this.getName()}`);
-        // Update the name displayed in the head
-        this.directoryHeadDiv.setName(this.editor.getStorageName(this.directoryNode));
-        // Refresh the contents if the directory is open
-        if (this.directoryHeadDiv.stateOpen) {
-            this.updateThisDiv().catch(error => {
-                console.error(`Error during observer-triggered refresh for ${this.getName()}:`, error);
-            });
-        }
-    }
-
-    async refreshStorageRekursiv(): Promise<void> {
-        if (!this.directoryHeadDiv.stateOpen) {
-            console.log(`Skipping refresh for closed directory: ${this.getName()}`);
-            return Promise.resolve();
-        }
-
-        console.log(`Refreshing directory recursively: ${this.getName()}`);
-        try {
-            await this.editor.updateFileTree(this.directoryNode);
-            await this.updateThisDiv(); // Update direct children first
-
-            // Recursively refresh child directories that are *currently rendered*
-            const childDirDivs = Array.from(this.directoryDirsDiv.childNodes)
-                .filter((child): child is DirectoryDiv => child instanceof DirectoryDiv);
-
-            await Promise.all(childDirDivs.map(directoryDiv =>
-                directoryDiv.refreshStorageRekursiv().catch(error => {
-                    // Log error but continue refreshing others
-                    console.error(`Failed to refresh child directory "${directoryDiv.getName()}":`, error);
-                })
-            ));
-        } catch (error) {
-            console.error(`Error during recursive refresh for ${this.getName()}:`, error);
-            throw error; // Re-throw to indicate failure at this level
-        }
-    }
-
-    async updateThisDiv(): Promise<void> {
-        console.log(`Updating direct children of: ${this.getName()}`);
-        try {
-            const fileTree = await this.editor.getFileTree(this.directoryNode);
-            const currentFiles = fileTree.files;
-            const currentDirs = fileTree.dirs;
-
-            // --- Sync Directories ---
-            const existingDirDivs = Array.from(this.directoryDirsDiv.childNodes)
-                .filter((node): node is DirectoryDiv => node instanceof DirectoryDiv);
-            const existingDirNodes = existingDirDivs.map(div => div.directoryNode);
-
-            // Remove divs for directories that no longer exist or are marked as cut
-            existingDirDivs.forEach(dirDiv => {
-                if (!currentDirs.includes(dirDiv.directoryNode) || dirDiv.isCutStorage()) {
-                    console.log(`Removing directory div: ${dirDiv.getName()}`);
-                    this.directoryDirsDiv.removeChild(dirDiv);
-                }
-            });
-
-            // Add divs for new directories
-            currentDirs.forEach(dirNode => {
-                if (!existingDirNodes.includes(dirNode)) {
-                    console.log(`Adding directory div for: ${this.editor.getStorageName(dirNode)}`);
-                    this.insertDirectoryDiv(dirNode); // Handles sorting
-                }
-            });
-
-            // Re-sort existing directory divs if necessary (e.g., after rename)
-            this.sortChildren(this.directoryDirsDiv);
-
-            // --- Sync Files ---
-            const existingFileDivs = Array.from(this.directoryFilesDiv.childNodes)
-                .filter((node): node is FileDiv => node instanceof FileDiv);
-            const existingFileNodes = existingFileDivs.map(div => div.fileNode);
-
-            // Remove divs for files that no longer exist or are marked as cut
-            existingFileDivs.forEach(fileDiv => {
-                if (!currentFiles.includes(fileDiv.fileNode) || fileDiv.isCutStorage()) {
-                    console.log(`Removing file div: ${fileDiv.getName()}`);
-                    this.directoryFilesDiv.removeChild(fileDiv);
-                }
-            });
-
-            // Add divs for new files
-            currentFiles.forEach(fileNode => {
-                if (!existingFileNodes.includes(fileNode)) {
-                    console.log(`Adding file div for: ${this.editor.getStorageName(fileNode)}`);
-                    this.insertFileDiv(fileNode); // Handles sorting
-                }
-            });
-
-            // Re-sort existing file divs if necessary
-            this.sortChildren(this.directoryFilesDiv);
-
-        } catch (error) {
-            console.error(`Failed to update directory div contents for "${this.getName()}":`, error);
-            throw error; // Rethrow the error to propagate it
-        }
-    }
-
-    private insertDirectoryDiv(dir: DirectoryNode_EXC_I): void {
-        const directoryDiv = new DirectoryDiv(dir, this.editor, this.tabCreator, this.settings);
-        this.insertSorted(this.directoryDirsDiv, directoryDiv);
-        // Child observers/listeners are handled within the child's constructor
-    }
-
-    private insertFileDiv(file: FileNode_EXC_I): void {
-        const fileDiv = new FileDiv(file, this.editor, this.tabCreator, this.settings);
-        this.insertSorted(this.directoryFilesDiv, fileDiv);
-        // Add observer relationship if needed (e.g., if FileDiv needs updates from DirectoryDiv)
-        // fileDiv.addObserver(this); // Example if FileDiv needed to observe DirectoryDiv
-    }
-
-    // Helper to insert a StorageDiv into a container, maintaining alphabetical order
-    private insertSorted(container: HTMLDivElement, elementToInsert: StorageDiv & { getName: () => string }): void {
-        const nameToInsert = elementToInsert.getName();
-        let inserted = false;
-        for (const child of Array.from(container.childNodes)) {
-            // Type guard to ensure child is a StorageDiv with getName
-            if (child instanceof StorageDiv && typeof (child as any).getName === 'function') {
-                const childTyped = child as StorageDiv & { getName: () => string };
-                if (childTyped.getName().localeCompare(nameToInsert) > 0) {
-                    container.insertBefore(elementToInsert, childTyped);
-                    inserted = true;
-                    break;
-                }
+    deleteFileOrFolder(): Promise<void> {
+        return new Promise((resolve) => {
+            if (confirm("Delete directory " + this.getName() + " and all its contents?")) {
+                this.editor.deleteFileOrFolder(this.node).then(() => {
+                    resolve();
+                }).catch((error) => {
+                    console.error("Delete directory error:", error);
+                    alert("Failed to delete directory.");
+                    resolve();
+                });
+            } else {
+                resolve();
             }
-        }
-        if (!inserted) {
-            container.appendChild(elementToInsert);
-        }
+        });
     }
-
-    // Helper to sort existing children in a container
-    private sortChildren(container: HTMLDivElement): void {
-        const children = Array.from(container.childNodes)
-            .filter((node): node is (StorageDiv & { getName: () => string }) =>
-                node instanceof StorageDiv && typeof (node as any).getName === 'function'
-            );
-
-        children.sort((a, b) => a.getName().localeCompare(b.getName()));
-
-        // Re-append children in sorted order
-        children.forEach(child => container.appendChild(child));
+    rename(): void {
+        this.directoryHeadDiv.rename();
     }
 }
+
+customElements.define("directory-div", DirectoryDiv, { extends: "div" });

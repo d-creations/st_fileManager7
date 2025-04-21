@@ -1,6 +1,7 @@
+import { DirectoryNode_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { FileNode } from "./FileNode.js";
 import { StorageNode2 } from "./StorageNode2.js";
-import { DirectoryNode_EXC_I } from "../ViewDomainI/Interfaces";
+// EventEmitter is inherited from StorageNode2
 
 export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
     public files: FileNode[];
@@ -22,7 +23,7 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         return new Promise((resolve, reject) => {
             let url = rootDirectory.getUrl();
             self.createFolder(url).then(() => {
-                self.updateTree().then(resolve).catch(reject);
+                resolve();
             }).catch(reject);
         });
     }
@@ -32,24 +33,19 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         return new Promise((resolve, reject) => {
             let url = rootDirectory.getUrl();
             self.createFile(url).then(() => {
-                self.updateTree().then(resolve).catch(reject);
+                resolve();
             }).catch(reject);
         });
     }
 
-    getFiles() {
+    getFiles(): FileNode_EXC_I[] {
         return this.files;
     }
 
-    getDirectoryes() {
+    getDirectories(): DirectoryNode_EXC_I[] {
         return this.dirs;
     }
 
-    oberverUpdate(): Promise<void> {
-        return this.updateTree();
-    }
-
-    
     updateStorage(): Promise<void> {
         return this.updateTree();
     }
@@ -61,40 +57,53 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         console.log("update Tree " + self.name);
         return new Promise((resolve, reject) => {
             globalThis.electron.getFilesInFolder(this.getUrl()).then(function (files) {
-                let objectNames: Array<string> = [];
+                let objectNames: Set<string> = new Set();
+                let addedFiles: FileNode[] = [];
+                let addedDirs: DirectoryNode[] = [];
+                let removedFiles: FileNode[] = [];
+                let removedDirs: DirectoryNode[] = [];
+
                 for (let file of files) {
-                    objectNames.push(file.name);
+                    objectNames.add(file.name);
                     if (file.type == "file") {
                         if (self.notFileExist(self, file)) {
                             let fileNode = new FileNode(self, file.name);
                             self.files.push(fileNode);
-                            fileNode.addObserver(self);
+                            addedFiles.push(fileNode);
                         }
                     }
                     if (file.type == "directory") {
                         if (self.notDivExist(self, file)) {
                             let directory = new DirectoryNode(self, file.name);
                             self.dirs.push(directory);
-                            directory.addObserver(self);
+                            addedDirs.push(directory);
                         }
                     }
                 }
-                let newFilesList = [];
-                let newDirsList = [];
-                self.files.forEach((file) => {
-                    if (objectNames.includes(file.name)) newFilesList.push(file);
+
+                self.files = self.files.filter(file => {
+                    if (objectNames.has(file.name)) {
+                        return true;
+                    } else {
+                        removedFiles.push(file);
+                        return false;
+                    }
                 });
-                self.dirs.forEach((file) => {
-                    if (objectNames.includes(file.name)) newDirsList.push(file);
+                self.dirs = self.dirs.filter(dir => {
+                    if (objectNames.has(dir.name)) {
+                        return true;
+                    } else {
+                        removedDirs.push(dir);
+                        return false;
+                    }
                 });
-                self.files = newFilesList;
-                self.dirs = newDirsList;
 
                 console.log("TreeStack Updated");
-                self.observerUpdated();
+                self.emit('updated', { addedFiles, addedDirs, removedFiles, removedDirs });
                 resolve();
             }).catch((error) => {
                 self.isUpdating = false;
+                self.emit('update-failed', error);
                 reject(error);
             }).finally(() => {
                 self.isUpdating = false;

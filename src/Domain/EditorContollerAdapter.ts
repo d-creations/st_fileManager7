@@ -6,7 +6,6 @@ import { RootStorageNode } from "./RootStorageNode.js";
 import { cpObject, cutObject, mvObject, objectManipulation } from "./CopyCut.js";
 
 export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
-    storageNode: StorageNode2;
     clipboardStorage: objectManipulation;
 
     constructor() {}
@@ -14,20 +13,21 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
     undoFileOperation(): Promise<String | unknown> {
         return globalThis.electron.undoFileOperation();
     }
-     
+
     redoFileOperation(): Promise<String | unknown> {
-        throw new Error("Method not implemented.");
+        return globalThis.electron.redoFileOperation();
     }
+
     getNCToolPath(NCcode: string): Promise<String | unknown> {
-        return globalThis.electron.getNCToolPath();    
+        return globalThis.electron.getNCToolPath();
     }
 
     moveFileOrFolder(source: StorageNode2_EXC_I, rootDestination: StorageNode2_EXC_I): Promise<void> {
-        if(source instanceof StorageNode2 && rootDestination instanceof StorageNode2)return  source.moveFileOrFolder(rootDestination);
-        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
-    }
-    updateFileTree(directoryNode: DirectoryNode_EXC_I): Promise<void> {
-        if (directoryNode instanceof DirectoryNode) return directoryNode.updateTree();
+        if (source instanceof StorageNode2 && rootDestination instanceof StorageNode2) {
+            return source.moveFileOrFolder(rootDestination);
+        } else {
+            throw new EditorControlerAdapter_EXC_TYPE_ERROR("Move requires StorageNode2 instances");
+        }
     }
 
     getSettingFileNode(): FileNode_EXC_I {
@@ -35,129 +35,111 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
     }
 
     copyStorage(node: StorageNode2_EXC_I): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (node instanceof StorageNode2) {
-                this.clipboardStorage = new cpObject(node);
-                resolve();
-            } else {
-                reject(new EditorControlerAdapter_EXC_TYPE_ERROR("Not a StorageNode2_EXC_I"));
-            }
-        });
+        if (node instanceof StorageNode2) {
+            this.clipboardStorage = new cpObject(node);
+            return Promise.resolve();
+        } else {
+            return Promise.reject(new EditorControlerAdapter_EXC_TYPE_ERROR("Copy requires a StorageNode2 instance"));
+        }
     }
 
     cutStorage(node: StorageNode2_EXC_I): void {
         if (node instanceof StorageNode2) {
             this.clipboardStorage = new cutObject(node);
+        } else {
+            throw new EditorControlerAdapter_EXC_TYPE_ERROR("Cut requires a StorageNode2 instance");
         }
     }
 
     insertStorage(rootDestination: StorageNode2_EXC_I): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (rootDestination instanceof StorageNode2) {
-                if (this.clipboardStorage.containsNode()) {
-                    try {
-                        this.clipboardStorage.insertStorage(rootDestination);
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
-                } else {
-                    reject();
-                }
-            } else {
-                reject();
-            }
-        });
+        if (!(rootDestination instanceof StorageNode2)) {
+            return Promise.reject(new EditorControlerAdapter_EXC_TYPE_ERROR("Insert destination must be a StorageNode2"));
+        }
+        if (!this.clipboardStorage || !this.clipboardStorage.containsNode()) {
+            return Promise.reject(new Error("Clipboard is empty or invalid"));
+        }
+        return this.clipboardStorage.insertStorage(rootDestination);
     }
 
     saveFile(fileNode: FileNode_EXC_I, text): void {
-        if (fileNode instanceof FileNode) fileNode.saveFile(text);
-        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+        if (fileNode instanceof FileNode) {
+            fileNode.saveFile(text);
+        } else {
+            throw new EditorControlerAdapter_EXC_TYPE_ERROR("saveFile requires a FileNode instance");
+        }
     }
 
-    getStorageUrl(fileNode: StorageNode2_EXC_I) {
-        if (fileNode instanceof StorageNode2) return fileNode.getUrl();
-        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+    getStorageUrl(node: StorageNode2_EXC_I) {
+        if (node instanceof StorageNode2) return node.getUrl();
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("getStorageUrl requires a StorageNode2 instance");
     }
 
-    getStorageName(directoryNode: StorageNode2_EXC_I): string {
-        if (directoryNode instanceof StorageNode2) return directoryNode.name;
-        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+    getStorageName(node: StorageNode2_EXC_I): string {
+        if (node instanceof StorageNode2) return node.getName();
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("getStorageName requires a StorageNode2 instance");
     }
-
-
 
     openDirectory(): Promise<DirectoryNode_EXC_I | unknown> {
-        let ret = new Promise((resolve, reject) => {
-            let retPromis = globalThis.electron.openFolder();
-            console.log("return form " + retPromis);
-            let self = this;
-            retPromis
-                .then(function (folderPath) {
-                    let folderName = folderPath.split("\\").at(-1);
-
-                    if (folderPath.indexOf("\\") > 0) {
-                        folderPath = folderPath.substring(0, folderPath.lastIndexOf("\\"));
-                    }
-                    let rootStorageNode = new RootStorageNode(folderPath);
-                    self.storageNode = new DirectoryNode(rootStorageNode, folderName);
-                    self.storageNode.oberverUpdate();
-                    resolve(self.storageNode);
-                })
-                .catch(() => {
-                    throw new EditorControlerAdapter_EXC_ERROR("open File Error");
-                });
-        });
-        return ret;
-    }
-
-    getFileTree(directory: DirectoryNode_EXC_I): Promise<{ dirs: DirectoryNode_EXC_I[], files: FileNode_EXC_I[] }> {
         return new Promise((resolve, reject) => {
-            if (directory instanceof DirectoryNode) {
-                resolve({ dirs: directory.getDirectoryes(), files: directory.getFiles() });
-            } else {
-                reject(new EditorControlerAdapter_EXC_TYPE_ERROR("Not a DirectoryNode_EXC_I"));
-            }
+            globalThis.electron.openFolder()
+                .then((folderPath) => {
+                    if (!folderPath) {
+                        reject(new Error("Folder selection cancelled"));
+                        return;
+                    }
+                    let folderName = folderPath.split("\\").pop() || "";
+                    let parentPath = folderPath.substring(0, folderPath.lastIndexOf("\\"));
+
+                    let rootStorageNode = new RootStorageNode(parentPath);
+                    let directoryNode = new DirectoryNode(rootStorageNode, folderName);
+
+                    directoryNode.updateTree().then(() => {
+                        resolve(directoryNode);
+                    }).catch(reject);
+                })
+                .catch((err) => {
+                    console.error("Error opening directory:", err);
+                    reject(new EditorControlerAdapter_EXC_ERROR("Failed to open directory"));
+                });
         });
     }
 
     openFile(): Promise<FileNode_EXC_I | unknown> {
-        let self = this;
-        let ret = new Promise((resolve, reject) => {
-            console.log("openFile");
-            globalThis.electron.openFile().then(
-                function(filepath){
-                    self.openFileByUrl(filepath).then((fileNode) => {
-                        resolve(fileNode)
+        return new Promise((resolve, reject) => {
+            console.log("openFile triggered");
+            globalThis.electron.openFile().then((filepath) => {
+                if (!filepath) {
+                    reject(new Error("File selection cancelled"));
+                    return;
                 }
-                ).catch(() => {
-                throw new EditorControlerAdapter_EXC_ERROR("open File Error");
-                });
+                this.openFileByUrl(filepath).then((fileNode) => {
+                    resolve(fileNode);
+                }).catch(reject);
+            }).catch((err) => {
+                console.error("Error opening file dialog:", err);
+                reject(new EditorControlerAdapter_EXC_ERROR("Failed to open file dialog"));
             });
         });
-        return ret;
     }
 
-
     public openFileByUrl(url: string): Promise<FileNode_EXC_I | unknown> {
-        let self = this
-        let ret = new Promise((resolve, reject) => {
-            let filePath = url;
-            let filename = filePath.split("\\").at(-1);
-            if (filePath.indexOf("\\") > 0) {
-                filePath = filePath.substring(0, filePath.lastIndexOf("\\"));
+        return new Promise((resolve, reject) => {
+            try {
+                let filename = url.split("\\").pop() || "";
+                let parentPath = url.substring(0, url.lastIndexOf("\\"));
+                let rootStorageNode = new RootStorageNode(parentPath);
+                let fileNode = new FileNode(rootStorageNode, filename);
+                resolve(fileNode);
+            } catch (error) {
+                console.error("Error creating FileNode from URL:", error);
+                reject(new EditorControlerAdapter_EXC_ERROR("Failed to process file URL"));
             }
-            let rootStorageNode = new RootStorageNode(filePath);
-            let fileNode = new FileNode(rootStorageNode, filename);
-            self.storageNode = fileNode;
-            resolve(fileNode);            
         });
-        return ret;
     }
 
     getFileText(fileNode: FileNode_EXC_I): Promise<String> {
-        if (fileNode instanceof FileNode) return globalThis.electron.getFileText(fileNode.getUrl());
-        else throw new Error("Root Directory type unkown");
+        if (fileNode instanceof FileNode) return fileNode.getFileText();
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("getFileText requires a FileNode instance");
     }
 
     closeApplication() {
@@ -166,21 +148,21 @@ export class EditorControlerAdapter implements EditorControlerAdapter_EXC_I {
 
     createFolder(rootDirectory: StorageNode2_EXC_I): Promise<boolean | unknown> {
         if (rootDirectory instanceof StorageNode2) return rootDirectory.createNewFolder(rootDirectory);
-        else throw new Error("Root Directory type unkown");
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("createFolder requires a StorageNode2 instance");
     }
 
     createFile(rootDirectory: StorageNode2_EXC_I): Promise<boolean | unknown> {
         if (rootDirectory instanceof StorageNode2) return rootDirectory.createNewFile(rootDirectory);
-        else throw new Error("Root Directory type unkown");
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("createFile requires a StorageNode2 instance");
     }
 
     deleteFileOrFolder(storageNode2: StorageNode2_EXC_I): Promise<void> {
         if (storageNode2 instanceof StorageNode2) return storageNode2.delete();
-        else throw new EditorControlerAdapter_EXC_ERROR("open File Error");
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("deleteFileOrFolder requires a StorageNode2 instance");
     }
 
-    renameFileOrFolder(storageNode2: StorageNode2_EXC_I, newName: String) : Promise<boolean | unknown>{
+    renameFileOrFolder(storageNode2: StorageNode2_EXC_I, newName: string): Promise<boolean | unknown> {
         if (storageNode2 instanceof StorageNode2) return storageNode2.renameFileOrFolder(storageNode2, newName);
-        else throw new Error("Root Directory type unkown");
+        else throw new EditorControlerAdapter_EXC_TYPE_ERROR("renameFileOrFolder requires a StorageNode2 instance");
     }
 }

@@ -3,7 +3,7 @@ import { StorageNode2 } from "./StorageNode2.js";
 export interface objectManipulation{
     containsNode(): boolean;
 
-    insertStorage(rootDestination : StorageNode2):void
+    insertStorage(rootDestination : StorageNode2): Promise<void> // Changed return type to Promise<void>
 }
 
 export class mvObject implements objectManipulation{
@@ -40,8 +40,8 @@ export class cpObject implements objectManipulation{
         this.source = source
     }
 
-    insertStorage(rootDestination : StorageNode2){
-        rootDestination.copyStorage(this.source)
+    insertStorage(rootDestination : StorageNode2): Promise<void> { // Changed return type to Promise<void>
+        return rootDestination.copyStorage(this.source)
     }
     containsNode(): boolean {
         return (this.source instanceof StorageNode2)

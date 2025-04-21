@@ -1,14 +1,14 @@
 import { StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
-import { Observable, ObservableI } from "../tecnicalServices/oberserver.js";
 import { FileNode } from "./FileNode.js";
+import { CustomEventEmitter } from '../tecnicalServices/CustomEventEmitter.js';
 
-export abstract class StorageNode2 extends Observable implements ObservableI, StorageNode2_EXC_I {
+export abstract class StorageNode2 extends CustomEventEmitter implements StorageNode2_EXC_I {
     name: string;
     rootStorageNode: StorageNode2 | null;
     deleteState: boolean;
 
     constructor(rootStorageNode: StorageNode2 | null, name: string) {
-        super();
+        super(); // Call CustomEventEmitter constructor
         this.rootStorageNode = rootStorageNode;
         this.name = name;
         this.deleteState = false;
@@ -17,52 +17,58 @@ export abstract class StorageNode2 extends Observable implements ObservableI, St
         throw new Error("Method not implemented.");
     }
 
-    oberverUpdate() {
-        throw new Error("Method not implemented.");
-    }
-
     setRoot(rootStorageNode: StorageNode2) {
         this.rootStorageNode = rootStorageNode;
     }
 
     setName(name: string) {
+        const oldName = this.name;
         this.name = name;
-        this.observerUpdated();
     }
 
     getName() {
         return this.name;
     }
 
-    delete() {
+    delete(): Promise<void> {
         this.deleteState = true;
-        return globalThis.electron.deleteFileOrFolder(this.getUrl())
+        return globalThis.electron.deleteFileOrFolder(this.getUrl()).then(() => {
+            this.rootStorageNode?.emit('child-removed', this);
+        });
     }
 
-    moveFileOrFolder(rootDestination : StorageNode2):Promise<void>{
-        let source = this.getUrl()
-        let dest = rootDestination.getUrl() + "\\" + this.getName()
-        return globalThis.electron.moveFileOrFolder(source,dest)
+    moveFileOrFolder(rootDestination: StorageNode2): Promise<void> {
+        let source = this.getUrl();
+        let dest = rootDestination.getUrl() + "\\" + this.getName();
+        const oldParent = this.rootStorageNode;
+        return globalThis.electron.moveFileOrFolder(source, dest).then(() => {
+            oldParent?.emit('child-removed', this);
+            this.rootStorageNode = rootDestination;
+            rootDestination.emit('child-added', this);
+        });
     }
-    
+
     copyStorage(source: StorageNode2): Promise<void> {
         let self = this;
         return new Promise<void>((resolve, reject) => {
             console.log("copy Storage");
-            globalThis.electron.copyFolderOrFile(source.getUrl(), self.getUrl()+ "\\"  + source.name).then((state) => {
-                if (source instanceof FileNode && state === false) {
-                    let dest: string = self.getUrl() + "\\" +"copy" + source.name ;
-                    console.log("file exist or error");
+            const destinationUrl = self.getUrl() + "\\" + source.name;
+            globalThis.electron.copyFolderOrFile(source.getUrl(), destinationUrl).then((state) => {
+                self.emit('child-added', { name: source.name });
+                resolve();
+            }).catch((error) => {
+                if (source instanceof FileNode) {
+                    let dest: string = self.getUrl() + "\\" + "copy" + source.name;
+                    console.log("file exist or error, copying with new name");
                     globalThis.electron.copyFolderOrFile(source.getUrl(), dest).then(() => {
+                        self.emit('child-added', { name: "copy" + source.name });
                         resolve();
-                    }).catch((error) => {
-                        reject(error);
+                    }).catch((copyError) => {
+                        reject(copyError);
                     });
                 } else {
-                    resolve();
+                    reject(error);
                 }
-            }).catch((error) => {
-                reject(error);
             });
         });
     }
@@ -78,12 +84,11 @@ export abstract class StorageNode2 extends Observable implements ObservableI, St
         throw new Error("Method not implemented.");
     }
 
-    protected createFolder(url: string): Promise< void> {
+    protected createFolder(url: string): Promise<void> {
         return this.createEntity(url, "TEST2", (newFileName) =>
             globalThis.electron.createFolder(`${url}\\${newFileName}`)
         );
     }
-
 
     protected createFile(url: string): Promise<void> {
         return this.createEntity(url, "new File", (newFileName) =>
@@ -101,25 +106,24 @@ export abstract class StorageNode2 extends Observable implements ObservableI, St
                 const newFileName = i === 0 ? baseName : `${baseName}${i}`;
                 if (!checkContains(files, newFileName)) {
                     return createMethod(newFileName).then(() => {
-                        this.rootStorageNode?.observerUpdated();
+                        this.emit('child-added', { name: newFileName, type: baseName === "TEST2" ? 'directory' : 'file' });
                     });
                 }
             }
-            return Promise.reject(new Error("No valid name found")); // Reject with an error if no valid name is found
+            return Promise.reject(new Error("No valid name found"));
         });
     }
 
-    renameFileOrFolder(storageNode2: StorageNode2, newName: String): Promise<boolean | unknown> {
+    renameFileOrFolder(storageNode2: StorageNode2, newName: string): Promise<boolean | unknown> {
         return new Promise((resolve, reject) => {
             globalThis.electron.renameFileOrFolder(storageNode2.getUrl(), `${storageNode2.rootStorageNode.getUrl()}\\${newName}`)
                 .then((filePath) => {
                     const filename = filePath.split("\\").at(-1);
+                    const oldName = storageNode2.name;
                     storageNode2.setName(filename || "");
-                    storageNode2.observerUpdated();
                     resolve(true);
                 })
                 .catch(() => {
-                    storageNode2.observerUpdated();
                     resolve(false);
                 });
         });

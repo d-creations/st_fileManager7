@@ -43,14 +43,14 @@ export class NaviMenu {
     baseTableManager : BaseTableManager_I
     //    private tabCreator : TabCreator
 
-    constructor(naviTab: HTMLDivElement,mainTab:  HTMLDivElement,pages : NaviMenu_I[],baseTableManager : BaseTableManager_I) {
+    constructor(naviTab: HTMLDivElement,mainTab:  HTMLDivElement,pages: HTMLDivElement[] = [],baseTableManager : BaseTableManager_I) {
         this.tablist = []
         this.naviTab = naviTab
         this.mainTab = mainTab
         this.baseTableManager = baseTableManager
         let self = this
         for(let page of pages){
-            let naviPage = new NaviPage(self,new NaviPageContent(page.getNaviHTMLDiv()))
+            let naviPage = new NaviPage(self,new NaviPageContent(page))
             this.naviTab.appendChild(naviPage.button)
         }
 

@@ -1,4 +1,5 @@
-import { ApplicationSettings, Settings } from "../tecnicalServices/Settings.js";
+import { InstantiationService } from "../tecnicalServices/instantiation/InstantiationService.js";
+import {ISettings } from "../tecnicalServices/Settings.js";
 import { FileDiv } from "./FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
 
@@ -11,7 +12,7 @@ export class FileLeftClickMenu{
     private nameFile = ""
     private fileNode : FileDiv
     static target :HTMLDivElement;
-    private settings : Settings
+    private settings : ISettings
     static state = "false"
 
     public showSimpleMenu() {
@@ -39,9 +40,11 @@ export class FileLeftClickMenu{
         FileLeftClickMenu.state = "false"
     }
 
-    constructor (fileNode : FileDiv,settings){
+    constructor (fileNode : FileDiv,instantiationService : InstantiationService){
         this.fileNode = fileNode
-        this.settings = settings
+        instantiationService.invokeFunction((accessor) => {
+            this.settings = accessor.get(ISettings);
+          })
     }
     private openMenu(pos){
         console.log("openMenu")
@@ -51,7 +54,7 @@ export class FileLeftClickMenu{
         FileLeftClickMenu.fileRightClickMenuDiv.style.left = pos.x + "px";
         FileLeftClickMenu.fileRightClickMenuDiv.style.top = pos.y + "px";
         this.settings.reloadSettings()
-        for(let application of this.settings.applications){
+        for(let application of this.settings.getApplications()){
             if(application.aktiv == "True"){
                 let openInEditor = document.createElement("div")
                 openInEditor.innerText = "Open" + application.name

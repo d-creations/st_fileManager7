@@ -122,6 +122,9 @@ function createWindow () {
   const primaryDisplay = screen.getPrimaryDisplay()
   const { width, height } = primaryDisplay.workAreaSize
 
+  // actiavate dev tools
+  
+  
   const win = new BrowserWindow({
     width: width,
     height: height,
@@ -138,6 +141,8 @@ function createWindow () {
   ses.clearCache(() => {
     alert("Cache cleared!");
   });
+  // devtools 
+  win.webContents.openDevTools();
   win.removeMenu()
   
 

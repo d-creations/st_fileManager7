@@ -8,15 +8,28 @@ import { FileLeftClickMenu } from "./View/FileLeftClickMenu.js";
 import { NaviMenu } from "./View/NaviManager/NaviMenu.js";
 import { StorageDiv } from "./View/StorageDiv.js";
 import { TabManager_I, TabManager } from "./View/TabManager/TabManager.js";
-import { ViewTopBar } from "./View/ViewTopBar.js";
+import { ViewTopBar } from "./View/ViewTopBar.js";                                 
+import { ServiceCollection, SyncDescriptor } from "./tecnicalServices/instantiation/ServiceCollection.js";
+import { IFileManager } from "./Domain/Filemanager_I.js";
+import { InstantiationService } from "./tecnicalServices/instantiation/InstantiationService.js";
+import { ISettings, Settings } from "./tecnicalServices/Settings.js";
 
-
-customElements.define('directory-head-div', DirectoryHeadDiv, {extends: 'div'});
-
-customElements.define('storage-div', StorageDiv, {extends: 'div'});
-customElements.define('directory-div', DirectoryDiv, {extends: 'div'});
-customElements.define('file-div', FileDiv, {extends: 'div'});
-customElements.define('file-explorer-div', FileExplorerDiv, {extends: 'div'});
+// Ensure custom elements are defined only once
+if (!customElements.get('directory-head-div')) {
+  customElements.define('directory-head-div', DirectoryHeadDiv, {extends: 'div'});
+}
+if (!customElements.get('storage-div')) {
+  customElements.define('storage-div', StorageDiv, {extends: 'div'});
+}
+if (!customElements.get('directory-div')) {
+  customElements.define('directory-div', DirectoryDiv, {extends: 'div'});
+}
+if (!customElements.get('file-div')) {
+  customElements.define('file-div', FileDiv, {extends: 'div'});
+}
+if (!customElements.get('file-explorer-div')) {
+  customElements.define('file-explorer-div', FileExplorerDiv, {extends: 'div'});
+}
 
 let div = document.getElementById("windowFileExpolorer")
 let tabDiv = document.getElementById("windowMainView");
@@ -24,8 +37,6 @@ let headBarDiv = document.getElementById("headerBar");
 let naviDiv = document.getElementById("navi");
 let bar = document.getElementById("bar");
 let baseTable = document.getElementById("basetable");
-
-
 
 if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv instanceof HTMLDivElement&&div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
 
@@ -36,9 +47,28 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
 
   let tabManager : TabManager_I = new TabManager(tabDiv)
   let editor : EditorControlerAdapter = new EditorControlerAdapter()
-  let fileManager = new FileExplorerDiv(tabManager,editor) 
-  let headBar = new ViewTopBar(headBarDiv,fileManager,baseTableManager,tabManager.getTabCreator())
-  let navi : NaviMenu = new NaviMenu(naviDiv,div,[fileManager],baseTableManager)
+
+  // Initialize the ServiceCollection
+  const serviceCollection = new ServiceCollection();
+
+  // Register FileExplorerDiv with the IFileManager interface
+  const instantiationService = new InstantiationService(serviceCollection);
+
+  let descriptor = new SyncDescriptor(FileExplorerDiv, [tabManager, editor,instantiationService], true)
+  serviceCollection.register(IFileManager,descriptor );
+  let settings = new Settings(editor)
+  serviceCollection.register(ISettings,settings)
+
+  // Pass the InstantiationService directly to ViewTopBar and NaviMenu
+  let fileManager : IFileManager
+  instantiationService.invokeFunction((accessor) => {
+    fileManager = accessor.get(IFileManager);
+  })
+
+  let headBar = new ViewTopBar(headBarDiv, instantiationService, baseTableManager, tabManager.getTabCreator());
+  // Assert fileManager as FileExplorerDiv since NaviMenu expects HTMLDivElement[]
+  let navi: NaviMenu = new NaviMenu(naviDiv, div, [fileManager as FileExplorerDiv], baseTableManager);
+
   document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv)
   document.body.appendChild(ContextMenu.contextMenuDiv)
   ContextMenu.contextMenuDiv.id = "TESTID"
@@ -53,7 +83,10 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     })
     globalThis.electron.getArgs().then((args)=>{
       if(args.length>1 && args[1].length>2){  
-        fileManager.openFileByUrl(args[1])
+        instantiationService.invokeFunction((accessor) => {
+          const fileManager = accessor.get(IFileManager);
+          fileManager.openFileByUrl(args[1]);
+        });
       }
     })
 
@@ -61,10 +94,13 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
       tabDiv.addEventListener('drop', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            for (const file of event.dataTransfer.files) {
-              let path = (file as unknown as { path }).path
-              fileManager.openFileByUrl(path);
-            }           
+            instantiationService.invokeFunction((instantiationService) => {
+              const fileManager = instantiationService.get(IFileManager);
+              for (const file of event.dataTransfer.files) {
+                let path = (file as unknown as { path }).path
+                fileManager.openFileByUrl(path);
+              }
+            });           
           });
 
     
