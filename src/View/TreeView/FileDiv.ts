@@ -1,10 +1,10 @@
-import { EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js"
-import { InstantiationService } from "../tecnicalServices/instantiation/InstantiationService.js"
-import { ContextMenu } from "./ContextMenu.js"
-import { FileLeftClickMenu } from "./FileLeftClickMenu.js"
-import { StorageDiv } from "./StorageDiv.js"
-import { ApplciationIndex } from "./TabManager/TabApplication"
-import { TabCreator } from "./TabManager/TabCreator.js"
+import { IFileSystemService, FileNode_EXC_I } from "../../ViewDomainI/Interfaces.js" // Corrected path
+import { ContextMenu } from "../ContextMenu.js" // Corrected path
+import { FileLeftClickMenu } from "../FileLeftClickMenu.js" // Corrected path
+import { StorageDiv } from "./StorageDiv.js" // Corrected path
+import { ApplciationIndex } from "../TabManager/TabApplication" // Corrected path
+import { TabCreator } from "../TabManager/TabCreator.js" // Corrected path
+import { ISettings } from "../../tecnicalServices/Settings.js"
 
 // Interface no longer needs to extend EventEmitter
 export interface FileDiv_I {
@@ -25,14 +25,14 @@ export class FileDiv extends StorageDiv implements FileDiv_I {
     public fileNode : FileNode_EXC_I
     private tabCreator : TabCreator
     private fileTabOpenState : boolean
-    private instantiationService : InstantiationService
+    private settings : ISettings
 
-    constructor(fileNode: FileNode_EXC_I, editor: EditorControlerAdapter_EXC_I, tabCreator: TabCreator, instantiationService : InstantiationService) {
+    constructor(fileNode: FileNode_EXC_I, editor: IFileSystemService, tabCreator: TabCreator, settings : ISettings) {
         super(editor, fileNode) // Calls StorageDiv constructor which handles emitter and listeners
         this.fileTabOpenState = true
         this.fileNode = fileNode // Already assigned in StorageDiv, but keep for specific type
         this.tabCreator = tabCreator
-        this.instantiationService = instantiationService
+        this.settings = settings
         this.contentEditable = "false";
         this.classList.add("selectable");
         this.classList.add("directoryDiv") // Should this be fileDiv?
@@ -53,7 +53,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I {
         this.addEventListener("click", (e) => {
             console.log("click left");
             if (e.target instanceof HTMLDivElement && e.target.contentEditable == "false") {
-                let rightClickMenu = new FileLeftClickMenu(this, this.instantiationService);
+                let rightClickMenu = new FileLeftClickMenu(this, this.settings);
                 rightClickMenu.showMenu(e);
             }
         });
@@ -120,7 +120,7 @@ export class FileDiv extends StorageDiv implements FileDiv_I {
     }
 
     public openFileWithSelector() {
-        let rightClickMenu = new FileLeftClickMenu(this,this.instantiationService);
+        let rightClickMenu = new FileLeftClickMenu(this,this.settings);
         rightClickMenu.showSimpleMenu();
     }
 

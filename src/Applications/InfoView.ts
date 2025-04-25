@@ -1,4 +1,4 @@
-import { FileDiv_I } from "../View/FileDiv.js";
+import { FileDiv_I } from "../View/TreeView/FileDiv.js";
 import { ApplciationIndex, TABApplication } from "../View/TabManager/TabApplication.js";
 import { TabCreator } from "../View/TabManager/TabCreator.js";
 

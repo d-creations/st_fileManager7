@@ -1,15 +1,16 @@
-import { DirectoryNode_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js";
+import { IStorageService } from "../tecnicalServices/fileSystem/IStroageService.js";
+import { DirectoryNode_EXC_I, FileNode_EXC_I, RootStorageNode_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { FileNode } from "./FileNode.js";
 import { StorageNode2 } from "./StorageNode2.js";
-// EventEmitter is inherited from StorageNode2
 
 export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
-    public files: FileNode[];
-    public dirs: DirectoryNode[];
-    private isUpdating: boolean = false;
+    // Explicitly type children arrays with interface types
+    public files: FileNode_EXC_I[] = [];
+    public dirs: DirectoryNode_EXC_I[] = [];
 
-    constructor(rootNode: StorageNode2, name: string) {
-        super(rootNode, name);
+    constructor(root: RootStorageNode_EXC_I, name: string, storageService: IStorageService) {
+        super(root, name, storageService);
+        // Initialize with interface types if needed, though assignment should work
         this.files = [];
         this.dirs = [];
     }
@@ -18,109 +19,95 @@ export class DirectoryNode extends StorageNode2 implements DirectoryNode_EXC_I {
         return this.name;
     }
 
-    createNewFolder(rootDirectory: StorageNode2): Promise<void> {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            let url = rootDirectory.getUrl();
-            self.createFolder(url).then(() => {
-                resolve();
-            }).catch(reject);
-        });
+    public async createNewFile(fileName: string = "newFile.txt"): Promise<void> { // Return boolean
+        const parentDirPath = this.getUrl();
+        const newFilePath = `${parentDirPath}/${fileName}`; // Adjust separator if needed
+        try {
+            const result = await this.storageService.saveFile(newFilePath,"");
+            const newFileNode = new FileNode(this.root, fileName, this.storageService);
+            this.addChild(newFileNode);
+            return result;
+        } catch (error) {
+            throw new Error(`Failed to create file in directory ${this.name}: ${error.message}`);
+        }
     }
 
-    createNewFile(rootDirectory: StorageNode2): Promise<void> {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            let url = rootDirectory.getUrl();
-            self.createFile(url).then(() => {
-                resolve();
-            }).catch(reject);
-        });
+    public async createNewFolder(folderName: string = "newFolder"): Promise<void> { // Return boolean
+        const parentDirPath = this.getUrl();
+        const newFolderPath = `${parentDirPath}/${folderName}`; // Adjust separator if needed
+        try {
+            const result = await this.storageService.createFolder(newFolderPath);
+                const newDirNode = new DirectoryNode(this.root, folderName, this.storageService);
+                this.addChild(newDirNode);
+            return result;
+        } catch (error) {
+            throw new Error(`Failed to create folder in directory ${this.name}: ${error.message}`);
+        }
     }
 
+    // Return interface types
     getFiles(): FileNode_EXC_I[] {
-        return this.files;
+        // Filter children based on type
+        return this.children.filter(child => child instanceof FileNode) as FileNode_EXC_I[];
     }
 
+    // Return interface types
     getDirectories(): DirectoryNode_EXC_I[] {
-        return this.dirs;
+        // Filter children based on type
+        return this.children.filter(child => child instanceof DirectoryNode) as DirectoryNode_EXC_I[];
     }
 
     updateStorage(): Promise<void> {
         return this.updateTree();
     }
 
-    updateTree(): Promise<void> {
-        if (this.isUpdating) return Promise.resolve();
-        this.isUpdating = true;
-        let self = this;
-        console.log("update Tree " + self.name);
-        return new Promise((resolve, reject) => {
-            globalThis.electron.getFilesInFolder(this.getUrl()).then(function (files) {
-                let objectNames: Set<string> = new Set();
-                let addedFiles: FileNode[] = [];
-                let addedDirs: DirectoryNode[] = [];
-                let removedFiles: FileNode[] = [];
-                let removedDirs: DirectoryNode[] = [];
-
-                for (let file of files) {
-                    objectNames.add(file.name);
-                    if (file.type == "file") {
-                        if (self.notFileExist(self, file)) {
-                            let fileNode = new FileNode(self, file.name);
-                            self.files.push(fileNode);
-                            addedFiles.push(fileNode);
-                        }
-                    }
-                    if (file.type == "directory") {
-                        if (self.notDivExist(self, file)) {
-                            let directory = new DirectoryNode(self, file.name);
-                            self.dirs.push(directory);
-                            addedDirs.push(directory);
-                        }
-                    }
+    public async updateTree(): Promise<void> {
+        const dirPath = this.getUrl();
+        try {
+            // No need to check for listDirectory existence anymore
+            const entries = await this.storageService.getFilesInFolder(dirPath);
+            this.children = []; // Clear existing children before repopulating
+            this.files = [];
+            this.dirs = [];
+            for (const entry of entries) {
+                let childNode: StorageNode2_EXC_I;
+                if (entry.isDirectory) {
+                    // Assign DirectoryNode instance to DirectoryNode_EXC_I
+                    const dirNode = new DirectoryNode(this.root, entry.name, this.storageService);
+                    childNode = dirNode;
+                    this.dirs.push(dirNode); // Add to specific array
+                } else {
+                    // Assign FileNode instance to FileNode_EXC_I
+                    const fileNode = new FileNode(this.root, entry.name, this.storageService);
+                    childNode = fileNode;
+                    this.files.push(fileNode); // Add to specific array
                 }
-
-                self.files = self.files.filter(file => {
-                    if (objectNames.has(file.name)) {
-                        return true;
-                    } else {
-                        removedFiles.push(file);
-                        return false;
-                    }
-                });
-                self.dirs = self.dirs.filter(dir => {
-                    if (objectNames.has(dir.name)) {
-                        return true;
-                    } else {
-                        removedDirs.push(dir);
-                        return false;
-                    }
-                });
-
-                console.log("TreeStack Updated");
-                self.emit('updated', { addedFiles, addedDirs, removedFiles, removedDirs });
-                resolve();
-            }).catch((error) => {
-                self.isUpdating = false;
-                self.emit('update-failed', error);
-                reject(error);
-            }).finally(() => {
-                self.isUpdating = false;
-            });
-        });
+                this.addChild(childNode); // Add to general children array (calls setParent)
+            }
+        } catch (error) {
+            console.error(`Error updating tree for ${dirPath}:`, error);
+            this.children = [];
+            this.files = [];
+            this.dirs = [];
+            // Rethrow or handle as appropriate
+            throw new Error(`Failed to update tree for directory ${this.name}: ${error.message}`);
+        }
     }
 
-    notFileExist(self: DirectoryNode, file: any): boolean {
+    // Use getName() for comparison
+    notFileExist(self: DirectoryNode, file: { name: string }): boolean {
+        // Use the filtered files array and getName()
         for (let fileNodeI of self.files) {
-            if (fileNodeI.name === file.name) return false;
+            if (fileNodeI.getName() === file.name) return false;
         }
         return true;
     }
 
-    notDivExist(self: DirectoryNode, file: any): boolean {
-        for (let fileNodeI of self.dirs) {
-            if (fileNodeI.name === file.name) return false;
+    // Use getName() for comparison
+    notDivExist(self: DirectoryNode, file: { name: string }): boolean {
+        // Use the filtered dirs array and getName()
+        for (let dirNodeI of self.dirs) {
+            if (dirNodeI.getName() === file.name) return false;
         }
         return true;
     }

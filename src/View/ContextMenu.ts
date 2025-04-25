@@ -1,4 +1,4 @@
-import { StorageDiv } from "./StorageDiv.js";
+import { StorageDiv } from "./TreeView/StorageDiv.js";
 
 
 

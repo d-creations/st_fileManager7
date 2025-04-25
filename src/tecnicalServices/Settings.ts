@@ -1,4 +1,4 @@
-import { EditorControlerAdapter_EXC_I, FileNode_EXC_I } from "../ViewDomainI/Interfaces"
+import { IFileSystemService, FileNode_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { createDecorator } from './instantiation/ServiceCollection.js';
 
 export const  ISettings  = createDecorator<ISettings>('ISettings');
@@ -24,11 +24,15 @@ export interface ISettings {
 export class Settings {
     private name: string;
     private applications: ApplicationSettings[];
-    private editor: EditorControlerAdapter_EXC_I;
+    private editor: IFileSystemService;
     private settingFileNode: FileNode_EXC_I;
     private settings: any;
 
-    constructor(editor: EditorControlerAdapter_EXC_I) {
+    constructor(
+        // Dependencies injected by InstantiationService
+        @IFileSystemService editor: IFileSystemService
+    ) 
+    {
         this.editor = editor;
         this.settingFileNode = editor.getSettingFileNode();
         this.updateSettings();

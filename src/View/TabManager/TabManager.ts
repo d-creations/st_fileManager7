@@ -1,15 +1,19 @@
 import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
-import { FileDiv_I } from "../FileDiv.js"
+import { FileDiv_I } from "../TreeView/FileDiv.js"
 import { ApplciationIndex, FrameAppCreator, TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
+import { createDecorator } from '../../tecnicalServices/instantiation/ServiceCollection.js'; // Import createDecorator
 
-export interface TabManager_I {
+export const ITabManager = createDecorator<ITabManager>('ITabManager'); // Create decorator
+
+export interface ITabManager {
     closeAllTabs(): void
     saveAllFile(): void
     saveCurrentFile(): void
     getTabCreator(): TabCreator
 
+    // Keep createTab signature as is for now, TabCreator handles the details
     createTab(fileNode: FileDiv_I, mainDiv: HTMLDivElement, text: string, applicationCreator: ApplicationCreator_I): void
     removeTab(tab: TAB): void
 }
@@ -92,7 +96,8 @@ export class TAB {
     }
 }
 
-export class TabManager implements TabManager_I {
+// Implement the interface
+export class TabManager implements ITabManager {
 
     private baseTabManagerDiv: HTMLDivElement
     private headTabManagerDiv: HTMLDivElement

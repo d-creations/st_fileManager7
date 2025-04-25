@@ -1,18 +1,21 @@
-import { EditorControlerAdapter } from "./Domain/EditorContollerAdapter.js";
-import { BaseTableManager } from "./View/BaseTableManager.js";
+import { FileSystemService } from "./Domain/FileSystemService.js";
+import { BaseDivView, IBaseDivView } from "./View/BaseDivView/BaseDivView.js";
 import { ContextMenu } from "./View/ContextMenu.js";
-import { DirectoryHeadDiv, DirectoryDiv } from "./View/DirectoryDiv.js";
-import { FileDiv } from "./View/FileDiv.js";
-import { FileExplorerDiv } from "./View/FileExplorerDiv.js";
+import { DirectoryHeadDiv, DirectoryDiv } from "./View/TreeView/DirectoryDiv.js";
+import { FileDiv } from "./View/TreeView/FileDiv.js";
+import { TreeView } from "./View/TreeView/TreeView.js";
 import { FileLeftClickMenu } from "./View/FileLeftClickMenu.js";
-import { NaviMenu } from "./View/NaviManager/NaviMenu.js";
-import { StorageDiv } from "./View/StorageDiv.js";
-import { TabManager_I, TabManager } from "./View/TabManager/TabManager.js";
-import { ViewTopBar } from "./View/ViewTopBar.js";                                 
+import { NaviMenu, INaviMenu } from "./View/NaviManager/NaviMenu.js";
+import { StorageDiv } from "./View/TreeView/StorageDiv.js";
+import { TabManager, ITabManager } from "./View/TabManager/TabManager.js";
+import { ViewTopBar } from "./View/ViewTopBar/ViewTopBar.js";
 import { ServiceCollection, SyncDescriptor } from "./tecnicalServices/instantiation/ServiceCollection.js";
-import { IFileManager } from "./Domain/Filemanager_I.js";
+import { ITreeView } from "./View/TreeView/ITreeView.js";
 import { InstantiationService } from "./tecnicalServices/instantiation/InstantiationService.js";
 import { ISettings, Settings } from "./tecnicalServices/Settings.js";
+import { IFileSystemService } from "./ViewDomainI/Interfaces.js";
+import { LocalStorageService } from "./tecnicalServices/fileSystem/LocalStorageServiceService.js";
+import { IStorageService } from "./tecnicalServices/fileSystem/IStroageService.js";
 
 // Ensure custom elements are defined only once
 if (!customElements.get('directory-head-div')) {
@@ -28,47 +31,95 @@ if (!customElements.get('file-div')) {
   customElements.define('file-div', FileDiv, {extends: 'div'});
 }
 if (!customElements.get('file-explorer-div')) {
-  customElements.define('file-explorer-div', FileExplorerDiv, {extends: 'div'});
+  customElements.define('file-explorer-div', TreeView, {extends: 'div'});
 }
 
-let div = document.getElementById("windowFileExpolorer")
+let fileExplorerDiv = document.getElementById("windowFileExpolorer")
 let tabDiv = document.getElementById("windowMainView");
 let headBarDiv = document.getElementById("headerBar");
 let naviDiv = document.getElementById("navi");
 let bar = document.getElementById("bar");
 let baseTable = document.getElementById("basetable");
 
-if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv instanceof HTMLDivElement&&div instanceof HTMLDivElement&& tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
+if(baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviDiv instanceof HTMLDivElement && fileExplorerDiv instanceof HTMLDivElement && tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
 
-  let baseTableManager = new BaseTableManager(baseTable,bar,naviDiv,div)
-  window.addEventListener('resize', ()=>{
-    baseTableManager.moveBar(div.clientWidth)
-  })
 
-  let tabManager : TabManager_I = new TabManager(tabDiv)
-  let editor : EditorControlerAdapter = new EditorControlerAdapter()
 
-  // Initialize the ServiceCollection
+  // Initialize the ServiceCollection and InstantiationService
   const serviceCollection = new ServiceCollection();
-
-  // Register FileExplorerDiv with the IFileManager interface
   const instantiationService = new InstantiationService(serviceCollection);
 
-  let descriptor = new SyncDescriptor(FileExplorerDiv, [tabManager, editor,instantiationService], true)
-  serviceCollection.register(IFileManager,descriptor );
-  let settings = new Settings(editor)
-  serviceCollection.register(ISettings,settings)
+  // Register IFileSystemService using SyncDescriptor
+  const fileSystemServiceDescriptor = new SyncDescriptor(LocalStorageService, [], true);
+  serviceCollection.register(IStorageService, fileSystemServiceDescriptor);
 
-  // Pass the InstantiationService directly to ViewTopBar and NaviMenu
-  let fileManager : IFileManager
+  // Register EditorControlerAdapter
+  // EditorControlerAdapter requires IFileSystemService, which will now be resolved by DI
+  const editorDescriptor = new SyncDescriptor(FileSystemService, [], true);
+  serviceCollection.register(IFileSystemService, editorDescriptor);
+
+  // Register TreeView
+  const treeViewDescriptor = new SyncDescriptor(TreeView, [], true);
+  serviceCollection.register(ITreeView, treeViewDescriptor);
+
+  // Register Settings
+  // Settings requires EditorControlerAdapter_EXC_I, which will be resolved by DI
+  const settingsDescriptor = new SyncDescriptor(Settings, [], true);
+  serviceCollection.register(ISettings, settingsDescriptor);
+
+  // Register BaseDivView
+  const baseTableManager = new BaseDivView(baseTable, bar, naviDiv, fileExplorerDiv);
+  serviceCollection.register(IBaseDivView, baseTableManager);
+  window.addEventListener('resize', () => {
+    baseTableManager.moveBar(fileExplorerDiv.clientWidth);
+  });
+
+  // Register TabManager using SyncDescriptor
+  const tabManagerDescriptor = new SyncDescriptor(TabManager, [tabDiv], true);
+  serviceCollection.register(ITabManager, tabManagerDescriptor);
+
+
+  // Register NaviMenu - Pass ALL arguments manually via SyncDescriptor
+  // Arguments: naviTab, mainTab, treeViewElement, baseTableManager
+  let treeView 
   instantiationService.invokeFunction((accessor) => {
-    fileManager = accessor.get(IFileManager);
-  })
+    treeView = accessor.get(ITreeView)
 
-  let headBar = new ViewTopBar(headBarDiv, instantiationService, baseTableManager, tabManager.getTabCreator());
-  // Assert fileManager as FileExplorerDiv since NaviMenu expects HTMLDivElement[]
-  let navi: NaviMenu = new NaviMenu(naviDiv, div, [fileManager as FileExplorerDiv], baseTableManager);
+  });
+  const naviMenuDescriptor = new SyncDescriptor(NaviMenu, [naviDiv, fileExplorerDiv, treeView, baseTableManager], true);
+  serviceCollection.register(INaviMenu, naviMenuDescriptor);
 
+  // --- Instantiate Components using DI --- 
+
+  let headBar: ViewTopBar;
+  let navi: INaviMenu;
+
+  instantiationService.invokeFunction((accessor) => {
+    // Get instances needed for manual ViewTopBar creation
+    const treeViewInstance = accessor.get(ITreeView);
+    const tabManagerInstance = accessor.get(ITabManager); // Get TabManager instance
+    const baseDivViewInstance = accessor.get(IBaseDivView); // Get BaseDivView instance
+
+    // Manually create ViewTopBar, passing ALL arguments since constructor has no decorators
+    headBar = instantiationService.createInstance(
+        ViewTopBar,
+        treeViewInstance,    // 1st arg: fileManager
+        baseDivViewInstance, // 2nd arg: baseTableManager
+        headBarDiv,          // 3rd arg: parentDiv
+        tabManagerInstance   // 4th arg: tabManager
+    );
+
+    // Instantiate NaviMenu via accessor
+    navi = accessor.get(INaviMenu);
+
+    // Ensure the 'div' element IS the treeViewInstance (check remains useful)
+    // Check if the resolved ITreeView instance is actually the expected HTMLDivElement
+    if (!(treeViewInstance instanceof HTMLDivElement) || treeViewInstance !== fileExplorerDiv) {
+        console.warn("TreeView instance is not the expected HTMLDivElement 'windowFileExpolorer'. NaviMenu might not display correctly.");
+    }
+  });
+
+  // Event Listeners and Other Setup
   document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv)
   document.body.appendChild(ContextMenu.contextMenuDiv)
   ContextMenu.contextMenuDiv.id = "TESTID"
@@ -79,35 +130,34 @@ if(baseTable instanceof HTMLDivElement&&bar instanceof HTMLDivElement&& naviDiv 
     if(e.target instanceof HTMLDivElement && FileLeftClickMenu.state == "true" && FileLeftClickMenu.target != e.target){
       FileLeftClickMenu.removeMenu()
     }
-      ContextMenu.removeMenu()
-    })
-    globalThis.electron.getArgs().then((args)=>{
-      if(args.length>1 && args[1].length>2){  
-        instantiationService.invokeFunction((accessor) => {
-          const fileManager = accessor.get(IFileManager);
-          fileManager.openFileByUrl(args[1]);
-        });
+    ContextMenu.removeMenu()
+  });
+
+  globalThis.electron.getArgs().then((args)=>{
+    if(args.length>1 && args[1].length>2){  
+      instantiationService.invokeFunction((accessor) => {
+        const fileManager = accessor.get(ITreeView);
+        fileManager.openFileByUrl(args[1]);
+      });
+    }
+  });
+
+  tabDiv.addEventListener('drop', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    instantiationService.invokeFunction((accessor) => {
+      const treeView = accessor.get(ITreeView);
+      for (const file of event.dataTransfer.files) {
+        let path = (file as unknown as { path }).path
+        treeView.openFileByUrl(path);
       }
-    })
+    });           
+  });
 
-
-      tabDiv.addEventListener('drop', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            instantiationService.invokeFunction((instantiationService) => {
-              const fileManager = instantiationService.get(IFileManager);
-              for (const file of event.dataTransfer.files) {
-                let path = (file as unknown as { path }).path
-                fileManager.openFileByUrl(path);
-              }
-            });           
-          });
-
-    
-      tabDiv.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          });
+  tabDiv.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
 
 }
 

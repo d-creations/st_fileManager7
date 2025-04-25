@@ -164,6 +164,18 @@
     background-color: purple;
   }
   
-  .dragging {
+.dragging {
     opacity: 0.5;
   }
+
+.dropzone-active {
+  background-color: lightblue; /* Or any other style you prefer */
+  border: 2px dashed blue;
+}
+
+/* Add the new style for visual feedback during drag */
+.drop-target-active {
+  background-color: lightcyan; /* Example style */
+  outline: 2px dashed dodgerblue; /* Example style */
+  outline-offset: -2px; /* Adjust outline position if needed */
+}

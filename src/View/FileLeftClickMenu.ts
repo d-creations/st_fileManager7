@@ -1,15 +1,11 @@
 import { InstantiationService } from "../tecnicalServices/instantiation/InstantiationService.js";
 import {ISettings } from "../tecnicalServices/Settings.js";
-import { FileDiv } from "./FileDiv.js";
+import { FileDiv } from "./TreeView/FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
-
-
 
 export class FileLeftClickMenu{
 
     static fileRightClickMenuDiv = document.createElement("div")
-    private pathDir = ""
-    private nameFile = ""
     private fileNode : FileDiv
     static target :HTMLDivElement;
     private settings : ISettings
@@ -40,11 +36,9 @@ export class FileLeftClickMenu{
         FileLeftClickMenu.state = "false"
     }
 
-    constructor (fileNode : FileDiv,instantiationService : InstantiationService){
+    constructor (fileNode : FileDiv, settings :  ISettings){
         this.fileNode = fileNode
-        instantiationService.invokeFunction((accessor) => {
-            this.settings = accessor.get(ISettings);
-          })
+        this.settings = settings
     }
     private openMenu(pos){
         console.log("openMenu")

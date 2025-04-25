@@ -1,8 +1,7 @@
 
-import { ApplicationCreator_I } from "../../Applications/Application_I.js"
-import { FileDiv_I } from "../FileDiv.js"
-import { ApplciationIndex, FrameAppCreator, TABApplication } from "./TabApplication.js"
-import { TabManager, TABpage } from "./TabManager.js"
+import { FileDiv_I } from "..//TreeView/FileDiv.js"
+import { ApplciationIndex } from "./TabApplication.js"
+import { TabManager } from "./TabManager.js"
 
 
 export class TabCreator{

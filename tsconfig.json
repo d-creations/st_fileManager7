@@ -2,7 +2,7 @@
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     "module": "es6",
-    
+    "experimentalDecorators": true,
     //"allowJs": true,
     "checkJs": false,
     //"target": "es5",   

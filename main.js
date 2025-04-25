@@ -253,7 +253,7 @@ function handleGetFilesInDir (event,args) {
             return (entry.isFile() || entry.isDirectory()) && !entry.isSymbolicLink() ;
           }).map(entry => ({
           name: entry.name,
-          type: entry.isDirectory() ? "directory" : "file",
+          isDirectory: entry.isDirectory(),
          }))  
         resolve(result)
       
