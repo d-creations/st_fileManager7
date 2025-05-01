@@ -1,33 +1,34 @@
 import { DirectoryDiv } from "./DirectoryDiv.js"; // Corrected path
-import { DirectoryNode } from "../../Domain/DirectoryNode.js"; // Corrected path
+import { DirectoryNode } from "../../Domain/FileSystemService/DirectoryNode.js"; // Corrected path
 import { IFileSystemService, DirectoryNode_EXC_I, FileNode_EXC_I } from "../../ViewDomainI/Interfaces.js"; // Corrected path
-import { TabCreator } from "../TabManager/TabCreator.js"; // Corrected path
 import { ITreeView } from "./ITreeView.js"; // Corrected path
 import { FileDiv } from "./FileDiv.js"; // Corrected path
-import { ITabManager } from "../TabManager/TabManager.js"; // Use ITabManager decorator
 import { ISettings } from "../../tecnicalServices/Settings.js";
-import { RootStorageNode } from "../../Domain/RootStorageNode.js"; // Keep RootStorageNode import if needed elsewhere
+import { RootStorageNode } from "../../Domain/FileSystemService/RootStorageNode.js"; // Keep RootStorageNode import if needed elsewhere
 import { IStorageService } from "../../tecnicalServices/fileSystem/IStroageService.js"; // Import IFileSystemService identifier
+import { APPUIEvent, IuiEventService } from "../UIEventService/IuieventService.js";
 
 export class TreeView extends HTMLDivElement implements ITreeView {
     private rootStorageDiv: DirectoryDiv;
     private editor: IFileSystemService;
-    private tabManager: ITabManager;
     private settings: ISettings;
     private storageService: IStorageService;
 
     constructor(
         // Dependencies injected by InstantiationService
-        @ITabManager tabManager: ITabManager,
         @IFileSystemService editor: IFileSystemService,
         @ISettings settings: ISettings,
-        @IStorageService storageService: IStorageService // Use IFileSystemService decorator
+        @IStorageService storageService: IStorageService, // Use IFileSystemService decorator
+        @IuiEventService uiEventService: IuiEventService // Use IuiEventService decorator
     ) {
         super();
         this.editor = editor;
-        this.tabManager = tabManager;
         this.settings = settings;
         this.storageService = storageService;
+        uiEventService.on(APPUIEvent.FileOpen, () => this.openFile());
+        uiEventService.on(APPUIEvent.FolderOpen, () => this.openFolder());
+        
+
 
         // Create a placeholder DirectoryNode instead of RootStorageNode
         const dummyRoot = new RootStorageNode("placeholder_root", this.storageService);
@@ -36,7 +37,6 @@ export class TreeView extends HTMLDivElement implements ITreeView {
         this.rootStorageDiv = new DirectoryDiv(
             placeholderDirNode, // Pass the placeholder DirectoryNode
             this.editor,
-            this.tabManager.getTabCreator(),
             this.settings
         );
         this.rootStorageDiv.addEventListener("click", async () => {
@@ -49,21 +49,13 @@ export class TreeView extends HTMLDivElement implements ITreeView {
 
     // --- IFileManager Implementation ---
 
-    getSettingFileDiv(tabCreator: TabCreator): FileDiv {
+    getSettingFileDiv(): FileNode_EXC_I {
         const settingNode = this.editor.getSettingFileNode();
-        return new FileDiv(settingNode, this.editor, tabCreator, this.settings);
+        return settingNode ; // Cast to FileNode_EXC_I if necessary
     }
 
     closeApplication(): void {
         this.editor.closeApplication();
-    }
-
-    saveCurrentFile(): void {
-        this.tabManager.saveCurrentFile();
-    }
-
-    saveAllFile(): void {
-        this.tabManager.saveAllFile();
     }
 
     async openFolder(): Promise<void> {
@@ -74,7 +66,6 @@ export class TreeView extends HTMLDivElement implements ITreeView {
                 this.rootStorageDiv = new DirectoryDiv(
                     directoryNode,
                     this.editor,
-                    this.tabManager.getTabCreator(),
                     this.settings
                 );
                 this.appendChild(this.rootStorageDiv);
@@ -89,7 +80,7 @@ export class TreeView extends HTMLDivElement implements ITreeView {
         try {
             const fileNode = await this.editor.openFile() as FileNode_EXC_I;
             if (fileNode) {
-                const fileDiv = new FileDiv(fileNode, this.editor, this.tabManager.getTabCreator(), this.settings);
+                const fileDiv = new FileDiv(fileNode, this.editor, this.settings);
                 fileDiv.openFileWithSelector();
             }
         } catch (error) {
@@ -101,7 +92,7 @@ export class TreeView extends HTMLDivElement implements ITreeView {
         try {
             const fileNode = await this.editor.openFileByUrl(url) as FileNode_EXC_I;
             if (fileNode) {
-                const fileDiv = new FileDiv(fileNode, this.editor, this.tabManager.getTabCreator(), this.settings);
+                const fileDiv = new FileDiv(fileNode, this.editor, this.settings);
                 fileDiv.openFileWithSelector();
             }
         } catch (error) {

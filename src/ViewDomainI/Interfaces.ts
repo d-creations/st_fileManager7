@@ -1,5 +1,6 @@
 import { createDecorator } from "../tecnicalServices/instantiation/ServiceCollection.js";
 import { CustomEventEmitter } from "../tecnicalServices/CustomEventEmitter.js"; // Changed from CustomEventEmitter_I
+import { ApplciationIndex } from "../View/TabManager/TabApplication.js";
 
 export interface StorageNode2_EXC_I extends CustomEventEmitter {
     updateStorage(): Promise<void>;
@@ -37,6 +38,12 @@ export interface FileNode_EXC_I extends StorageNode2_EXC_I {
     isDeleted(): boolean; // Add isDeleted method signature
     saveFile(text: string): Promise<void>;
     getFileText(): Promise<string>; // Correct return type to Promise<string>
+    getUrl(): string;
+    getName(): string;
+    openEditingState(): void;
+    closeEditingState(): void;
+    openFile(): void;
+    saveText(text : string)
 }
 
 export interface DirectoryNode_EXC_I extends StorageNode2_EXC_I {
@@ -57,6 +64,7 @@ export interface RootStorageNode_EXC_I extends StorageNode2_EXC_I {
 export const IFileSystemService = createDecorator<IFileSystemService>('IFileSystemService');
 
 export interface IFileSystemService {
+    openFilewithApp(fileNode: FileNode_EXC_I): unknown;
     openFileByUrl(url: string): Promise<FileNode_EXC_I | unknown>;
     getSettingFileNode(): FileNode_EXC_I;
     copyStorage(node: StorageNode2_EXC_I): Promise<void>;
@@ -67,6 +75,7 @@ export interface IFileSystemService {
     saveFile(fileNode: FileNode_EXC_I, text): void;
     openDirectory(): Promise<DirectoryNode_EXC_I | unknown>;
     openFile(): Promise<FileNode_EXC_I | unknown>;
+    openFileInApp(fileNode: FileNode_EXC_I): void;
 
     /**
      * Gets the text content of a specified file node.

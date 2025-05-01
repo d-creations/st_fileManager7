@@ -11,7 +11,7 @@ interface EventEmittingStorageNode extends StorageNode2_EXC_I {
 
 export class StorageDiv extends HTMLDivElement {
 
-    protected editor : IFileSystemService
+    protected fileSystemService : IFileSystemService
     public storageNode : StorageNode2_EXC_I // Changed to public
     protected isCut : boolean
 
@@ -20,9 +20,9 @@ export class StorageDiv extends HTMLDivElement {
     protected _handleNodeDelete: () => void; // Changed to protected
     protected _handleNodeUpdate: (details?: any) => void; // Changed to protected
 
-    constructor(editor : IFileSystemService, storageNode : StorageNode2_EXC_I){
+    constructor(fileSystemService : IFileSystemService, storageNode : StorageNode2_EXC_I){
         super()
-        this.editor = editor
+        this.fileSystemService = fileSystemService
         this.storageNode = storageNode
         this.isCut = false
         this.attachNodeListeners(); // Attach listeners in constructor
@@ -97,12 +97,12 @@ export class StorageDiv extends HTMLDivElement {
 
     updateThisDiv(): void {
         console.log(`updateThisDiv called for ${this.getName()}`);
-        this.setName(this.editor.getStorageName(this.storageNode));
+        this.setName(this.fileSystemService.getStorageName(this.storageNode));
     }
 
     createFolder(): void {
         
-        this.editor.createFolder(this.storageNode).then((bool) => {
+        this.fileSystemService.createFolder(this.storageNode).then((bool) => {
             this.refreshStorageRekursiv()
         }
         ).catch((error) => {
@@ -112,13 +112,13 @@ export class StorageDiv extends HTMLDivElement {
     }
 
     copyStorage():void{
-        this.editor.copyStorage(this.storageNode)
+        this.fileSystemService.copyStorage(this.storageNode)
     }
 
     cutStorage():void{
         if(this.isManipulable()){
             this.isCut = true
-            this.editor.cutStorage(this.storageNode)
+            this.fileSystemService.cutStorage(this.storageNode)
             this.updateThisDiv()
         }
         else alert("Please close the File")
@@ -129,7 +129,7 @@ export class StorageDiv extends HTMLDivElement {
 
     insertStorage():void{
         this.isCut = false
-        this.editor.insertStorage(this.storageNode).then(() => {
+        this.fileSystemService.insertStorage(this.storageNode).then(() => {
             this.refreshStorageRekursiv()
             
         }
@@ -141,7 +141,7 @@ export class StorageDiv extends HTMLDivElement {
     
     createFile(): void {
         
-        this.editor.createFile(this.storageNode).then((bool) => {
+        this.fileSystemService.createFile(this.storageNode).then((bool) => {
             this.refreshStorageRekursiv()
         }
         ).catch((error) => {
@@ -156,7 +156,7 @@ export class StorageDiv extends HTMLDivElement {
 
     deleteFileOrFolder(): Promise<void>{
         return new Promise((resolve) => {
-            if(confirm("delete" + this.editor.getStorageUrl(this.storageNode)))this.editor.deleteFileOrFolder(this.storageNode).
+            if(confirm("delete" + this.fileSystemService.getStorageUrl(this.storageNode)))this.fileSystemService.deleteFileOrFolder(this.storageNode).
             then(() => {
                 resolve()
                 this.refreshStorageRekursiv()
@@ -206,7 +206,7 @@ export class StorageDiv extends HTMLDivElement {
 
                 // If Enter was pressed or focus was lost (blur), and name is valid and changed
                 if ((status === "enter" || status === "blur") && newName && newName !== originalName) {
-                    this.editor.renameFileOrFolder(this.storageNode, newName).then(() => {
+                    this.fileSystemService.renameFileOrFolder(this.storageNode, newName).then(() => {
                         console.log(`Renamed to ${newName}`);
                         // The name is already visually updated by the edit
                     }).catch(error => {

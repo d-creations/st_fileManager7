@@ -1,21 +1,30 @@
 
-import { FileDiv_I } from "..//TreeView/FileDiv.js"
+import { IAppForFileService } from "../../Domain/FileSystemService/IAppForFileService.js"
+import { FileNode_EXC_I } from "../../ViewDomainI/Interfaces.js"
 import { ApplciationIndex } from "./TabApplication.js"
-import { TabManager } from "./TabManager.js"
+import { ITabManager, TabManager } from "./TabManager.js"
 
 
-export class TabCreator{
+export class TabCreator implements IAppForFileService {
     
-    private tabManager : TabManager
-    constructor(tabManager:  TabManager){
+    private tabManager : ITabManager
+    constructor(
+        tabManager: ITabManager){
         this.tabManager = tabManager
     }
-    createTab(fileDiv : FileDiv_I,appli : ApplciationIndex){
+    openFileInapp(fileNode: FileNode_EXC_I, applciationIndex: ApplciationIndex) {
+        this.createTab(fileNode, applciationIndex)
+        return
+    }
+
+
+    createTab(fileNode : FileNode_EXC_I,appli : ApplciationIndex){
         let tabManager = this.tabManager
+        
         let div : HTMLDivElement= document.createElement("div")
 
-        fileDiv.getFileText().then(function(text : string) {        
-            tabManager.createTab(fileDiv,div,text,appli)
+        fileNode.getFileText().then(function(text : string) {        
+            tabManager.createTab(fileNode,div,text,appli)
         })
 
     }

@@ -41,7 +41,7 @@ export class TABApplicationFrame implements TABApplication{
     private frame : HTMLIFrameElement
     private messageCanal : MessageChannel
 
-    constructor(div : HTMLDivElement,text : string, url , storeMessage : Function){
+    constructor(div : HTMLDivElement,text : string, url : string , storeMessage : Function){
         this.messageCanal = new MessageChannel()
         console.log("create messageCanal")
         this.messageCanal.port1.onmessage = (message)=>{

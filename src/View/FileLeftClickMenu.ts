@@ -2,6 +2,7 @@ import { InstantiationService } from "../tecnicalServices/instantiation/Instanti
 import {ISettings } from "../tecnicalServices/Settings.js";
 import { FileDiv } from "./TreeView/FileDiv.js";
 import { ApplciationIndex } from "./TabManager/TabApplication.js";
+import { IuiEventService } from "./UIEventService/IuieventService.js";
 
 export class FileLeftClickMenu{
 
@@ -14,6 +15,8 @@ export class FileLeftClickMenu{
     public showSimpleMenu() {
         this.openMenu({x:0,y:0})
     }
+
+
 
     public showMenu(e : Event){
         FileLeftClickMenu.target = e.target as HTMLDivElement
@@ -57,7 +60,7 @@ export class FileLeftClickMenu{
                 openInEditor.addEventListener("click", (e)=> {
                     FileLeftClickMenu.removeMenu()
                     let appIndex = new ApplciationIndex(application.url)
-                    this.fileNode.openFile(appIndex)
+//                    this.fileNode.openFile(appIndex)
                     })
             }
         }

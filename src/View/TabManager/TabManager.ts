@@ -1,21 +1,20 @@
 import { ApplicationCreator_I } from "../../Applications/Application_I"
 import { ViewObjectCreator } from "../../tecnicalServices/ViewObjectCreator.js"
-import { FileDiv_I } from "../TreeView/FileDiv.js"
 import { ApplciationIndex, FrameAppCreator, TABApplication } from "./TabApplication.js"
 import { TabCreator } from "./TabCreator.js"
 import { createDecorator } from '../../tecnicalServices/instantiation/ServiceCollection.js'; // Import createDecorator
+import { IOpenFileHandler } from "../../Domain/FileSystemService/IOpenFileHander";
+import { FileNode_EXC_I } from "../../ViewDomainI/Interfaces";
+import { APPUIEvent, IuiEventService } from "../UIEventService/IuieventService.js";
+import { ISettings } from "../../tecnicalServices/Settings.js";
 
 export const ITabManager = createDecorator<ITabManager>('ITabManager'); // Create decorator
 
 export interface ITabManager {
-    closeAllTabs(): void
-    saveAllFile(): void
-    saveCurrentFile(): void
-    getTabCreator(): TabCreator
-
     // Keep createTab signature as is for now, TabCreator handles the details
-    createTab(fileNode: FileDiv_I, mainDiv: HTMLDivElement, text: string, applicationCreator: ApplicationCreator_I): void
+    createTab(openFileHandler: IOpenFileHandler, mainDiv: HTMLDivElement, text: string, applicationCreator: ApplciationIndex): void
     removeTab(tab: TAB): void
+    getHtmlElement(): HTMLDivElement
 }
 
 export class TABpage {
@@ -32,20 +31,20 @@ export class TAB {
 
     tab: TABpage
     button: HTMLDivElement
-    fileNode: FileDiv_I
+    fileNode: FileNode_EXC_I
     headDiv: HTMLDivElement
     ApplicationCreator: ApplciationIndex
 
     private _handleRename: (details: { oldName: string, newName: string }) => void;
     private _handleDelete: () => void;
 
-    constructor(fileNode: FileDiv_I, tab: TABpage, headDiv: HTMLDivElement, applicationCreator: ApplciationIndex) {
+    constructor(fileNode: FileNode_EXC_I, tab: TABpage, headDiv: HTMLDivElement, applicationCreator: ApplciationIndex) {
         this.fileNode = fileNode
         this.tab = tab
         this.headDiv = headDiv
         this.button = ViewObjectCreator.createTabButton(fileNode.getName())
         this.button.addEventListener("click", (e) => {
-            fileNode.openFile(applicationCreator)
+            fileNode.openFile()
         })
 
         this._handleRename = ({ newName }) => this.handleFileRename(newName);
@@ -70,12 +69,12 @@ export class TAB {
     }
 
     close() {
-        this.fileNode.closeTabFileState()
+        this.fileNode.openEditingState()
         this.cleanupListeners();
     }
 
     open() {
-        this.fileNode.openTabFileState()
+        this.fileNode.openEditingState()
     }
 
     public save() {
@@ -107,8 +106,12 @@ export class TabManager implements ITabManager {
     private footTabManagerDiv: HTMLDivElement
     private tabList: TAB[]
     private tabCreator: TabCreator
-
-    constructor(parentDiv: HTMLDivElement) {
+    private settings: ISettings
+    constructor(
+        @IuiEventService uiEventService: IuiEventService,
+        @ISettings settings: ISettings
+    ) {
+        this.settings = settings
         this.tabList = []
         this.baseTabManagerDiv = document.createElement("div")
         this.baseTabManagerDiv.classList.add("baseTabManagerTable")
@@ -121,13 +124,44 @@ export class TabManager implements ITabManager {
         this.mainTabManagerDiv.classList.add("mainTabManager")
         this.footTabManagerDiv = document.createElement("div")
         this.footTabManagerDiv.classList.add("footTabManager")
-        parentDiv.appendChild(this.baseTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.headTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.mainTabManagerDiv)
         this.baseTabManagerDiv.appendChild(this.footTabManagerDiv)
         this.tabCreator = new TabCreator(this)
+
+        uiEventService.on(APPUIEvent.FileOpenInEditor, (fileNode : FileNode_EXC_I) => { this.askApplication(fileNode) });
+    
+        uiEventService.on(APPUIEvent.saveOpenFile, this.saveCurrentFile.bind(this));
+        uiEventService.on(APPUIEvent.saveAll, this.saveAllFile.bind(this)); // Bind the method to the current context
+        uiEventService.on(APPUIEvent.CloseOpenFiles, this.closeAllTabs.bind(this)); // Bind the method to the current context
+    }
+    askApplication(fileNode: FileNode_EXC_I) {
+        this.clearMaintabManagerDiv()  
+        let pos = {x:0,y:0}
+        console.log("openMenu Ask")
+        try {
+
+        this.settings.reloadSettings()
+        for(let application of this.settings.getApplications()){
+            if(application.aktiv == "True"){
+                let openInEditor = document.createElement("div")
+                openInEditor.innerText = "Open" + application.name
+                openInEditor.classList.add("selectable","rightClickMenu")
+                this.mainTabManagerDiv.appendChild(openInEditor)
+                openInEditor.addEventListener("click", (e)=> {
+                    let appIndex = new ApplciationIndex(application.url)
+                    this.tabCreator.createTab(fileNode,appIndex)
+                    })
+            }
+        }
+    }catch (error) {
+        console.error("Error in askApplication:", error);
+    }
     }
 
+    getHtmlElement(): HTMLDivElement {
+        return this.baseTabManagerDiv
+    }
     getTabCreator(): TabCreator {
         return this.tabCreator
     }
@@ -146,14 +180,22 @@ export class TabManager implements ITabManager {
         activeTab?.save();
     }
 
-    createTab(fileNode: FileDiv_I, div: HTMLDivElement, text: string, applicationCreator): void {
-        let indexOfTab = this.getIndexOfTab(fileNode.getUrl())
+    clearMaintabManagerDiv(): void {
+        while (this.mainTabManagerDiv.firstChild) {
+            this.mainTabManagerDiv.removeChild(this.mainTabManagerDiv.firstChild);
+        }
+    }
+
+    createTab(openFileHandler: FileNode_EXC_I, div: HTMLDivElement, text: string, applicationCreator): void {
+        this.clearMaintabManagerDiv()  
+        console.log("createTab", openFileHandler.getName(), openFileHandler.getUrl())
+        let indexOfTab = this.getIndexOfTab(openFileHandler.getUrl())
         let that = this
         console.log(indexOfTab)
         if (indexOfTab < 0) {
             let storeFunction = (text: string) => {
                 console.log("save text" + text)
-                fileNode.saveText(text)
+                openFileHandler.saveText(text)
             }
             let frameAppCreator = new FrameAppCreator()
 
@@ -164,7 +206,7 @@ export class TabManager implements ITabManager {
 
             let tabdiv = document.createElement("div")
             tabdiv.classList.add("headTab")
-            let tab = new TAB(fileNode, mainDiv, tabdiv, applicationCreator)
+            let tab = new TAB(openFileHandler, mainDiv, tabdiv, applicationCreator)
             let TabManager = this
             let closeButton = ViewObjectCreator.createTabBarButton("close", ".\\..\\..\\image\\close.png")
             closeButton.addEventListener("click", (e) => {
@@ -176,12 +218,12 @@ export class TabManager implements ITabManager {
             this.tabList.push(tab)
 
             const handleDelete = () => {
-                console.log(`File ${fileNode.getName()} deleted event received in TabManager, removing tab.`);
+                console.log(`File ${openFileHandler.getName()} deleted event received in TabManager, removing tab.`);
                 TabManager.removeTab(tab);
             };
 
-            if (typeof (fileNode as any).on === 'function') {
-                (fileNode as any).on('deleted', handleDelete);
+            if (typeof (openFileHandler as any).on === 'function') {
+                (openFileHandler as any).on('deleted', handleDelete);
                 (tab as any)._handleDeleteForManager = handleDelete;
             } else {
                 console.warn("FileNode does not seem to be an EventEmitter in TabManager createTab");

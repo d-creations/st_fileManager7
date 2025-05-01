@@ -1,4 +1,4 @@
-import { FileSystemService } from "./Domain/FileSystemService.js";
+import { FileSystemService } from "./Domain/FileSystemService/FileSystemService.js";
 import { BaseDivView, IBaseDivView } from "./View/BaseDivView/BaseDivView.js";
 import { ContextMenu } from "./View/ContextMenu.js";
 import { DirectoryHeadDiv, DirectoryDiv } from "./View/TreeView/DirectoryDiv.js";
@@ -8,7 +8,7 @@ import { FileLeftClickMenu } from "./View/FileLeftClickMenu.js";
 import { NaviMenu, INaviMenu } from "./View/NaviManager/NaviMenu.js";
 import { StorageDiv } from "./View/TreeView/StorageDiv.js";
 import { TabManager, ITabManager } from "./View/TabManager/TabManager.js";
-import { ViewTopBar } from "./View/ViewTopBar/ViewTopBar.js";
+import { IViewTopBar, ViewTopBar } from "./View/ViewTopBar/ViewTopBar.js";
 import { ServiceCollection, SyncDescriptor } from "./tecnicalServices/instantiation/ServiceCollection.js";
 import { ITreeView } from "./View/TreeView/ITreeView.js";
 import { InstantiationService } from "./tecnicalServices/instantiation/InstantiationService.js";
@@ -16,6 +16,8 @@ import { ISettings, Settings } from "./tecnicalServices/Settings.js";
 import { IFileSystemService } from "./ViewDomainI/Interfaces.js";
 import { LocalStorageService } from "./tecnicalServices/fileSystem/LocalStorageServiceService.js";
 import { IStorageService } from "./tecnicalServices/fileSystem/IStroageService.js";
+import { IuiEventService } from "./View/UIEventService/IuieventService.js";
+import { UIEventService } from "./View/UIEventService/UIEventService.js";
 if (!customElements.get('directory-head-div')) {
     customElements.define('directory-head-div', DirectoryHeadDiv, { extends: 'div' });
 }
@@ -44,6 +46,8 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
     serviceCollection.register(IStorageService, fileSystemServiceDescriptor);
     const editorDescriptor = new SyncDescriptor(FileSystemService, [], true);
     serviceCollection.register(IFileSystemService, editorDescriptor);
+    const uiEventServiceDescriptor = new SyncDescriptor(UIEventService, [], true);
+    serviceCollection.register(IuiEventService, uiEventServiceDescriptor);
     const treeViewDescriptor = new SyncDescriptor(TreeView, [], true);
     serviceCollection.register(ITreeView, treeViewDescriptor);
     const settingsDescriptor = new SyncDescriptor(Settings, [], true);
@@ -53,21 +57,29 @@ if (baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && navi
     window.addEventListener('resize', () => {
         baseTableManager.moveBar(fileExplorerDiv.clientWidth);
     });
-    const tabManagerDescriptor = new SyncDescriptor(TabManager, [tabDiv], true);
+    const tabManagerDescriptor = new SyncDescriptor(TabManager, [], true);
     serviceCollection.register(ITabManager, tabManagerDescriptor);
+    const headBarInAppDescriptor = new SyncDescriptor(ViewTopBar, [], true);
+    serviceCollection.register(IViewTopBar, headBarInAppDescriptor);
     let treeView;
+    let uiEventService;
     instantiationService.invokeFunction((accessor) => {
         treeView = accessor.get(ITreeView);
+        uiEventService = accessor.get(IuiEventService);
     });
     const naviMenuDescriptor = new SyncDescriptor(NaviMenu, [naviDiv, fileExplorerDiv, treeView, baseTableManager], true);
     serviceCollection.register(INaviMenu, naviMenuDescriptor);
     let headBar;
     let navi;
     instantiationService.invokeFunction((accessor) => {
-        const treeViewInstance = accessor.get(ITreeView);
         const tabManagerInstance = accessor.get(ITabManager);
+        const treeViewInstance = accessor.get(ITreeView);
         const baseDivViewInstance = accessor.get(IBaseDivView);
-        headBar = instantiationService.createInstance(ViewTopBar, treeViewInstance, baseDivViewInstance, headBarDiv, tabManagerInstance);
+        const viewHeadBarDiv = accessor.get(IViewTopBar);
+        viewHeadBarDiv.getHtmlElements().forEach((element) => {
+            headBarDiv.appendChild(element);
+        });
+        tabDiv.appendChild(tabManagerInstance.getHtmlElement());
         navi = accessor.get(INaviMenu);
         if (!(treeViewInstance instanceof HTMLDivElement) || treeViewInstance !== fileExplorerDiv) {
             console.warn("TreeView instance is not the expected HTMLDivElement 'windowFileExpolorer'. NaviMenu might not display correctly.");

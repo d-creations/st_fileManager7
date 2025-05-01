@@ -1,16 +1,19 @@
-import { FileDiv_I } from "../View/TreeView/FileDiv.js";
+import { FileNode } from "../Domain/FileSystemService/FileNode.js";
 import { ApplciationIndex, TABApplication } from "../View/TabManager/TabApplication.js";
 import { TabCreator } from "../View/TabManager/TabCreator.js";
+import { FileNode_EXC_I } from "../ViewDomainI/Interfaces.js";
 
-export class InfoFileDiv implements FileDiv_I {
+export class InfoFileDiv extends FileNode  {
 
     private tabCreator: TabCreator;
     private fileTabOpenState: boolean;
 
     constructor(tabCreator: TabCreator) {
+        super(null,null,null)
         this.tabCreator = tabCreator;
         this.fileTabOpenState = false;
     }
+
 
     openTabFileState(): void {
         this.fileTabOpenState = true;
@@ -29,15 +32,19 @@ export class InfoFileDiv implements FileDiv_I {
         return;
     }
 
-    public openFile(createApplication: ApplciationIndex) {
+    public openFileWithApp(createApplication: ApplciationIndex): void {
         this.tabCreator.createTab(this, createApplication);
+    }
+
+
+    public openFile() {
     }
 
     setEditable(state: string) {
         return;
     }
 
-    getFileText(): Promise<String | unknown> {
+    getFileText(): Promise<string> {
         return Promise.resolve("This is the Info View content.");
     }
 

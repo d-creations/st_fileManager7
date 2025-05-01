@@ -1,19 +1,28 @@
-import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_ERROR, IFileSystemService, EditorControlerAdapter_EXC_TYPE_ERROR, FileNode_EXC_I, StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
+import { DirectoryNode_EXC_I, EditorControlerAdapter_EXC_ERROR, IFileSystemService, EditorControlerAdapter_EXC_TYPE_ERROR, FileNode_EXC_I, StorageNode2_EXC_I } from "../../ViewDomainI/Interfaces.js";
 import { DirectoryNode } from "./DirectoryNode.js";
+import { StorageNode2 } from "../StorageNode2.js";
+import { cpObject, cutObject, objectManipulation } from "../CopyCut.js";
+import { IStorageService } from "../../tecnicalServices/fileSystem/IStroageService.js";
 import { FileNode } from "./FileNode.js";
-import { StorageNode2 } from "./StorageNode2.js";
 import { RootStorageNode } from "./RootStorageNode.js";
-import { cpObject, cutObject, objectManipulation } from "./CopyCut.js";
-import { IStorageService } from "../tecnicalServices/fileSystem/IStroageService.js";
-// import { inject } from "../tecnicalServices/instantiation/InstantiationService.js"; // Commented out as inject is not found
+import { ApplciationIndex } from "../../View/TabManager/TabApplication.js";
+import { IAppForFileService } from "./IAppForFileService.js";
+import { APPUIEvent, IuiEventService } from "../../View/UIEventService/IuieventService.js";
+
 
 export class FileSystemService implements IFileSystemService {
     clipboardStorage: objectManipulation;
     fileSystemService: IStorageService; // Declare the fileSystemService property    
+    appForOpenService: IAppForFileService; // Declare the appForOpenService property
+    uiEventService: IuiEventService; // Declare the uiEventService property
     // Inject the FileSystemService - Commented out @inject
     constructor( 
-        @IStorageService fileSystemService: IStorageService) {
+        @IStorageService fileSystemService: IStorageService,
+        @IuiEventService uiEventService: IuiEventService
+    ) {
         this.fileSystemService = fileSystemService;
+        this.uiEventService = uiEventService;
+        uiEventService.on(APPUIEvent.CloseApplication, () => this.closeApplication());
         }
 
     undoFileOperation(): Promise<String | unknown> {
@@ -112,6 +121,14 @@ export class FileSystemService implements IFileSystemService {
         }
     }
 
+    openFileInApp(fileNode: FileNode_EXC_I): void {
+      //  this.appForOpenService.openFileInapp(fileNode, null); // Assuming TabCreator is a class responsible
+    }
+    openFilewithApp(fileNode : FileNode_EXC_I):void {
+        console.log("openFilewithApp triggered", fileNode.getUrl(), fileNode.getName());
+        this.uiEventService.trigger(APPUIEvent.FileOpenInEditor, fileNode); // Trigger the event to open the file with the app
+    }
+
     async openFile(): Promise<FileNode_EXC_I | null | unknown> {
         console.log("openFile triggered");
         try {
@@ -121,6 +138,7 @@ export class FileSystemService implements IFileSystemService {
                 return null;
             }
             return await this.openFileByUrl(filepath);
+
         } catch (err) {
             console.error("Error opening file dialog:", err);
             throw new EditorControlerAdapter_EXC_ERROR(`Failed to open file dialog: ${err.message}`);

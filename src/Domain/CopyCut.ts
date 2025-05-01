@@ -1,4 +1,4 @@
-import { DirectoryNode } from "./DirectoryNode.js";
+import { DirectoryNode } from "./FileSystemService/DirectoryNode.js";
 import { StorageNode2 } from "./StorageNode2.js";
 import { StorageNode2_EXC_I } from "../ViewDomainI/Interfaces.js";
 import { IStorageService } from "../tecnicalServices/fileSystem/IStroageService.js";

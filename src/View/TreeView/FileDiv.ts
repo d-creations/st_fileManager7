@@ -3,7 +3,6 @@ import { ContextMenu } from "../ContextMenu.js" // Corrected path
 import { FileLeftClickMenu } from "../FileLeftClickMenu.js" // Corrected path
 import { StorageDiv } from "./StorageDiv.js" // Corrected path
 import { ApplciationIndex } from "../TabManager/TabApplication" // Corrected path
-import { TabCreator } from "../TabManager/TabCreator.js" // Corrected path
 import { ISettings } from "../../tecnicalServices/Settings.js"
 
 // Interface no longer needs to extend EventEmitter
@@ -23,15 +22,13 @@ export interface FileDiv_I {
 export class FileDiv extends StorageDiv implements FileDiv_I {
 
     public fileNode : FileNode_EXC_I
-    private tabCreator : TabCreator
     private fileTabOpenState : boolean
     private settings : ISettings
 
-    constructor(fileNode: FileNode_EXC_I, editor: IFileSystemService, tabCreator: TabCreator, settings : ISettings) {
-        super(editor, fileNode) // Calls StorageDiv constructor which handles emitter and listeners
+    constructor(fileNode: FileNode_EXC_I, fileSystemService: IFileSystemService, settings : ISettings) {
+        super(fileSystemService, fileNode) // Calls StorageDiv constructor which handles emitter and listeners
         this.fileTabOpenState = true
         this.fileNode = fileNode // Already assigned in StorageDiv, but keep for specific type
-        this.tabCreator = tabCreator
         this.settings = settings
         this.contentEditable = "false";
         this.classList.add("selectable");
@@ -39,28 +36,28 @@ export class FileDiv extends StorageDiv implements FileDiv_I {
         this.innerText = this.fileNode.getName()
         this.draggable = true;
         this.style.userSelect = "text";
-        this.setAttribute("divname", `FILE bodydiv${this.editor.getStorageName(this.fileNode)}`);
+        this.setAttribute("divname", `FILE bodydiv${this.fileSystemService.getStorageName(this.fileNode)}`);
 
         this.setupEventListeners();
     }
 
     private setupEventListeners(): void {
         this.addEventListener("contextmenu", (e) => {
-            let fileContextMenu = new ContextMenu(this);
-            fileContextMenu.showMenu(e);
+            let rightClickMenu = new ContextMenu(this);
+            rightClickMenu.showMenu(e);
         });
-
         this.addEventListener("click", (e) => {
             console.log("click left");
             if (e.target instanceof HTMLDivElement && e.target.contentEditable == "false") {
                 let rightClickMenu = new FileLeftClickMenu(this, this.settings);
-                rightClickMenu.showMenu(e);
+                this.fileSystemService.openFilewithApp(this.fileNode); // Assuming TabCreator is a class responsible
+
             }
         });
 
         this.addEventListener("dragstart", (e) => {
             e.dataTransfer?.clearData();
-            this.editor.cutStorage(this.storageNode);
+            this.fileSystemService.cutStorage(this.storageNode);
             const realFilePath = this.getUrl();
             e.dataTransfer?.setData("DownloadURL", `application/octet-stream:${this.getName()}:${realFilePath}`);
             e.dataTransfer?.setData("text/uri-list", realFilePath);
@@ -115,13 +112,12 @@ export class FileDiv extends StorageDiv implements FileDiv_I {
         }
     }
 
-    public openFile(createApplication : ApplciationIndex) {
-        this.tabCreator.createTab(this , createApplication)
+    public openFile() {
+        this.fileSystemService.openFilewithApp(this.fileNode)
     }
 
     public openFileWithSelector() {
-        let rightClickMenu = new FileLeftClickMenu(this,this.settings);
-        rightClickMenu.showSimpleMenu();
+        this.fileSystemService.openFilewithApp(this.fileNode); // Assuming TabCreator is a class responsible        
     }
 
     public updateThisDiv(): void {

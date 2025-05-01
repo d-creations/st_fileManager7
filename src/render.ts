@@ -1,4 +1,4 @@
-import { FileSystemService } from "./Domain/FileSystemService.js";
+import { FileSystemService } from "./Domain/FileSystemService/FileSystemService.js";
 import { BaseDivView, IBaseDivView } from "./View/BaseDivView/BaseDivView.js";
 import { ContextMenu } from "./View/ContextMenu.js";
 import { DirectoryHeadDiv, DirectoryDiv } from "./View/TreeView/DirectoryDiv.js";
@@ -8,7 +8,7 @@ import { FileLeftClickMenu } from "./View/FileLeftClickMenu.js";
 import { NaviMenu, INaviMenu } from "./View/NaviManager/NaviMenu.js";
 import { StorageDiv } from "./View/TreeView/StorageDiv.js";
 import { TabManager, ITabManager } from "./View/TabManager/TabManager.js";
-import { ViewTopBar } from "./View/ViewTopBar/ViewTopBar.js";
+import { IViewTopBar, ViewTopBar } from "./View/ViewTopBar/ViewTopBar.js";
 import { ServiceCollection, SyncDescriptor } from "./tecnicalServices/instantiation/ServiceCollection.js";
 import { ITreeView } from "./View/TreeView/ITreeView.js";
 import { InstantiationService } from "./tecnicalServices/instantiation/InstantiationService.js";
@@ -16,6 +16,8 @@ import { ISettings, Settings } from "./tecnicalServices/Settings.js";
 import { IFileSystemService } from "./ViewDomainI/Interfaces.js";
 import { LocalStorageService } from "./tecnicalServices/fileSystem/LocalStorageServiceService.js";
 import { IStorageService } from "./tecnicalServices/fileSystem/IStroageService.js";
+import { IuiEventService } from "./View/UIEventService/IuieventService.js";
+import { UIEventService } from "./View/UIEventService/UIEventService.js";
 
 // Ensure custom elements are defined only once
 if (!customElements.get('directory-head-div')) {
@@ -58,6 +60,9 @@ if(baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviD
   const editorDescriptor = new SyncDescriptor(FileSystemService, [], true);
   serviceCollection.register(IFileSystemService, editorDescriptor);
 
+  // Register IUIEventService
+  const uiEventServiceDescriptor = new SyncDescriptor(UIEventService, [], true);
+  serviceCollection.register(IuiEventService, uiEventServiceDescriptor);
   // Register TreeView
   const treeViewDescriptor = new SyncDescriptor(TreeView, [], true);
   serviceCollection.register(ITreeView, treeViewDescriptor);
@@ -75,16 +80,23 @@ if(baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviD
   });
 
   // Register TabManager using SyncDescriptor
-  const tabManagerDescriptor = new SyncDescriptor(TabManager, [tabDiv], true);
+  const tabManagerDescriptor = new SyncDescriptor(TabManager, [], true);
   serviceCollection.register(ITabManager, tabManagerDescriptor);
+
+  // Register      IopenFileInApp
+  
+  
+  const headBarInAppDescriptor = new SyncDescriptor(ViewTopBar,[],true) 
+  serviceCollection.register(IViewTopBar,headBarInAppDescriptor)
 
 
   // Register NaviMenu - Pass ALL arguments manually via SyncDescriptor
   // Arguments: naviTab, mainTab, treeViewElement, baseTableManager
   let treeView 
+  let uiEventService
   instantiationService.invokeFunction((accessor) => {
     treeView = accessor.get(ITreeView)
-
+    uiEventService = accessor.get(IuiEventService)
   });
   const naviMenuDescriptor = new SyncDescriptor(NaviMenu, [naviDiv, fileExplorerDiv, treeView, baseTableManager], true);
   serviceCollection.register(INaviMenu, naviMenuDescriptor);
@@ -96,19 +108,17 @@ if(baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviD
 
   instantiationService.invokeFunction((accessor) => {
     // Get instances needed for manual ViewTopBar creation
-    const treeViewInstance = accessor.get(ITreeView);
     const tabManagerInstance = accessor.get(ITabManager); // Get TabManager instance
+
+    const treeViewInstance = accessor.get(ITreeView);
     const baseDivViewInstance = accessor.get(IBaseDivView); // Get BaseDivView instance
-
+    const viewHeadBarDiv = accessor.get(IViewTopBar); // Get ViewTopBar instance
     // Manually create ViewTopBar, passing ALL arguments since constructor has no decorators
-    headBar = instantiationService.createInstance(
-        ViewTopBar,
-        treeViewInstance,    // 1st arg: fileManager
-        baseDivViewInstance, // 2nd arg: baseTableManager
-        headBarDiv,          // 3rd arg: parentDiv
-        tabManagerInstance   // 4th arg: tabManager
-    );
-
+    viewHeadBarDiv.getHtmlElements().forEach((element) => {
+      headBarDiv.appendChild(element); // Append each element to the headBarDiv
+    });
+    tabDiv.appendChild(tabManagerInstance.getHtmlElement()); // Append the tabDiv to the baseTableManager
+    // Append the headBarDiv to the baseTableManager
     // Instantiate NaviMenu via accessor
     navi = accessor.get(INaviMenu);
 

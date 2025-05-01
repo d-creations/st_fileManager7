@@ -2,29 +2,26 @@ import { ContextMenu } from "../ContextMenu.js";
 import { DirectoryNode_EXC_I, IFileSystemService, FileNode_EXC_I, StorageNode2_EXC_I } from "../../ViewDomainI/Interfaces.js"; // Corrected path
 import { StorageDiv } from "./StorageDiv.js";
 import { FileDiv } from "./FileDiv.js";
-import { TabCreator } from "../TabManager/TabCreator.js";
-import { InstantiationService } from "../../tecnicalServices/instantiation/InstantiationService.js"; // Corrected path
-import { FileNode } from "../../Domain/FileNode.js"; // Corrected path
 import { ISettings } from "../../tecnicalServices/Settings.js";
 
 export class DirectoryHeadDiv extends StorageDiv {
     private baseName: string;
 
-    constructor(directoryNode: DirectoryNode_EXC_I, editor: IFileSystemService, tabCreator: TabCreator, settings: ISettings) {
-        super(editor, directoryNode);
-        this.baseName = this.editor.getStorageName(this.storageNode);
+    constructor(directoryNode: DirectoryNode_EXC_I, fileSystemService: IFileSystemService, settings: ISettings) {
+        super(fileSystemService, directoryNode);
+        this.baseName = this.fileSystemService.getStorageName(this.storageNode);
         this.updateDisplay(false); // Initial state is closed
         this.classList.add("directoryHeadDiv");
         this.classList.add("selectable");
         this.contentEditable = "false";
         this.draggable = true;
         this.style.userSelect = "text";
-        this.setAttribute("divname", `DIR head ${this.editor.getStorageName(this.storageNode)}`);
+        this.setAttribute("divname", `DIR head ${this.fileSystemService.getStorageName(this.storageNode)}`);
 
         this.addEventListener("dragstart", (e) => {
             e.dataTransfer?.clearData();
-            this.editor.cutStorage(this.storageNode);
-            const realFilePath = this.editor.getStorageUrl(this.storageNode);
+            this.fileSystemService.cutStorage(this.storageNode);
+            const realFilePath = this.fileSystemService.getStorageUrl(this.storageNode);
             e.dataTransfer?.setData("DownloadURL", `application/octet-stream:${this.getName()}:${realFilePath}`);
             e.dataTransfer?.setData("text/uri-list", realFilePath);
             e.dataTransfer?.setData("application/x-internal-cut", "true");
@@ -53,21 +50,19 @@ export class DirectoryDiv extends StorageDiv {
     private directoryBodyDiv: HTMLDivElement;
     private directoryContainerDiv: HTMLDivElement; // Container for DirectoryDivs
     private fileContainerDiv: HTMLDivElement;      // Container for FileDivs
-    private tabCreator: TabCreator;
     private settings: ISettings;
     private isExpanded: boolean = false;
     private dropTargetActiveClass = "drop-target-active"; // Define the class name
 
-    constructor(directoryNode: DirectoryNode_EXC_I, editor: IFileSystemService, tabCreator: TabCreator, settings: ISettings) {
+    constructor(directoryNode: DirectoryNode_EXC_I, editor: IFileSystemService, settings: ISettings) {
         super(editor, directoryNode);
         this.node = directoryNode;
-        this.tabCreator = tabCreator;
         this.settings = settings;
 
         this.classList.add("directoryDiv");
-        this.setAttribute("divname", `DIR bodydiv${this.editor.getStorageName(this.node)}`);
+        this.setAttribute("divname", `DIR bodydiv${this.fileSystemService.getStorageName(this.node)}`);
 
-        this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode, editor, tabCreator, settings);
+        this.directoryHeadDiv = new DirectoryHeadDiv(directoryNode, editor, settings);
         this.directoryBodyDiv = document.createElement("div");
         this.directoryBodyDiv.classList.add("directoryBodyDiv");
         this.directoryBodyDiv.style.display = "none";
@@ -161,7 +156,7 @@ export class DirectoryDiv extends StorageDiv {
         if (isInternalMove) {
             console.log("Handling internal drop (move)");
             // Use the editor's insertStorage which uses the clipboard (set by cutStorage)
-            this.editor.insertStorage(this.node)
+            this.fileSystemService.insertStorage(this.node)
                 .then(() => {
                     console.log("Internal move successful.");
                     // Optional: Refresh the source and target directories if needed,
@@ -178,10 +173,10 @@ export class DirectoryDiv extends StorageDiv {
                 // Attempt to get full paths if available (common in Electron)
                 const filePath = globalThis.electron.getPathForFile(files[0]);
                 console.log("External files dropped:", filePath);
-                this.editor.openFileByUrl(filePath).then((fileNode) => {
-                    if (fileNode instanceof FileNode) {
-                        this.editor.copyStorage(fileNode).then(() => {
-                            this.editor.insertStorage(this.node).then(() => {
+                this.fileSystemService.openFileByUrl(filePath).then((fileNode : FileNode_EXC_I) => {
+                    if (fileNode) {
+                        this.fileSystemService.copyStorage(fileNode).then(() => {
+                            this.fileSystemService.insertStorage(this.node).then(() => {
                                 console.log("External copy successful.");
                                 this.refreshContent(); // Refresh the content after copying
                             })
@@ -291,13 +286,13 @@ export class DirectoryDiv extends StorageDiv {
         // Render directories into the directory container
         this.renderItems<DirectoryNode_EXC_I>(
             addedDirs,
-            (dirNode) => new DirectoryDiv(dirNode, this.editor, this.tabCreator, this.settings),
+            (dirNode) => new DirectoryDiv(dirNode, this.fileSystemService, this.settings),
             this.directoryContainerDiv // Specify the target container
         );
         // Render files into the file container
         this.renderItems<FileNode_EXC_I>(
             addedFiles,
-            (fileNode) => new FileDiv(fileNode, this.editor, this.tabCreator, this.settings),
+            (fileNode) => new FileDiv(fileNode, this.fileSystemService, this.settings),
             this.fileContainerDiv // Specify the target container
         );
 
@@ -348,7 +343,7 @@ export class DirectoryDiv extends StorageDiv {
     deleteFileOrFolder(): Promise<void> {
         return new Promise((resolve) => {
             if (confirm("Delete directory " + this.getName() + " and all its contents?")) {
-                this.editor.deleteFileOrFolder(this.node).then(() => {
+                this.fileSystemService.deleteFileOrFolder(this.node).then(() => {
                     resolve();
                 }).catch((error) => {
                     console.error("Delete directory error:", error);
