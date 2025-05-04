@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML Vordeklarierte Typen -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!-- XML SCHEMA DECLERATIUON-->
+
+<xs:simpleType name="aktivStatus">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="true"></xs:enumeration>
+        <xs:enumeration value="false"></xs:enumeration>
+</xs:restriction>
+</xs:simpleType>
+
+
+
+<xs:complexType name="AppicationURL">
+    <xs:simpleContent>
+        <xs:extension base="xs:string">
+            <xs:attribute name="url"></xs:attribute>
+        </xs:extension>   
+    </xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="Appication">
+    <xs:sequence>
+        <xs:element name="URL" type="AppicationURL" ></xs:element>
+        <xs:element name="AktivStatus" type="aktivStatus" default="false"></xs:element>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="Setting" type="Settings"/>
+
+      </xs:sequence>
+</xs:complexType>
+
+
+<xs:complexType name="Settings">
+    <xs:sequence>
+        <xs:element name="AktivStatus" type="aktivStatus" default="false"></xs:element>
+      </xs:sequence>
+</xs:complexType>
+
+
+<xs:element name="Application" type="Appication">
+    
+</xs:element>
+
+</xs:schema>

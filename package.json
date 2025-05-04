@@ -2,7 +2,7 @@
   "name": "st_tool_unit_manager",
   "version": "0.0.9",
   "description": "Star tool unit manager",
-  "main": "main.js",
+  "main": "src/Core/Plattform/main.js",
   "type": "commonjs",
   "scripts": {
     "start": "electron-forge start",

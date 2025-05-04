@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' *.plot.nc-editx7pro.d-creations.org plot.nc-editx7pro.d-creations.org; script-src 'self' 'unsafe-inline'; child-src *">
+    <title>Star Tool Unit Manager</title>
+    
+    <link rel="stylesheet" type="text/css"  href="./css/style.css">
+
+  </head>
+  <body>
+    <div id="main" class="mainDiv">
+    
+    </div>
+  </body>
+  <script type="module">
+
+    class Setting{
+
+
+      constructor(){
+        this.div = document.getElementById("main")
+        this.SettingDiv = document.createElement("div")
+        this.SettingDiv.classList.add("applicationContainer")
+        this.div.appendChild(this.SettingDiv)
+        this.settingFile = {}
+      }
+
+      openSettingFile(fileText){
+        
+        this.settingFile = JSON.parse(fileText)
+        this.createView()
+      }
+
+      getSettingFile(){
+        return (JSON.stringify(this.settingFile))
+      }
+
+      
+      createView(){
+        while(this.SettingDiv.firstChild){
+          this.SettingDiv.removeChild(this.SettingDiv.firstChild)
+        }
+
+
+        for(let application of this.settingFile.applications){
+          let applicationDiv = document.createElement("div")
+          applicationDiv.classList.add("applicationDiv")
+          this.SettingDiv.appendChild(applicationDiv)
+          let label =  document.createElement("label");
+          let field = document.createElement('input');
+          label.textContent = "Name"
+          label.htmlFor = "field"+application.name
+          field.type = 'text';
+          field.id = "field"+application.name
+          field.value = application.name
+          field.addEventListener("change" , (e)=>{
+            application.name = field.value
+          })
+
+          applicationDiv.appendChild(label)
+          applicationDiv.appendChild(field)
+
+          this.SettingDiv.appendChild(applicationDiv)
+          let labelUrl =  document.createElement("label");
+          let fieldUrl = document.createElement('input');
+          labelUrl.textContent = "Url"
+          labelUrl.htmlFor = "field"+application.url
+          fieldUrl.type = 'text';
+          fieldUrl.id = "field"+application.url
+          fieldUrl.value = application.url
+          applicationDiv.appendChild(labelUrl)
+          applicationDiv.appendChild(fieldUrl)
+          fieldUrl.addEventListener("change" , (e)=>{
+            application.url = fieldUrl.value
+          })
+
+          let labelActive =  document.createElement("label");
+          labelActive.textContent = "Activ"
+          labelActive.htmlFor = "active"+application.name
+          applicationDiv.appendChild(labelActive)
+
+
+          let selectList = document.createElement("select");
+          selectList.id = "active"+application.name;
+          applicationDiv.appendChild(selectList);
+
+          let optionTrue = document.createElement("option");
+          optionTrue.value = "True";
+          optionTrue.text = "True";
+          selectList.appendChild(optionTrue);
+
+          let optionFalse = document.createElement("option");
+          optionFalse.value = "False";
+          optionFalse.text = "False";
+          selectList.appendChild(optionFalse);
+          if(application.fix == "True")selectList.disabled = true
+          if(application.aktiv == "True")selectList.selectedIndex = 0
+          else selectList.selectedIndex= 1
+          selectList.addEventListener("change" , (e)=>{
+            if(application.aktiv == "True")application.aktiv = "False"
+            else application.aktiv = "True"
+          })
+        let labelLocation =  document.createElement("label");
+        labelLocation.textContent = "location"
+        labelLocation.htmlFor = "location"+application.name
+          applicationDiv.appendChild(labelLocation)
+
+        let location = document.createElement("select");
+        location.id = "location"+application.name;
+          applicationDiv.appendChild(location);
+
+          let optionLocal = document.createElement("option");
+          optionLocal.value = "local";
+          optionLocal.text = "local";
+          location.appendChild(optionLocal);
+
+          let optionRemote = document.createElement("option");
+          optionRemote.value = "remote";
+          optionRemote.text = "remote";
+          location.appendChild(optionRemote);
+          location.disabled = true
+          if(application.status == "local")location.selectedIndex = 0
+          else location.selectedIndex= 1
+        }
+
+
+      }
+
+
+
+      
+
+    }
+
+    console.log("cannal Frame ")
+    var port
+    let settings = new Setting()
+    window.addEventListener("message",(event)=>{
+        console.log("gotinit message iframe")
+        port = event.ports[0]
+        let data = event.data
+        let div = document.getElementById("main")
+        settings.openSettingFile(data.textValue)
+        port.onmessage = (event)=>{
+                  console.log("got " + event)
+                  let data = event.data
+                  if(data.command == "saveText"){
+                    let retObject = {
+                      command : "storeText",
+                      textValue : settings.getSettingFile()
+                    }
+                    console.log("iframe past Save Text \n")
+                    port.postMessage(retObject)
+                  }
+                  if(data.command == "setText"){
+                    settings.openSettingFile(textValue)                    
+                    console.log("iframe set Text\n")
+                  }
+                }
+
+            })
+  </script>
+  
+</html>

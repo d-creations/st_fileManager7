@@ -1,0 +1,182 @@
+import { IFileSystemService } from "../../Contracts/Interfaces.js";
+import { InfoFileDiv, IInfoFile } from "../../FileEditors/InfoView.js";
+import { BaseDivView, IBaseDivView } from "../../UI/BaseDivView/BaseDivView.js";
+import { ContextMenu } from "../../UI/ContextMenu.js";
+import { FileLeftClickMenu } from "../../UI/FileLeftClickMenu.js";
+import { NaviMenu, INaviMenu } from "../../UI/NaviManager/NaviMenu.js";
+import { TabManager, ITabManager } from "../../UI/TabManager/TabManager.js";
+import { DirectoryDiv, DirectoryHeadDiv } from "../../UI/TreeView/DirectoryDiv.js";
+import { FileDiv } from "../../UI/TreeView/FileDiv.js";
+import { ITreeView } from "../../UI/TreeView/ITreeView.js";
+import { StorageDiv } from "../../UI/TreeView/StorageDiv.js";
+import { TreeView } from "../../UI/TreeView/TreeView.js";
+import { IuiEventService } from "../../UI/UIEventService/IuieventService.js";
+import { UIEventService } from "../../UI/UIEventService/UIEventService.js";
+import { ViewTopBar, IViewTopBar } from "../../UI/ViewTopBar/ViewTopBar.js";
+import { InstantiationService } from "../../Utils/instantiation/InstantiationService.js";
+import { ServiceCollection, SyncDescriptor } from "../../Utils/instantiation/ServiceCollection.js";
+import { Settings, ISettings } from "../../Utils/Settings.js";
+import { FileSystemService } from "../FileSystemService/FileSystemService.js";
+import { IStorageService } from "../SystemStorageService/IStroageService.js";
+import { LocalStorageService } from "../SystemStorageService/LocalStorageServiceService.js";
+
+
+// Ensure custom elements are defined only once
+if (!customElements.get('directory-head-div')) {
+  customElements.define('directory-head-div', DirectoryHeadDiv, {extends: 'div'});
+}
+if (!customElements.get('storage-div')) {
+  customElements.define('storage-div', StorageDiv, {extends: 'div'});
+}
+if (!customElements.get('directory-div')) {
+  customElements.define('directory-div', DirectoryDiv, {extends: 'div'});
+}
+if (!customElements.get('file-div')) {
+  customElements.define('file-div', FileDiv, {extends: 'div'});
+}
+if (!customElements.get('file-explorer-div')) {
+  customElements.define('file-explorer-div', TreeView, {extends: 'div'});
+}
+
+let fileExplorerDiv = document.getElementById("windowFileExpolorer")
+let tabDiv = document.getElementById("windowMainView");
+let headBarDiv = document.getElementById("headerBar");
+let naviDiv = document.getElementById("navi");
+let bar = document.getElementById("bar");
+let baseTable = document.getElementById("basetable");
+
+if(baseTable instanceof HTMLDivElement && bar instanceof HTMLDivElement && naviDiv instanceof HTMLDivElement && fileExplorerDiv instanceof HTMLDivElement && tabDiv instanceof HTMLDivElement && headBarDiv instanceof HTMLDivElement){
+
+
+
+  // Initialize the ServiceCollection and InstantiationService
+  const serviceCollection = new ServiceCollection();
+  const instantiationService = new InstantiationService(serviceCollection);
+
+  // Register IFileSystemService using SyncDescriptor
+  const fileSystemServiceDescriptor = new SyncDescriptor(LocalStorageService, [], true);
+  serviceCollection.register(IStorageService, fileSystemServiceDescriptor);
+
+  // Register EditorControlerAdapter
+  // EditorControlerAdapter requires IFileSystemService, which will now be resolved by DI
+  const editorDescriptor = new SyncDescriptor(FileSystemService, [], true);
+  serviceCollection.register(IFileSystemService, editorDescriptor);
+
+  // Register IUIEventService
+  const uiEventServiceDescriptor = new SyncDescriptor(UIEventService, [], true);
+  serviceCollection.register(IuiEventService, uiEventServiceDescriptor);
+  // Register TreeView
+  const treeViewDescriptor = new SyncDescriptor(TreeView, [], true);
+  serviceCollection.register(ITreeView, treeViewDescriptor);
+
+  // Register Settings
+  // Settings requires EditorControlerAdapter_EXC_I, which will be resolved by DI
+  const settingsDescriptor = new SyncDescriptor(Settings, [], true);
+  serviceCollection.register(ISettings, settingsDescriptor);
+
+  // Register BaseDivView
+  const baseTableManager = new BaseDivView(baseTable, bar, naviDiv, fileExplorerDiv);
+  serviceCollection.register(IBaseDivView, baseTableManager);
+  window.addEventListener('resize', () => {
+    baseTableManager.moveBar(fileExplorerDiv.clientWidth);
+  });
+
+  // Register TabManager using SyncDescriptor
+  const tabManagerDescriptor = new SyncDescriptor(TabManager, [], true);
+  serviceCollection.register(ITabManager, tabManagerDescriptor);
+
+
+  const infoViewDescriptor = new SyncDescriptor(InfoFileDiv, [], true);
+  serviceCollection.register(IInfoFile, infoViewDescriptor);
+
+  // Register      IopenFileInApp
+  
+  const headBarInAppDescriptor = new SyncDescriptor(ViewTopBar,[],true) 
+  serviceCollection.register(IViewTopBar,headBarInAppDescriptor)
+
+
+
+  // Register NaviMenu - Pass ALL arguments manually via SyncDescriptor
+  // Arguments: naviTab, mainTab, treeViewElement, baseTableManager
+  let treeView 
+  instantiationService.invokeFunction((accessor) => {
+    treeView = accessor.get(ITreeView)
+  });
+  const naviMenuDescriptor = new SyncDescriptor(NaviMenu, [naviDiv, fileExplorerDiv, treeView, baseTableManager], true);
+  serviceCollection.register(INaviMenu, naviMenuDescriptor);
+
+  // --- Instantiate Components using DI --- 
+
+  let headBar: ViewTopBar;
+  let navi: INaviMenu;
+
+  instantiationService.invokeFunction((accessor) => {
+    // Get instances needed for manual ViewTopBar creation
+    const tabManagerInstance = accessor.get(ITabManager); // Get TabManager instance
+    const uiEventService = accessor.get(IuiEventService)
+    navi = accessor.get(INaviMenu);
+    const infoFile = accessor.get(IInfoFile)
+    infoFile
+    const treeViewInstance = accessor.get(ITreeView);
+    const baseDivViewInstance = accessor.get(IBaseDivView); // Get BaseDivView instance
+    const viewHeadBarDiv = accessor.get(IViewTopBar); // Get ViewTopBar instance
+    // Manually create ViewTopBar, passing ALL arguments since constructor has no decorators
+    viewHeadBarDiv.getHtmlElements().forEach((element) => {
+      headBarDiv.appendChild(element); // Append each element to the headBarDiv
+    });
+    tabDiv.appendChild(tabManagerInstance.getHtmlElement()); // Append the tabDiv to the baseTableManager
+    // Append the headBarDiv to the baseTableManager
+    // Instantiate NaviMenu via accessor
+    
+
+
+    // Ensure the 'div' element IS the treeViewInstance (check remains useful)
+    // Check if the resolved ITreeView instance is actually the expected HTMLDivElement
+    if (!(treeViewInstance instanceof HTMLDivElement) || treeViewInstance !== fileExplorerDiv) {
+        console.warn("TreeView instance is not the expected HTMLDivElement 'windowFileExpolorer'. NaviMenu might not display correctly.");
+    }
+  });
+
+  // Event Listeners and Other Setup
+  document.body.appendChild(FileLeftClickMenu.fileRightClickMenuDiv)
+  document.body.appendChild(ContextMenu.contextMenuDiv)
+  ContextMenu.contextMenuDiv.id = "TESTID"
+  document.addEventListener("contextMenu", () => {
+    FileLeftClickMenu.removeMenu()
+  });
+  document.addEventListener("click", (e) => {
+    if(e.target instanceof HTMLDivElement && FileLeftClickMenu.state == "true" && FileLeftClickMenu.target != e.target){
+      FileLeftClickMenu.removeMenu()
+    }
+    ContextMenu.removeMenu()
+  });
+
+  globalThis.electron.getArgs().then((args)=>{
+    if(args.length>1 && args[1].length>2){  
+      instantiationService.invokeFunction((accessor) => {
+        const fileManager = accessor.get(ITreeView);
+        fileManager.openFileByUrl(args[1]);
+      });
+    }
+  });
+
+  tabDiv.addEventListener('drop', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    instantiationService.invokeFunction((accessor) => {
+      const treeView = accessor.get(ITreeView);
+      for (const file of event.dataTransfer.files) {
+        let path = (file as unknown as { path }).path
+        treeView.openFileByUrl(path);
+      }
+    });           
+  });
+
+  tabDiv.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+}
+
+
